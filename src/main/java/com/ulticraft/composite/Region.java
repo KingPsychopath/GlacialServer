@@ -1,7 +1,12 @@
 package com.ulticraft.composite;
 
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.material.Colorable;
+import com.ulticraft.uapi.ColorUtils;
 import com.ulticraft.uapi.UList;
 
 public class Region
@@ -10,15 +15,17 @@ public class Region
 	private CaptureArray captures;
 	private Poly area;
 	private UList<GridLocation> gridLocations;
+	private UList<Block> accents;
 	
 	public Region()
 	{
 		
 	}
 	
-	public void build()
+	public void build(World world)
 	{
 		gridLocations = new UList<GridLocation>();
+		accents = new UList<Block>();
 		GridLocation gl = area.calculateCentroid();
 		boolean complete = false;
 		int rad = 1;
@@ -92,6 +99,19 @@ public class Region
 				break;
 			}
 		}
+		
+		for(GridLocation i : gridLocations)
+		{
+			for(int j = 0; j < 257; j++)
+			{
+				Block b = i.toLocation(world, j).getBlock();
+				
+				if(b.getType().equals(Material.WOOL) || b.getType().equals(Material.STAINED_GLASS) || b.getType().equals(Material.STAINED_GLASS_PANE) || b.getType().equals(Material.STAINED_CLAY) || b.getType().equals(Material.BANNER))
+				{
+					accents.add(b);
+				}
+			}
+		}
 	}
 	
 	public Location getCenter(World world, int height)
@@ -112,6 +132,14 @@ public class Region
 	public void setDominatingFaction(Faction dominatingFaction)
 	{
 		this.dominatingFaction = dominatingFaction;
+		
+		DyeColor c = ColorUtils.chatToDye(dominatingFaction.getPrimary());
+		
+		for(Block i : accents)
+		{
+			Colorable cl = ((Colorable) i.getState().getData());
+            cl.setColor(c);
+		}
 	}
 
 	public CaptureArray getCaptures()
