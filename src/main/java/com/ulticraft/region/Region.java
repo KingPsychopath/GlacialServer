@@ -11,6 +11,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import com.ulticraft.data.Faction;
 import com.ulticraft.uapi.UList;
+import net.md_5.bungee.api.ChatColor;
 
 public class Region
 {
@@ -206,34 +207,9 @@ public class Region
 		}
 	}
 	
-	public Chunk getChunkByPermutation(ChunkPermutation... p)
+	public void neutralize()
 	{
-		Chunk cursor = centerChunk;
-		
-		for(ChunkPermutation i : p)
-		{
-			if(p.equals(ChunkPermutation.UP))
-			{
-				cursor = world.getChunkAt(cursor.getX(), cursor.getZ() + 1);
-			}
-			
-			if(p.equals(ChunkPermutation.DOWN))
-			{
-				cursor = world.getChunkAt(cursor.getX(), cursor.getZ() - 1);
-			}
-			
-			if(p.equals(ChunkPermutation.LEFT))
-			{
-				cursor = world.getChunkAt(cursor.getX() - 1, cursor.getZ());
-			}
-			
-			if(p.equals(ChunkPermutation.RIGHT))
-			{
-				cursor = world.getChunkAt(cursor.getX() + 1, cursor.getZ());
-			}
-		}
-		
-		return cursor;
+		setFaction(new Faction("Neutral", ChatColor.WHITE));
 	}
 	
 	public UList<Chunk> getChunks()

@@ -27,9 +27,7 @@ public class GlacialRush extends JavaPlugin
 		
 		dataComponent = new DataComponent(this);
 		testComponent = new TestComponent(this);
-		
-		register(testComponent);
-		
+				
 		componentManager.register(dataComponent);
 		componentManager.register(testComponent);
 		

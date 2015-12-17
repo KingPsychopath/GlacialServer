@@ -10,6 +10,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import com.ulticraft.GlacialRush;
 import com.ulticraft.data.Faction;
 import com.ulticraft.region.GridLocation;
+import com.ulticraft.region.Map;
 import com.ulticraft.region.Region;
 import com.ulticraft.uapi.Component;
 import com.ulticraft.uapi.UList;
@@ -25,6 +26,8 @@ public class TestComponent extends Component implements Listener
 		super(pl);
 		
 		mms = new UList<GridLocation>();
+		
+		pl.register(this);
 	}
 	
 	public void enable()
@@ -38,35 +41,13 @@ public class TestComponent extends Component implements Listener
 	}
 	
 	@EventHandler
-	public void onPlayer(PlayerMoveEvent e)
-	{
-		if(r == null)
-		{
-			return;
-		}
-		
-		for(Block i : r.getCapturePoints())
-		{
-			if(i.getLocation().distanceSquared(e.getTo()) < 9)
-			{
-				r.setFactionCapture(i, new Faction("tf", ChatColor.BLUE));
-			}
-		}
-	}
-	
-	@EventHandler
 	public void onPlayer(PlayerInteractEvent e)
 	{
 		if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getPlayer().isSneaking())
 		{
-			r = new Region(e.getClickedBlock().getChunk());
-			e.getPlayer().sendMessage("ACC: " + r.getAccents().size());
-			
-			Faction f = new Faction("Test", ChatColor.RED);
-			
-			r.setFaction(f);
-			
-			r.drawOutline(e.getPlayer(), Material.STONE, e.getClickedBlock().getLocation().getBlockY());
+			Map map = new Map(e.getClickedBlock().getLocation());
+			map.addRegions(e.getClickedBlock().getLocation(), 4, 4);
+			map.showGrid(e.getPlayer(), Material.GLOWSTONE, e.getClickedBlock().getLocation().getBlockY());
 		}
 	}
 }
