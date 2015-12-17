@@ -1,4 +1,4 @@
-package com.ulticraft.composite;
+package com.ulticraft.region;
 
 import org.bukkit.Location;
 import org.bukkit.World;

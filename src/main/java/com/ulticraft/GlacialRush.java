@@ -7,6 +7,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.ulticraft.component.DataComponent;
+import com.ulticraft.component.TestComponent;
 import com.ulticraft.composite.PlayerData;
 import com.ulticraft.uapi.ComponentManager;
 import com.ulticraft.uapi.Dispatcher;
@@ -15,6 +16,7 @@ public class GlacialRush extends JavaPlugin
 {
 	private Dispatcher dispatcher;
 	private ComponentManager componentManager;
+	private TestComponent testComponent;
 	
 	private DataComponent dataComponent;
 	
@@ -24,8 +26,12 @@ public class GlacialRush extends JavaPlugin
 		componentManager = new ComponentManager(this);
 		
 		dataComponent = new DataComponent(this);
+		testComponent = new TestComponent(this);
+		
+		register(testComponent);
 		
 		componentManager.register(dataComponent);
+		componentManager.register(testComponent);
 		
 		componentManager.enable();
 	}

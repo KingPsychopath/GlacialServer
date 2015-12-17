@@ -24,7 +24,7 @@ public abstract class ColorUtils
 		dyeChatMap.put(DyeColor.ORANGE, ChatColor.GOLD);
 		dyeChatMap.put(DyeColor.PINK, ChatColor.LIGHT_PURPLE);
 		dyeChatMap.put(DyeColor.PURPLE, ChatColor.DARK_PURPLE);
-		dyeChatMap.put(DyeColor.RED, ChatColor.DARK_RED);
+		dyeChatMap.put(DyeColor.RED, ChatColor.RED);
 		dyeChatMap.put(DyeColor.SILVER, ChatColor.GRAY);
 		dyeChatMap.put(DyeColor.WHITE, ChatColor.WHITE);
 		dyeChatMap.put(DyeColor.YELLOW, ChatColor.YELLOW);
@@ -41,7 +41,7 @@ public abstract class ColorUtils
 	{
 		for(DyeColor i : dyeChatMap.keySet())
 		{
-			if(dyeChatMap.get(i).equals(color))
+			if(dyeChatMap.get(i).getName().equals(color.getName()))
 			{
 				return i;
 			}
