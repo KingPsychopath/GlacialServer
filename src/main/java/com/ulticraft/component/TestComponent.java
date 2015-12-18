@@ -39,15 +39,4 @@ public class TestComponent extends Component implements Listener
 	{
 		super.disable();
 	}
-	
-	@EventHandler
-	public void onPlayer(PlayerInteractEvent e)
-	{
-		if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getPlayer().isSneaking())
-		{
-			Map map = new Map(e.getClickedBlock().getLocation());
-			map.addRegions(e.getClickedBlock().getLocation(), 4, 4);
-			map.showGrid(e.getPlayer(), Material.GLOWSTONE, e.getClickedBlock().getLocation().getBlockY());
-		}
-	}
 }

@@ -6,9 +6,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.ulticraft.component.CommandComponent;
 import com.ulticraft.component.DataComponent;
 import com.ulticraft.component.TestComponent;
 import com.ulticraft.composite.PlayerData;
+import com.ulticraft.region.GameState;
 import com.ulticraft.uapi.ComponentManager;
 import com.ulticraft.uapi.Dispatcher;
 
@@ -17,26 +19,32 @@ public class GlacialRush extends JavaPlugin
 	private Dispatcher dispatcher;
 	private ComponentManager componentManager;
 	private TestComponent testComponent;
-	
+	private CommandComponent commandComponent;
 	private DataComponent dataComponent;
+	private GameState gameState;
 	
 	public void onEnable()
 	{
 		dispatcher = new Dispatcher(this);
 		componentManager = new ComponentManager(this);
-		
 		dataComponent = new DataComponent(this);
+		commandComponent = new CommandComponent(this);
 		testComponent = new TestComponent(this);
-				
 		componentManager.register(dataComponent);
+		componentManager.register(commandComponent);
 		componentManager.register(testComponent);
-		
 		componentManager.enable();
+		
+		getCommand(Info.CMD_GR).setExecutor(commandComponent);
+		register(commandComponent);
+		
+		gameState = new GameState(this);
+		gameState.start();
 	}
 	
 	public void onDisable()
 	{
-		
+		gameState.stop();
 	}
 	
 	public DataComponent getDataComponent()

@@ -11,26 +11,29 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import com.ulticraft.data.Faction;
 import com.ulticraft.uapi.UList;
+import com.ulticraft.uapi.UMap;
 import net.md_5.bungee.api.ChatColor;
 
 public class Region
 {
 	protected UList<Chunk> chunks;
 	protected UList<Block> accents;
-	protected UList<Block> capturePoints;
+	protected UMap<Block, Faction> capturePoints;
 	protected UList<GridLocation> corners;
 	protected Faction faction;
 	protected Chunk centerChunk;
 	protected World world;
+	protected String name;
 	
 	public Region(Chunk chunk)
 	{
 		chunks = new UList<Chunk>();
 		accents = new UList<Block>();
-		capturePoints = new UList<Block>();
+		capturePoints = new UMap<Block, Faction>();
 		corners = new UList<GridLocation>();
 		centerChunk = chunk;
 		world = chunk.getWorld();
+		name = "Unknown Name";
 		
 		chunks.add(chunk);
 		chunks.add(chunk.getWorld().getChunkAt(chunk.getX() + 1, chunk.getZ()));
@@ -69,7 +72,7 @@ public class Region
 						
 						if(block.getType().equals(Material.BEACON))
 						{
-							capturePoints.add(block);
+							capturePoints.put(block, Faction.neutral());
 							
 							block.getRelative(BlockFace.DOWN).setType(Material.IRON_BLOCK);
 							block.getRelative(BlockFace.DOWN).getRelative(BlockFace.NORTH).setType(Material.IRON_BLOCK);
@@ -157,10 +160,29 @@ public class Region
 			b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).setData(f.getDye().getData());
 			
 			world.strikeLightningEffect(b.getLocation());
-			world.strikeLightningEffect(b.getLocation());
-			world.strikeLightningEffect(b.getLocation());
-			world.strikeLightningEffect(b.getLocation());
+			
+			checkFaction();
 		}
+	}
+	
+	public void checkFaction()
+	{
+		Faction f = null;
+		
+		for(Block i : capturePoints.keySet())
+		{
+			if(f == null)
+			{
+				f = capturePoints.get(i);
+			}
+			
+			if(!capturePoints.get(i).equals(f))
+			{
+				return;
+			}
+		}
+		
+		setFaction(f);
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -182,6 +204,11 @@ public class Region
 			}
 			
 			i.setData(c.getData());
+		}
+		
+		for(Block i : capturePoints.keySet())
+		{
+			world.strikeLightningEffect(i.getLocation());
 		}
 	}
 	
@@ -237,12 +264,12 @@ public class Region
 		return faction;
 	}
 	
-	public UList<Block> getCapturePoints()
+	public UMap<Block, Faction> getCapturePoints()
 	{
 		return capturePoints;
 	}
 	
-	public void setCapturePoints(UList<Block> capturePoints)
+	public void setCapturePoints(UMap<Block, Faction> capturePoints)
 	{
 		this.capturePoints = capturePoints;
 	}
@@ -255,5 +282,35 @@ public class Region
 	public World getWorld()
 	{
 		return world;
+	}
+
+	public UList<GridLocation> getCorners()
+	{
+		return corners;
+	}
+
+	public void setCorners(UList<GridLocation> corners)
+	{
+		this.corners = corners;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public void setCenterChunk(Chunk centerChunk)
+	{
+		this.centerChunk = centerChunk;
+	}
+
+	public void setWorld(World world)
+	{
+		this.world = world;
 	}
 }

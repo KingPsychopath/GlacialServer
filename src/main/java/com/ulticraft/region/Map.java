@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import com.ulticraft.data.Faction;
 import com.ulticraft.exception.InvalidRegionPlacementException;
 import com.ulticraft.uapi.UList;
 
@@ -13,10 +14,12 @@ public class Map
 	private UList<Region> regions;
 	private World world;
 	private Location center;
+	private String name;
 	
-	public Map(Location center)
+	public Map(String name, Location center)
 	{
 		regions = new UList<Region>();
+		this.name = name;
 		this.center = center;
 		this.world = center.getWorld();
 	}
@@ -27,6 +30,36 @@ public class Map
 		{
 			i.drawOutline(player, material, height);
 		}
+	}
+	
+	public boolean canCapture(Faction faction, Region region)
+	{
+		Region up = getRegion(world.getChunkAt(region.getCenterChunk().getX(), region.getCenterChunk().getZ() + 1));
+		Region dn = getRegion(world.getChunkAt(region.getCenterChunk().getX(), region.getCenterChunk().getZ() - 1));
+		Region ri = getRegion(world.getChunkAt(region.getCenterChunk().getX() + 1, region.getCenterChunk().getZ()));
+		Region le = getRegion(world.getChunkAt(region.getCenterChunk().getX() - 1, region.getCenterChunk().getZ()));
+		
+		if(up != null && up.getFaction().equals(faction))
+		{
+			return true;
+		}
+		
+		if(dn != null && dn.getFaction().equals(faction))
+		{
+			return true;
+		}
+		
+		if(ri != null && ri.getFaction().equals(faction))
+		{
+			return true;
+		}
+		
+		if(le != null && le.getFaction().equals(faction))
+		{
+			return true;
+		}
+		
+		return false;
 	}
 	
 	public void addRegions(Location location, int width, int depth)
@@ -51,6 +84,11 @@ public class Map
 		}
 		
 		return null;
+	}
+	
+	public Region getRegion(Chunk chunk)
+	{
+		return getRegion(chunk.getBlock(7, 7, 7).getLocation());
 	}
 	
 	public void neutralize()
@@ -120,5 +158,30 @@ public class Map
 	public Location getCenter()
 	{
 		return center;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public void setRegions(UList<Region> regions)
+	{
+		this.regions = regions;
+	}
+
+	public void setWorld(World world)
+	{
+		this.world = world;
+	}
+
+	public void setCenter(Location center)
+	{
+		this.center = center;
 	}
 }

@@ -8,11 +8,17 @@ public class Faction
 {
 	private String name;
 	private ChatColor color;
+	private static Faction NEUTRAL = new Faction("Neutral", ChatColor.BLACK);
 	
 	public Faction(String name, ChatColor color)
 	{
 		this.name = name;
 		this.color = color;
+	}
+	
+	public static Faction neutral()
+	{
+		return NEUTRAL;
 	}
 
 	public String getName()
