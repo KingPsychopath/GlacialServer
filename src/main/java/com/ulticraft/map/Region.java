@@ -27,12 +27,14 @@ public class Region implements Serializable
 	protected UList<ULocation> accents;
 	protected Faction faction;
 	protected GlacialRush pl;
+	protected WorldComponent w;
 	
 	public Region(GlacialRush pl, String name, Chunk chunk)
 	{
 		this.name = name;
 		this.pl = pl;
 		this.centerChunk = new UChunk(chunk);
+		this.w = pl.getWorldComponent();
 	}
 	
 	public Faction getFaction()
@@ -40,7 +42,6 @@ public class Region implements Serializable
 		return faction;
 	}
 	
-	@SuppressWarnings("deprecation")
 	public void outline(Player player)
 	{
 		Chunk chunk = centerChunk.toChunk();
@@ -62,7 +63,6 @@ public class Region implements Serializable
 		}
 	}
 	
-	@SuppressWarnings("deprecation")
 	public void setFaction(Faction faction)
 	{
 		this.faction = faction;
@@ -71,7 +71,7 @@ public class Region implements Serializable
 		
 		for(ULocation j : accents)
 		{
-			pl.getWorldComponent().addJob(j.toLocation(), dye);
+			w.addJob(j.toLocation(), dye);
 		}
 		
 		for(CapturePoint i : capturePoints)
@@ -80,49 +80,48 @@ public class Region implements Serializable
 		}
 	}
 	
-	@SuppressWarnings("deprecation")
 	public void setFactionCapture(CapturePoint cap, Faction faction)
 	{
 		Block b = cap.getBlock().toLocation().getBlock();
+		DyeColor dye = faction.getDyeColor();
 		
 		if(b.getType().equals(Material.BEACON))
 		{
-			WorldComponent w = pl.getWorldComponent();
-			
-			w.addJob(b.getRelative(BlockFace.UP).getLocation(), Material.STAINED_GLASS);
-			
-			b.getRelative(BlockFace.UP).setData(faction.getDyeColor().getData());
-			
-			b.getRelative(BlockFace.UP).setData(faction.getDyeColor().getData());
-			
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).setData(faction.getDyeColor().getData());
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).setData(faction.getDyeColor().getData());
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).setData(faction.getDyeColor().getData());
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).setData(faction.getDyeColor().getData());
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).setData(faction.getDyeColor().getData());
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).setData(faction.getDyeColor().getData());
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.EAST).setData(faction.getDyeColor().getData());
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.WEST).setData(faction.getDyeColor().getData());
-			
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).setData(faction.getDyeColor().getData());
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).setData(faction.getDyeColor().getData());
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).setData(faction.getDyeColor().getData());
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).setData(faction.getDyeColor().getData());
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).setData(faction.getDyeColor().getData());
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).setData(faction.getDyeColor().getData());
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.EAST).setData(faction.getDyeColor().getData());
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.WEST).setData(faction.getDyeColor().getData());
-			
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).setData(faction.getDyeColor().getData());
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).setData(faction.getDyeColor().getData());
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).setData(faction.getDyeColor().getData());
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).setData(faction.getDyeColor().getData());
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).setData(faction.getDyeColor().getData());
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).setData(faction.getDyeColor().getData());
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.EAST).setData(faction.getDyeColor().getData());
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.WEST).setData(faction.getDyeColor().getData());
-			
-			b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).setData(faction.getDyeColor().getData());
+			w.addJob(b.getRelative(BlockFace.UP).getLocation(), Material.STAINED_GLASS);			
+			w.addJob(b.getRelative(BlockFace.UP).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.EAST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.WEST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.EAST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.WEST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.EAST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.WEST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.EAST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.WEST).getLocation(), dye);
+			w.addJob(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getLocation(), dye);
 		}
 	}
 	
@@ -190,15 +189,15 @@ public class Region implements Serializable
 						{
 							capturePoints.add(new CapturePoint("Capture Point", block));
 							
-							block.getRelative(BlockFace.DOWN).setType(Material.IRON_BLOCK);
-							block.getRelative(BlockFace.DOWN).getRelative(BlockFace.NORTH).setType(Material.IRON_BLOCK);
-							block.getRelative(BlockFace.DOWN).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).setType(Material.IRON_BLOCK);
-							block.getRelative(BlockFace.DOWN).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).setType(Material.IRON_BLOCK);
-							block.getRelative(BlockFace.DOWN).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).setType(Material.IRON_BLOCK);
-							block.getRelative(BlockFace.DOWN).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).setType(Material.IRON_BLOCK);
-							block.getRelative(BlockFace.DOWN).getRelative(BlockFace.SOUTH).setType(Material.IRON_BLOCK);
-							block.getRelative(BlockFace.DOWN).getRelative(BlockFace.EAST).setType(Material.IRON_BLOCK);
-							block.getRelative(BlockFace.DOWN).getRelative(BlockFace.WEST).setType(Material.IRON_BLOCK);
+							w.addJob(block.getRelative(BlockFace.DOWN).getLocation(), Material.IRON_BLOCK);
+							w.addJob(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.NORTH).getLocation(), Material.IRON_BLOCK);
+							w.addJob(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).getLocation(), Material.IRON_BLOCK);
+							w.addJob(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).getLocation(), Material.IRON_BLOCK);
+							w.addJob(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).getLocation(), Material.IRON_BLOCK);
+							w.addJob(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).getLocation(), Material.IRON_BLOCK);
+							w.addJob(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.SOUTH).getLocation(), Material.IRON_BLOCK);
+							w.addJob(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.EAST).getLocation(), Material.IRON_BLOCK);
+							w.addJob(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.WEST).getLocation(), Material.IRON_BLOCK);
 						}
 					}
 				}
