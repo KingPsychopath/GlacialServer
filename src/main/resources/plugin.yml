@@ -2,5 +2,5 @@ name: GlacialRush
 main: com.ulticraft.GlacialRush
 version: 1.0
 commands:
-  gr: 
-    aliases: [g, grush, rush]
+  glacialrush: 
+    aliases: [g, grush, rush, gr]
