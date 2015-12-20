@@ -11,10 +11,10 @@ public class ComponentManager
 	private UList<Object> order;
 	private GlacialRush pl;
 	
-	public ComponentManager(GlacialRush pl)
+	public ComponentManager(GlacialRush glacialRush)
 	{
 		components = new UMap<Object, Boolean>();
-		this.pl = pl;
+		this.pl = glacialRush;
 	}
 	
 	public void register(Object o)

@@ -6,11 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
-import com.ulticraft.component.CommandComponent;
-import com.ulticraft.component.DataComponent;
-import com.ulticraft.component.TestComponent;
-import com.ulticraft.composite.PlayerData;
-import com.ulticraft.region.GameState;
+import com.ulticraft.component.WorldComponent;
 import com.ulticraft.uapi.ComponentManager;
 import com.ulticraft.uapi.Dispatcher;
 
@@ -18,43 +14,23 @@ public class GlacialRush extends JavaPlugin
 {
 	private Dispatcher dispatcher;
 	private ComponentManager componentManager;
-	private TestComponent testComponent;
-	private CommandComponent commandComponent;
-	private DataComponent dataComponent;
-	private GameState gameState;
+	private WorldComponent worldComponent;
 	
 	public void onEnable()
 	{
-		dispatcher = new Dispatcher(this);
-		componentManager = new ComponentManager(this);
-		dataComponent = new DataComponent(this);
-		commandComponent = new CommandComponent(this);
-		testComponent = new TestComponent(this);
-		componentManager.register(dataComponent);
-		componentManager.register(commandComponent);
-		componentManager.register(testComponent);
-		componentManager.enable();
-		
-		getCommand(Info.CMD_GR).setExecutor(commandComponent);
-		register(commandComponent);
-		
-		gameState = new GameState(this);
-		gameState.start();
+		 dispatcher = new Dispatcher(this);
+		 componentManager = new ComponentManager(this);
+		 
+		 worldComponent = new WorldComponent(this);
+		 
+		 componentManager.register(worldComponent);
+		 
+		 componentManager.enable();
 	}
 	
 	public void onDisable()
 	{
-		gameState.stop();
-	}
-	
-	public DataComponent getDataComponent()
-	{
-		return dataComponent;
-	}
-	
-	public PlayerData gpd(Player p)
-	{
-		return dataComponent.get(p);
+		componentManager.disable();
 	}
 	
 	public void msg(CommandSender sender, String msg)
@@ -116,6 +92,11 @@ public class GlacialRush extends JavaPlugin
 		return null;
 	}
 	
+	public WorldComponent getWorldComponent()
+	{
+		return worldComponent;
+	}
+
 	public void register(Listener listener)
 	{
 		getServer().getPluginManager().registerEvents(listener, this);
