@@ -6,7 +6,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.ulticraft.component.CommandComponent;
 import com.ulticraft.component.WorldComponent;
+import com.ulticraft.map.GameState;
 import com.ulticraft.uapi.ComponentManager;
 import com.ulticraft.uapi.Dispatcher;
 
@@ -15,17 +17,23 @@ public class GlacialRush extends JavaPlugin
 	private Dispatcher dispatcher;
 	private ComponentManager componentManager;
 	private WorldComponent worldComponent;
+	private CommandComponent commandComponent;
+	
+	private GameState state;
 	
 	public void onEnable()
 	{
-		 dispatcher = new Dispatcher(this);
-		 componentManager = new ComponentManager(this);
-		 
-		 worldComponent = new WorldComponent(this);
-		 
-		 componentManager.register(worldComponent);
-		 
-		 componentManager.enable();
+		dispatcher = new Dispatcher(this);
+		componentManager = new ComponentManager(this);
+		state = new GameState();
+		
+		worldComponent = new WorldComponent(this);
+		commandComponent = new CommandComponent(this);
+		
+		componentManager.register(worldComponent);
+		componentManager.register(commandComponent);
+		
+		componentManager.enable();
 	}
 	
 	public void onDisable()
@@ -92,11 +100,21 @@ public class GlacialRush extends JavaPlugin
 		return null;
 	}
 	
+	public CommandComponent getCommandComponent()
+	{
+		return commandComponent;
+	}
+	
 	public WorldComponent getWorldComponent()
 	{
 		return worldComponent;
 	}
-
+	
+	public GameState getState()
+	{
+		return state;
+	}
+	
 	public void register(Listener listener)
 	{
 		getServer().getPluginManager().registerEvents(listener, this);
@@ -111,7 +129,7 @@ public class GlacialRush extends JavaPlugin
 	{
 		return componentManager;
 	}
-
+	
 	public Dispatcher getDispatcher()
 	{
 		return dispatcher;
