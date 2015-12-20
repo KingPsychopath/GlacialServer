@@ -5,9 +5,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import com.ulticraft.GlacialRush;
-import com.ulticraft.composite.BlockManipulation;
-import com.ulticraft.composite.BlockPacketManipulation;
-import com.ulticraft.composite.ColorManipulation;
 import com.ulticraft.composite.Manipulation;
 import com.ulticraft.uapi.ColorUtils;
 import com.ulticraft.uapi.Component;
@@ -53,21 +50,21 @@ public class WorldComponent extends Component
 	
 	public void addJob(Location location, Material material)
 	{
-		jobs.add(new BlockManipulation(location, material));
+		jobs.add(new Manipulation(location, material));
 	}
 	
 	public void addJob(Player player, Location location, Material material)
 	{
-		jobs.add(new BlockPacketManipulation(location, material, player));
+		jobs.add(new Manipulation(location, material, player));
 	}
 	
 	public void addJob(Location location, DyeColor dye)
 	{
-		jobs.add(new ColorManipulation(location, dye));
+		jobs.add(new Manipulation(location, dye));
 	}
 	
 	public void addJob(Location location, ChatColor dye)
 	{
-		jobs.add(new ColorManipulation(location, ColorUtils.chatToDye(dye)));
+		jobs.add(new Manipulation(location, ColorUtils.chatToDye(dye)));
 	}
 }
