@@ -4,9 +4,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import com.google.common.collect.Maps;
 import com.ulticraft.GlacialRush;
 import com.ulticraft.Info;
+import com.ulticraft.faction.Faction;
 import com.ulticraft.map.Map;
 import com.ulticraft.uapi.Component;
 import com.ulticraft.uapi.UMap;
@@ -115,6 +115,9 @@ public class CommandComponent extends Component implements CommandExecutor
 								{
 									err(p, "Unknown map!");
 								}
+								
+								setMode(p, map.getName());
+								suc(p, "Selected " + map.getName());
 							}
 							
 							else
@@ -137,6 +140,48 @@ public class CommandComponent extends Component implements CommandExecutor
 							{
 								pl.getState().search(getMode(p)).reset();
 								suc(p, "Updating changes to neutral faction.");
+							}
+							
+							else
+							{
+								err(p, "Cant update 'nothing' unless your apple. Use /g sel <mode>");
+							}
+						}
+						
+						else if(args[0].equals("upd-p") || args[0].equals("update-p"))
+						{
+							if(hasMode(p))
+							{
+								pl.getState().search(getMode(p)).reset(new Faction("Omni", ChatColor.DARK_PURPLE));
+								suc(p, "Updating changes to Omni.");
+							}
+							
+							else
+							{
+								err(p, "Cant update 'nothing' unless your apple. Use /g sel <mode>");
+							}
+						}
+						
+						else if(args[0].equals("upd-r") || args[0].equals("update-r"))
+						{
+							if(hasMode(p))
+							{
+								pl.getState().search(getMode(p)).reset(new Faction("Enigma", ChatColor.RED));
+								suc(p, "Updating changes to Enigma.");
+							}
+							
+							else
+							{
+								err(p, "Cant update 'nothing' unless your apple. Use /g sel <mode>");
+							}
+						}
+						
+						else if(args[0].equals("upd-y") || args[0].equals("update-y"))
+						{
+							if(hasMode(p))
+							{
+								pl.getState().search(getMode(p)).reset(new Faction("Cryptic", ChatColor.YELLOW));
+								suc(p, "Updating changes to Cryptic.");
 							}
 							
 							else
@@ -217,6 +262,11 @@ public class CommandComponent extends Component implements CommandExecutor
 								
 								Map map = new Map(pl, name, p.getWorld());
 								map.addRegions(p.getLocation().getChunk(), x, z);
+								
+								pl.getState().addMap(map);
+								
+								setMode(p, map.getName());
+								suc(p, "Created Map! Autoselected it for ya too!");
 							}
 							
 							else
