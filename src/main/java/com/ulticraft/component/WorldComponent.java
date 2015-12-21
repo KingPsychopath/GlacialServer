@@ -8,18 +8,21 @@ import com.ulticraft.GlacialRush;
 import com.ulticraft.composite.Manipulation;
 import com.ulticraft.uapi.ColorUtils;
 import com.ulticraft.uapi.Component;
+import com.ulticraft.uapi.Title;
 import com.ulticraft.uapi.UList;
 import net.md_5.bungee.api.ChatColor;
 
 public class WorldComponent extends Component
 {
 	private UList<Manipulation> jobs;
+	private int speed;
 	
 	public WorldComponent(GlacialRush pl)
 	{
 		super(pl);
 		
 		jobs = new UList<Manipulation>();
+		speed = 50;
 	}
 	
 	public void enable()
@@ -29,15 +32,63 @@ public class WorldComponent extends Component
 			@Override
 			public void run()
 			{
-				for(int i = 0; i < 19; i++)
+				if(jobs.size() > 30000)
 				{
-					if(jobs.isEmpty())
+					speed = 40;
+				}
+				
+				else if(jobs.size() > 10000)
+				{
+					speed = 30;
+				}
+				
+				else if(jobs.size() > 5000)
+				{
+					speed = 20;
+				}
+				
+				else if(jobs.size() > 3000)
+				{
+					speed = 10;
+				}
+				
+				else if(jobs.size() > 1000)
+				{
+					speed = 4;
+				}
+				
+				else
+				{
+					speed = 1;
+				}
+				
+				for(int k = 0; k < speed; k++)
+				{
+					for(int i = 0; i < 50; i++)
 					{
-						return;
+						if(jobs.isEmpty())
+						{
+							return;
+						}
+						
+						jobs.get(0).manipulate();
+						jobs.remove(0);
+						
+						Title t = new Title();
+						t.setSubSubTitle(ChatColor.AQUA + "Working on Jobs: " + ChatColor.DARK_AQUA + jobs.size() + " Remaining.");
+						
+						if(speed > 1)
+						{
+							t.setSubtitle(ChatColor.RED + "" + ChatColor.UNDERLINE + "OVERCLOCK: " + speed + "X");
+							
+						}
+						
+						t.setFadeInTime(0);
+						t.setFadeOutTime(30);
+						t.setStayTime(30);
+						
+						t.send();
 					}
-					
-					jobs.get(0).manipulate();
-					jobs.remove(0);
 				}
 			}
 		});
