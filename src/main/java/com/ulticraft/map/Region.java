@@ -111,7 +111,7 @@ public class Region implements Serializable
 			{
 				if(timeToCapture == null)
 				{
-					timeToCapture = 300;
+					timeToCapture = 30;
 				}
 				
 				else

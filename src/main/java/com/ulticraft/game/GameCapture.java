@@ -5,12 +5,12 @@ import com.ulticraft.GlacialRush;
 public class GameCapture implements GameRegistrant
 {
 	protected GlacialRush pl;
-	protected Boolean halfTick;
+	protected Integer tick;
 	
 	public GameCapture(GlacialRush pl)
 	{
 		this.pl = pl;
-		this.halfTick = false;
+		this.tick = 0;
 	}
 	
 	@Override
@@ -28,11 +28,11 @@ public class GameCapture implements GameRegistrant
 	@Override
 	public void onTick(GameData g)
 	{
-		if(halfTick)
+		if(tick == 20)
 		{
 			g.getMap().tick();
 		}
 		
-		halfTick = !halfTick;
+		tick++;
 	}
 }
