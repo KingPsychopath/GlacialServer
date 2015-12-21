@@ -28,6 +28,7 @@ public class Region implements Serializable
 	protected GlacialRush pl;
 	protected WorldComponent w;
 	protected ULocation spawn;
+	protected Integer timeToCapture;
 	
 	public Region(GlacialRush pl, String name, Chunk chunk)
 	{
@@ -35,6 +36,7 @@ public class Region implements Serializable
 		this.pl = pl;
 		this.centerChunk = new UChunk(chunk);
 		this.w = pl.getWorldComponent();
+		this.timeToCapture = null;
 	}
 	
 	public void tick(Map map)
@@ -56,9 +58,70 @@ public class Region implements Serializable
 					{
 						if(map.getPlayerFaction(j).equals(faction))
 						{
+							defensePoints++;
+						}
+						
+						else
+						{
+							if(offense == null)
+							{
+								offense = map.getPlayerFaction(j);
+								offensePoints++;
+							}
 							
+							else if(offense.equals(map.getPlayerFaction(j)))
+							{
+								offensePoints++;
+							}
+							
+							else
+							{
+								//Contested
+							}
 						}
 					}
+					
+					if(!(defensePoints == 0 && offensePoints == 0))
+					{
+						i.capture(defensePoints, offensePoints);
+					}
+				}
+			}
+			
+			Faction dominating = null;
+			Boolean allSecured = true;
+			
+			for(CapturePoint i : capturePoints)
+			{
+				if(dominating == null)
+				{
+					dominating = i.getFactionSecured();
+				}
+				
+				else
+				{
+					if(!i.getFactionSecured().equals(dominating))
+					{
+						allSecured = false;
+					}
+				}
+			}
+			
+			if(allSecured)
+			{
+				if(timeToCapture == null)
+				{
+					timeToCapture = 300;
+				}
+				
+				else
+				{
+					timeToCapture--;
+				}
+				
+				if(timeToCapture <= 0)
+				{
+					setFaction(dominating);
 				}
 			}
 		}
@@ -168,6 +231,9 @@ public class Region implements Serializable
 	{
 		Block b = cap.getBlock().toLocation().getBlock();
 		DyeColor dye = faction.getDyeColor();
+		cap.setDefense(faction);
+		cap.setOffense(null);
+		cap.setProgress(-100);
 		
 		if(b.getType().equals(Material.BEACON))
 		{

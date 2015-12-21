@@ -13,8 +13,6 @@ public class DeployableMap extends Map
 {
 	private static final long serialVersionUID = 1L;
 	
-	
-	
 	public DeployableMap(GlacialRush pl, String name, World world)
 	{
 		super(pl, name, world);
