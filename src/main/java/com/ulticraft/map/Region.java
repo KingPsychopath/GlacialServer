@@ -37,9 +37,51 @@ public class Region implements Serializable
 		this.w = pl.getWorldComponent();
 	}
 	
+	public void tick(Map map)
+	{
+		if(getPlayers().size() > 0)
+		{
+			for(CapturePoint i : capturePoints)
+			{
+				UList<Player> k = getPlayers();
+				
+				if(!k.isEmpty())
+				{
+					Faction offense = null;
+					
+					int offensePoints = 0;
+					int defensePoints = 0;
+					
+					for(Player j : k)
+					{
+						if(map.getPlayerFaction(j).equals(faction))
+						{
+							
+						}
+					}
+				}
+			}
+		}
+	}
+	
 	public Faction getFaction()
 	{
 		return faction;
+	}
+	
+	public UList<Player> getPlayers(CapturePoint cap)
+	{
+		UList<Player> players = new UList<Player>();
+		
+		for(Player i : getPlayers())
+		{
+			if(cap.getBlock().toLocation().distanceSquared(i.getLocation()) < 25)
+			{
+				players.add(i);
+			}
+		}
+		
+		return players;
 	}
 	
 	public boolean contains(Player player)

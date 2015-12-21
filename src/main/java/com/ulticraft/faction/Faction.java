@@ -40,6 +40,27 @@ public class Faction implements Serializable
 		return dyeColor;
 	}
 	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj == null)
+		{
+			return false;
+		}
+		
+		if(obj instanceof Faction)
+		{
+			Faction f = (Faction) obj;
+			
+			if(f.getColor().equals(getColor()) && f.getName().equals(getName()))
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
 	public static Faction neutral()
 	{
 		return neutral;

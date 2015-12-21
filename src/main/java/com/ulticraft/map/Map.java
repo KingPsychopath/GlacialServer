@@ -9,6 +9,7 @@ import com.ulticraft.GlacialRush;
 import com.ulticraft.faction.Faction;
 import com.ulticraft.uapi.UChunk;
 import com.ulticraft.uapi.UList;
+import com.ulticraft.uapi.UMap;
 
 public class Map implements Serializable
 {
@@ -18,6 +19,8 @@ public class Map implements Serializable
 	protected String world;
 	protected UList<Region> regions;
 	protected GlacialRush pl;
+	protected UMap<Faction, Region> factions;
+	protected UMap<Player, Faction> players;
 	
 	public Map(GlacialRush pl, String name, World world)
 	{
@@ -39,6 +42,19 @@ public class Map implements Serializable
 		}
 		
 		return false;
+	}
+	
+	public void tick()
+	{
+		for(Region i : regions)
+		{
+			i.tick(this);
+		}
+	}
+	
+	public Faction getPlayerFaction(Player p)
+	{
+		return players.get(p);
 	}
 	
 	public boolean canCapture(Faction f, Region r)
@@ -192,5 +208,20 @@ public class Map implements Serializable
 	public void setRegions(UList<Region> regions)
 	{
 		this.regions = regions;
+	}
+
+	public UMap<Faction, Region> getFactions()
+	{
+		return factions;
+	}
+
+	public void setFactions(UMap<Faction, Region> factions)
+	{
+		this.factions = factions;
+	}
+
+	public void setPlayers(UMap<Player, Faction> players)
+	{
+		this.players = players;
 	}
 }

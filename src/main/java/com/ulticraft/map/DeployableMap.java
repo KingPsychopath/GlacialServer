@@ -2,6 +2,7 @@ package com.ulticraft.map;
 
 import java.util.Collections;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import com.ulticraft.GlacialRush;
 import com.ulticraft.faction.Faction;
 import com.ulticraft.uapi.UChunk;
@@ -12,7 +13,7 @@ public class DeployableMap extends Map
 {
 	private static final long serialVersionUID = 1L;
 	
-	protected UMap<Faction, Region> factions;
+	
 	
 	public DeployableMap(GlacialRush pl, String name, World world)
 	{
@@ -69,14 +70,29 @@ public class DeployableMap extends Map
 		factions.put(Faction.enigma(), spawns.get(1));
 		factions.put(Faction.cryptic(), spawns.get(2));
 	}
-
-	public UMap<Faction, Region> getFactions()
+	
+	public void deploy(Player p)
 	{
-		return factions;
+		p.teleport(getFactionSpawn(getPlayerFaction(p)).getSpawn().toLocation());
 	}
-
-	public void setFactions(UMap<Faction, Region> factions)
+	
+	public void deploy(Player p, Region r)
 	{
-		this.factions = factions;
+		p.teleport(r.getSpawn().toLocation());
+	}
+	
+	public boolean canDeploy(Player p, Region r)
+	{
+		if(getPlayerFaction(p).equals(r.getFaction()))
+		{
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public Region getFactionSpawn(Faction f)
+	{
+		return factions.get(f);
 	}
 }
