@@ -19,6 +19,13 @@ public class UChunk implements Serializable
 		world = chunk.getWorld().getName();
 	}
 	
+	public UChunk(int x, int z, String world)
+	{
+		this.x = x;
+		this.z = z;
+		this.world = world;
+	}
+	
 	public Chunk toChunk()
 	{
 		if(Bukkit.getServer().getWorld(world) == null)
