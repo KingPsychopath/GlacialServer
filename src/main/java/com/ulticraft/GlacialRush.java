@@ -9,7 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.ulticraft.component.CommandComponent;
 import com.ulticraft.component.WorldComponent;
 import com.ulticraft.game.Game;
-import com.ulticraft.game.TestGame;
+import com.ulticraft.game.GameCapture;
 import com.ulticraft.map.GameState;
 import com.ulticraft.uapi.ComponentManager;
 import com.ulticraft.uapi.Dispatcher;
@@ -41,7 +41,7 @@ public class GlacialRush extends JavaPlugin
 		componentManager.enable();
 		
 		g = new Game(this, null);
-		g.register(new TestGame(this));
+		g.register(new GameCapture(this));
 		
 		g.start();
 	}
