@@ -27,6 +27,7 @@ public class Region implements Serializable
 	protected Faction faction;
 	protected GlacialRush pl;
 	protected WorldComponent w;
+	protected ULocation spawn;
 	
 	public Region(GlacialRush pl, String name, Chunk chunk)
 	{
@@ -346,5 +347,15 @@ public class Region implements Serializable
 	public void setW(WorldComponent w)
 	{
 		this.w = w;
+	}
+
+	public ULocation getSpawn()
+	{
+		return spawn;
+	}
+
+	public void setSpawn(ULocation spawn)
+	{
+		this.spawn = spawn;
 	}
 }
