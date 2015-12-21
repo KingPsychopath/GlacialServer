@@ -14,6 +14,9 @@ public class Faction implements Serializable
 	private final DyeColor dyeColor;
 	
 	private final static Faction neutral = new Faction("Neutral", ChatColor.BLACK);
+	private final static Faction omni = new Faction("Omni", ChatColor.DARK_PURPLE);
+	private final static Faction enigma = new Faction("Enigma", ChatColor.RED);
+	private final static Faction cryptic = new Faction("Cryptic", ChatColor.YELLOW);
 	
 	public Faction(String name, ChatColor color)
 	{
@@ -40,5 +43,20 @@ public class Faction implements Serializable
 	public static Faction neutral()
 	{
 		return neutral;
+	}
+	
+	public static Faction omni()
+	{
+		return omni;
+	}
+	
+	public static Faction enigma()
+	{
+		return enigma;
+	}
+	
+	public static Faction cryptic()
+	{
+		return cryptic;
 	}
 }
