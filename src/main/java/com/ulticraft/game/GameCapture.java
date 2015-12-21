@@ -2,25 +2,25 @@ package com.ulticraft.game;
 
 import com.ulticraft.GlacialRush;
 
-public class TestGame implements GameRegistrant
+public class GameCapture implements GameRegistrant
 {
-	private GlacialRush p;
+	protected GlacialRush pl;
 	
-	public TestGame(GlacialRush p)
+	public GameCapture(GlacialRush pl)
 	{
-		this.p = p;
+		this.pl = pl;
 	}
 	
 	@Override
 	public void onStart(GameData g)
 	{
-
+		
 	}
 
 	@Override
 	public void onStop(GameData g)
 	{
-
+		
 	}
 
 	@Override
