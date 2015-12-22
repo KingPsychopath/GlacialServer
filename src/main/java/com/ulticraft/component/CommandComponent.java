@@ -478,6 +478,19 @@ public class CommandComponent extends Component implements CommandExecutor
 							}
 						}
 					}
+					
+					else
+					{
+						suc(p, "Glacial Rush v1.21");
+						nte(p, "/g new <map> <x> <z>" + ChatColor.YELLOW + " - Creates a map (width x height)");
+						nte(p, "/g list" + ChatColor.YELLOW + " - Lists all maps");
+						nte(p, "/g sel <map>" + ChatColor.YELLOW + " - Selects a map for editing");
+						nte(p, "/g uns" + ChatColor.YELLOW + " - Unselects the current map");
+						nte(p, "/g upd" + ChatColor.YELLOW + " - Updates the map (upd-[r/p/y] also)");
+						nte(p, "/g inf" + ChatColor.YELLOW + " - Displays info on selected map [inf-r > region]");
+						nte(p, "/g r-name <name>" + ChatColor.YELLOW + " - Name the region your in");
+						
+					}
 				}
 			}
 		}
