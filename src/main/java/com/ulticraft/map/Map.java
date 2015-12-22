@@ -97,6 +97,19 @@ public class Map implements Serializable
 		return false;
 	}
 	
+	public Region getRegion(Player player)
+	{
+		for(Region i : regions)
+		{
+			if(i.contains(player))
+			{
+				return i;
+			}
+		}
+		
+		return null;
+	}
+	
 	public Region getRegion(UChunk chunk)
 	{
 		for(Region i : regions)
