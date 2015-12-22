@@ -29,12 +29,12 @@ public class CapturePoint implements Serializable
 	{
 		if(defensePoints > offensePoints)
 		{
-			progress--;
+			progress -= 25;
 		}
 		
 		if(defensePoints < offensePoints)
 		{
-			progress++;
+			progress += 25;
 		}
 		
 		if(progress < -100)

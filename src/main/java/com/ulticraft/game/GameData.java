@@ -1,7 +1,6 @@
 package com.ulticraft.game;
 
 import com.ulticraft.map.DeployableMap;
-import com.ulticraft.map.Map;
 
 public class GameData
 {
