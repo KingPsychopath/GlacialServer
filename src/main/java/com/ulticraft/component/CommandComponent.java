@@ -1,36 +1,88 @@
 package com.ulticraft.component;
 
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import com.ulticraft.GlacialRush;
 import com.ulticraft.Info;
+import com.ulticraft.composite.MaterialData;
 import com.ulticraft.faction.Faction;
 import com.ulticraft.map.Map;
+import com.ulticraft.map.Region;
 import com.ulticraft.uapi.Component;
+import com.ulticraft.uapi.UList;
 import com.ulticraft.uapi.UMap;
 import net.md_5.bungee.api.ChatColor;
 
 public class CommandComponent extends Component implements CommandExecutor
 {
+	private UMap<Player, UList<MaterialData>> data;
 	private UMap<Player, String> mode;
+	private UList<Player> drawmode;
 	
-	public CommandComponent(GlacialRush pl)
+	public CommandComponent(final GlacialRush pl)
 	{
 		super(pl);
 		
 		mode = new UMap<Player, String>();
+		drawmode = new UList<Player>();
+		data = new UMap<Player, UList<MaterialData>>();
+		
+		pl.scheduleSyncRepeatingTask(1, 20, new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				for(Player i : drawmode)
+				{
+					if(!data.get(i).isEmpty())
+					{
+						for(MaterialData j : data.get(i))
+						{
+							pl.getWorldComponent().addJob(i, j.getLocation(), j.getMaterial());
+						}
+						
+						data.get(i).clear();
+					}
+					
+					if(hasMode(i))
+					{
+						Region r = pl.getState().search(getMode(i)).getRegion(i);
+						
+						if(r != null)
+						{
+							Location tl = i.getLocation().getWorld().getChunkAt(r.getCenterChunk().getX() - 1, r.getCenterChunk().getZ() + 1).getBlock(0, i.getLocation().getBlockY() - 1, 15).getLocation();
+							Location tr = i.getLocation().getWorld().getChunkAt(r.getCenterChunk().getX() + 1, r.getCenterChunk().getZ() + 1).getBlock(15, i.getLocation().getBlockY() - 1, 15).getLocation();
+							Location bl = i.getLocation().getWorld().getChunkAt(r.getCenterChunk().getX() - 1, r.getCenterChunk().getZ() - 1).getBlock(0, i.getLocation().getBlockY() - 1, 0).getLocation();
+							Location br = i.getLocation().getWorld().getChunkAt(r.getCenterChunk().getX() + 1, r.getCenterChunk().getZ() - 1).getBlock(15, i.getLocation().getBlockY() - 1, 0).getLocation();
+							
+							data.get(i).add(new MaterialData(tl.getBlock().getType(), (byte) 0, tl));
+							data.get(i).add(new MaterialData(tr.getBlock().getType(), (byte) 0, tr));
+							data.get(i).add(new MaterialData(bl.getBlock().getType(), (byte) 0, bl));
+							data.get(i).add(new MaterialData(br.getBlock().getType(), (byte) 0, br));
+							
+							pl.getWorldComponent().addJob(i, tl, Material.GLOWSTONE);
+							pl.getWorldComponent().addJob(i, tr, Material.GLOWSTONE);
+							pl.getWorldComponent().addJob(i, bl, Material.GLOWSTONE);
+							pl.getWorldComponent().addJob(i, br, Material.GLOWSTONE);
+						}
+					}
+				}
+			}
+		});
 	}
 	
 	public void enable()
 	{
-		
+	
 	}
 	
 	public void disable()
 	{
-		
+	
 	}
 	
 	public void msg(Player p, String msg)
@@ -84,7 +136,7 @@ public class CommandComponent extends Component implements CommandExecutor
 	{
 		return mode.containsKey(p);
 	}
-
+	
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
 	{
@@ -138,8 +190,18 @@ public class CommandComponent extends Component implements CommandExecutor
 						{
 							if(hasMode(p))
 							{
-								pl.getState().search(getMode(p)).reset();
-								suc(p, "Updating changes to neutral faction.");
+								Region r = pl.getState().search(getMode(p)).getRegion(p);
+								
+								if(r != null)
+								{
+									suc(p, "Region: " + r.getName() + " is being updated.");
+									r.reset();
+								}
+								
+								else
+								{
+									err(p, "What the fuck is this? Go in a region.");
+								}
 							}
 							
 							else
@@ -152,8 +214,18 @@ public class CommandComponent extends Component implements CommandExecutor
 						{
 							if(hasMode(p))
 							{
-								pl.getState().search(getMode(p)).reset(new Faction("Omni", ChatColor.DARK_PURPLE));
-								suc(p, "Updating changes to Omni.");
+								Region r = pl.getState().search(getMode(p)).getRegion(p);
+								
+								if(r != null)
+								{
+									suc(p, "Region: " + r.getName() + " is being updated.");
+									r.reset(Faction.omni());
+								}
+								
+								else
+								{
+									err(p, "What the fuck is this? Go in a region.");
+								}
 							}
 							
 							else
@@ -166,8 +238,18 @@ public class CommandComponent extends Component implements CommandExecutor
 						{
 							if(hasMode(p))
 							{
-								pl.getState().search(getMode(p)).reset(new Faction("Enigma", ChatColor.RED));
-								suc(p, "Updating changes to Enigma.");
+								Region r = pl.getState().search(getMode(p)).getRegion(p);
+								
+								if(r != null)
+								{
+									suc(p, "Region: " + r.getName() + " is being updated.");
+									r.reset(Faction.enigma());
+								}
+								
+								else
+								{
+									err(p, "What the fuck is this? Go in a region.");
+								}
 							}
 							
 							else
@@ -180,8 +262,18 @@ public class CommandComponent extends Component implements CommandExecutor
 						{
 							if(hasMode(p))
 							{
-								pl.getState().search(getMode(p)).reset(new Faction("Cryptic", ChatColor.YELLOW));
-								suc(p, "Updating changes to Cryptic.");
+								Region r = pl.getState().search(getMode(p)).getRegion(p);
+								
+								if(r != null)
+								{
+									suc(p, "Region: " + r.getName() + " is being updated.");
+									r.reset(Faction.cryptic());
+								}
+								
+								else
+								{
+									err(p, "What the fuck is this? Go in a region.");
+								}
 							}
 							
 							else
@@ -204,6 +296,31 @@ public class CommandComponent extends Component implements CommandExecutor
 							}
 						}
 						
+						else if(args[0].equals("grid-live") || args[0].equals("draw-live"))
+						{
+							if(hasMode(p))
+							{
+								if(drawmode.contains(p))
+								{
+									drawmode.remove(p);
+									data.remove(p);
+									suc(p, "Drawing Mode Set to STATIC");
+								}
+								
+								else
+								{
+									drawmode.add(p);
+									data.put(p, new UList<MaterialData>());
+									suc(p, "Drawing Mode Set to REALTIME");
+								}
+							}
+							
+							else
+							{
+								err(p, "What the fuck do i draw? EVERYTHING? Use /g sel <mode>");
+							}
+						}
+						
 						else if(args[0].equals("uns") || args[0].equals("unselect"))
 						{
 							if(hasMode(p))
@@ -215,6 +332,89 @@ public class CommandComponent extends Component implements CommandExecutor
 							else
 							{
 								err(p, "What the fuck do i unselect? Use /g sel <mode>");
+							}
+						}
+						
+						else if(args[0].equals("info") || args[0].equals("inf"))
+						{
+							if(hasMode(p))
+							{
+								suc(p, "Map: " + getMode(p));
+								nte(p, "Players: " + pl.getState().search(getMode(p)).getPlayers().size());
+								nte(p, "Regions: " + pl.getState().search(getMode(p)).getRegions().size());
+							}
+							
+							else
+							{
+								err(p, "What the fuck do i lookup? Use /g sel <mode>");
+							}
+						}
+						
+						else if(args[0].equals("r-name") || args[0].equals("r-n"))
+						{
+							if(hasMode(p))
+							{
+								Region r = pl.getState().search(getMode(p)).getRegion(p);
+								
+								if(r != null)
+								{
+									if(args.length > 1)
+									{
+										String n = "";
+										
+										for(int i = 1; i < args.length; i++)
+										{
+											n = n + " " + args[i];
+										}
+										
+										n = n.substring(1);
+										
+										r.setName(n);
+										suc(p, "Set Region name to " + n);
+									}
+									
+									else
+									{
+										err(p, "*Facepalm*    /g r-name <THE FUCKING NAME>");
+									}
+								}
+								
+								else
+								{
+									err(p, "What the fuck is this? Go in a region.");
+								}
+							}
+							
+							else
+							{
+								err(p, "What the fuck do name? Use /g sel <mode>");
+							}
+						}
+						
+						else if(args[0].equals("info-r") || args[0].equals("inf-r"))
+						{
+							if(hasMode(p))
+							{
+								Region r = pl.getState().search(getMode(p)).getRegion(p);
+								
+								if(r != null)
+								{
+									suc(p, "Region: " + r.getName());
+									nte(p, "Accents: " + r.getAccents().size());
+									nte(p, "Players: " + r.getPlayers().size());
+									nte(p, "Captures: " + r.getCapturePoints().size());
+									nte(p, "Dominant: " + r.getFaction().getColor() + r.getFaction().getName());
+								}
+								
+								else
+								{
+									err(p, "What the fuck is this? Go in a region.");
+								}
+							}
+							
+							else
+							{
+								err(p, "What the fuck do i lookup? Use /g sel <mode>");
 							}
 						}
 						
@@ -266,6 +466,7 @@ public class CommandComponent extends Component implements CommandExecutor
 								pl.getState().addMap(map);
 								
 								setMode(p, map.getName());
+								map.reset();
 								suc(p, "Created Map! Autoselected it for ya too!");
 							}
 							
