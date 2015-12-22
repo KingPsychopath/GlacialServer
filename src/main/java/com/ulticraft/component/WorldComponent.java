@@ -15,14 +15,14 @@ import net.md_5.bungee.api.ChatColor;
 public class WorldComponent extends Component
 {
 	private UList<Manipulation> jobs;
-	private int speed;
+	private int bps;
 	
 	public WorldComponent(GlacialRush pl)
 	{
 		super(pl);
 		
 		jobs = new UList<Manipulation>();
-		speed = 50;
+		bps = 0;
 	}
 	
 	public void enable()
@@ -35,69 +35,36 @@ public class WorldComponent extends Component
 				long ms = 0;
 				long sms = System.currentTimeMillis();
 				
-				if(jobs.size() > 30000)
+				for(int i = 0; i < 10000; i++)
 				{
-					speed = 40;
-				}
-				
-				else if(jobs.size() > 10000)
-				{
-					speed = 30;
-				}
-				
-				else if(jobs.size() > 5000)
-				{
-					speed = 20;
-				}
-				
-				else if(jobs.size() > 3000)
-				{
-					speed = 10;
-				}
-				
-				else if(jobs.size() > 1000)
-				{
-					speed = 4;
-				}
-				
-				else
-				{
-					speed = 1;
-				}
-				
-				for(int k = 0; k < speed; k++)
-				{
-					for(int i = 0; i < 50; i++)
+					if(jobs.isEmpty())
 					{
-						if(jobs.isEmpty())
-						{
-							return;
-						}
-						
-						jobs.get(0).manipulate();
-						jobs.remove(0);
-						
-						Title t = new Title();
-						t.setSubSubTitle(ChatColor.AQUA + "Working on Jobs: " + ChatColor.DARK_AQUA + jobs.size() + " Remaining.");
-						
-						if(speed > 1)
-						{
-							t.setSubtitle(ChatColor.RED + "" + ChatColor.UNDERLINE + "OVERCLOCK: " + speed + "X");
-							
-						}
-						
-						t.setFadeInTime(0);
-						t.setFadeOutTime(30);
-						t.setStayTime(30);
-						
-						t.send();
-						
-						ms = System.currentTimeMillis() - sms;
-						
-						if(ms > 45)
-						{
-							return;
-						}
+						return;
+					}
+					
+					jobs.get(0).manipulate();
+					jobs.remove(0);
+					
+					Title t = new Title();
+					t.setSubSubTitle(ChatColor.AQUA + "Working: " + ChatColor.DARK_AQUA + jobs.size() + " Jobs.");
+					
+					if(jobs.size() > 100)
+					{
+						t.setSubtitle(ChatColor.RED + "Overclock: " + ChatColor.DARK_RED + bps + " BPS");
+					}
+					
+					t.setFadeInTime(0);
+					t.setFadeOutTime(30);
+					t.setStayTime(30);
+					
+					t.send();
+					
+					ms = System.currentTimeMillis() - sms;
+					
+					if(ms > 45)
+					{
+						bps = i * 20;
+						return;
 					}
 				}
 			}
