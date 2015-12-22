@@ -8,6 +8,7 @@ public class GameState implements Serializable
 	private static final long serialVersionUID = 1L;
 	
 	private UList<Map> maps;
+	private DeployableMap currentMap;
 	
 	public GameState()
 	{

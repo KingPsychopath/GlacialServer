@@ -32,6 +32,9 @@ public class WorldComponent extends Component
 			@Override
 			public void run()
 			{
+				long ms = 0;
+				long sms = System.currentTimeMillis();
+				
 				if(jobs.size() > 30000)
 				{
 					speed = 40;
@@ -88,6 +91,8 @@ public class WorldComponent extends Component
 						t.setStayTime(30);
 						
 						t.send();
+						
+						ms = System.currentTimeMillis() - sms;
 					}
 				}
 			}
