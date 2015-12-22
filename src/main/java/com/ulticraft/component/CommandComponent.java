@@ -1,5 +1,6 @@
 package com.ulticraft.component;
 
+import java.util.HashSet;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -33,6 +34,7 @@ public class CommandComponent extends Component implements CommandExecutor
 		
 		pl.scheduleSyncRepeatingTask(1, 20, new Runnable()
 		{
+			@SuppressWarnings("deprecation")
 			@Override
 			public void run()
 			{
@@ -54,10 +56,10 @@ public class CommandComponent extends Component implements CommandExecutor
 						
 						if(r != null)
 						{
-							Location tl = i.getLocation().getWorld().getChunkAt(r.getCenterChunk().getX() - 1, r.getCenterChunk().getZ() + 1).getBlock(0, i.getLocation().getBlockY() - 1, 15).getLocation();
-							Location tr = i.getLocation().getWorld().getChunkAt(r.getCenterChunk().getX() + 1, r.getCenterChunk().getZ() + 1).getBlock(15, i.getLocation().getBlockY() - 1, 15).getLocation();
-							Location bl = i.getLocation().getWorld().getChunkAt(r.getCenterChunk().getX() - 1, r.getCenterChunk().getZ() - 1).getBlock(0, i.getLocation().getBlockY() - 1, 0).getLocation();
-							Location br = i.getLocation().getWorld().getChunkAt(r.getCenterChunk().getX() + 1, r.getCenterChunk().getZ() - 1).getBlock(15, i.getLocation().getBlockY() - 1, 0).getLocation();
+							Location tl = i.getLocation().getWorld().getChunkAt(r.getCenterChunk().getX() - 1, r.getCenterChunk().getZ() + 1).getBlock(0, i.getTargetBlock((HashSet<Byte>) null, 64).getLocation().getBlockY() + 1, 15).getLocation();
+							Location tr = i.getLocation().getWorld().getChunkAt(r.getCenterChunk().getX() + 1, r.getCenterChunk().getZ() + 1).getBlock(15, i.getTargetBlock((HashSet<Byte>) null, 64).getLocation().getBlockY() + 1, 15).getLocation();
+							Location bl = i.getLocation().getWorld().getChunkAt(r.getCenterChunk().getX() - 1, r.getCenterChunk().getZ() - 1).getBlock(0, i.getTargetBlock((HashSet<Byte>) null, 64).getLocation().getBlockY() + 1, 0).getLocation();
+							Location br = i.getLocation().getWorld().getChunkAt(r.getCenterChunk().getX() + 1, r.getCenterChunk().getZ() - 1).getBlock(15, i.getTargetBlock((HashSet<Byte>) null, 64).getLocation().getBlockY() + 1, 0).getLocation();
 							
 							data.get(i).add(new MaterialData(tl.getBlock().getType(), (byte) 0, tl));
 							data.get(i).add(new MaterialData(tr.getBlock().getType(), (byte) 0, tr));

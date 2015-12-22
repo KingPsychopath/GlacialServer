@@ -93,6 +93,11 @@ public class WorldComponent extends Component
 						t.send();
 						
 						ms = System.currentTimeMillis() - sms;
+						
+						if(ms > 45)
+						{
+							return;
+						}
 					}
 				}
 			}
