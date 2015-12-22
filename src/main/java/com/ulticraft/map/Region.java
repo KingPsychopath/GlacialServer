@@ -37,6 +37,17 @@ public class Region implements Serializable
 		this.centerChunk = new UChunk(chunk);
 		this.w = pl.getWorldComponent();
 		this.timeToCapture = null;
+		this.chunks = new UList<UChunk>();
+		
+		chunks.add(centerChunk);
+		chunks.add(new UChunk(centerChunk.toChunk().getWorld().getChunkAt(centerChunk.getX() + 1, centerChunk.getZ())));
+		chunks.add(new UChunk(centerChunk.toChunk().getWorld().getChunkAt(centerChunk.getX() - 1, centerChunk.getZ())));
+		chunks.add(new UChunk(centerChunk.toChunk().getWorld().getChunkAt(centerChunk.getX() + 1, centerChunk.getZ() + 1)));
+		chunks.add(new UChunk(centerChunk.toChunk().getWorld().getChunkAt(centerChunk.getX() - 1, centerChunk.getZ() + 1)));
+		chunks.add(new UChunk(centerChunk.toChunk().getWorld().getChunkAt(centerChunk.getX() + 1, centerChunk.getZ() - 1)));
+		chunks.add(new UChunk(centerChunk.toChunk().getWorld().getChunkAt(centerChunk.getX() - 1, centerChunk.getZ() - 1)));
+		chunks.add(new UChunk(centerChunk.toChunk().getWorld().getChunkAt(centerChunk.getX(), centerChunk.getZ() + 1)));
+		chunks.add(new UChunk(centerChunk.toChunk().getWorld().getChunkAt(centerChunk.getX(), centerChunk.getZ() - 1)));
 	}
 	
 	public void tick(Map map)
