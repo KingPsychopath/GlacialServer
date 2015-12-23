@@ -6,6 +6,8 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import com.ulticraft.GlacialRush;
+import com.ulticraft.composite.MapData;
+import com.ulticraft.composite.RegionData;
 import com.ulticraft.faction.Faction;
 import com.ulticraft.uapi.UChunk;
 import com.ulticraft.uapi.UList;
@@ -21,6 +23,29 @@ public class Map implements Serializable
 	protected GlacialRush pl;
 	protected UMap<Faction, Region> factions;
 	protected UMap<Player, Faction> players;
+	protected Integer x;
+	protected Integer z;
+	protected Integer w;
+	protected Integer h;
+	
+	public Map(GlacialRush pl, MapData md)
+	{
+		this.name = md.getName();
+		this.world = md.getWorld();
+		this.pl = pl;
+		
+		regions = new UList<Region>();
+				
+		for(RegionData i : md.getRegions())
+		{
+			regions.add(new Region(pl, i.getName(), pl.getServer().getWorld(world).getChunkAt(i.getX(), i.getZ())));
+		}
+		
+		x = md.getX();
+		z = md.getZ();
+		w = md.getW();
+		h = md.getH();
+	}
 	
 	public Map(GlacialRush pl, String name, World world)
 	{
@@ -29,6 +54,16 @@ public class Map implements Serializable
 		this.pl = pl;
 		
 		regions = new UList<Region>();
+	}
+	
+	public boolean isCompleted()
+	{
+		if(x != null && regions.size() > 0)
+		{
+			return true;
+		}
+		
+		return false;
 	}
 	
 	public boolean contains(Player player)
@@ -156,6 +191,11 @@ public class Map implements Serializable
 	
 	public void addRegions(Chunk chunk, int xx, int zz)
 	{
+		x = chunk.getX();
+		z = chunk.getZ();
+		w = xx;
+		h = zz;
+		
 		World world = chunk.getWorld();
 		
 		for(int x = 0; x < 3 * xx; x += 3)
@@ -236,5 +276,55 @@ public class Map implements Serializable
 	public void setPlayers(UMap<Player, Faction> players)
 	{
 		this.players = players;
+	}
+
+	public GlacialRush getPl()
+	{
+		return pl;
+	}
+
+	public void setPl(GlacialRush pl)
+	{
+		this.pl = pl;
+	}
+
+	public Integer getX()
+	{
+		return x;
+	}
+
+	public void setX(Integer x)
+	{
+		this.x = x;
+	}
+
+	public Integer getZ()
+	{
+		return z;
+	}
+
+	public void setZ(Integer z)
+	{
+		this.z = z;
+	}
+
+	public Integer getW()
+	{
+		return w;
+	}
+
+	public void setW(Integer w)
+	{
+		this.w = w;
+	}
+
+	public Integer getH()
+	{
+		return h;
+	}
+
+	public void setH(Integer h)
+	{
+		this.h = h;
 	}
 }
