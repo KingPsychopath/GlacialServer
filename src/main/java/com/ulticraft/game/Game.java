@@ -54,7 +54,7 @@ public class Game
 	{
 		for(GameRegistrant i : registrants)
 		{
-			i.onStart(gameData);
+			i.onStart(this, gameData);
 		}
 	}
 	
@@ -62,7 +62,7 @@ public class Game
 	{
 		for(GameRegistrant i : registrants)
 		{
-			i.onStop(gameData);
+			i.onStop(this, gameData);
 		}
 	}
 	
@@ -70,7 +70,57 @@ public class Game
 	{
 		for(GameRegistrant i : registrants)
 		{
-			i.onTick(gameData);
+			i.onTick(this, gameData);
 		}
+	}
+	
+	public GameData getGameData()
+	{
+		return gameData;
+	}
+	
+	public void setGameData(GameData gameData)
+	{
+		this.gameData = gameData;
+	}
+	
+	public GlacialRush getPl()
+	{
+		return pl;
+	}
+	
+	public void setPl(GlacialRush pl)
+	{
+		this.pl = pl;
+	}
+	
+	public int getTask()
+	{
+		return task;
+	}
+	
+	public void setTask(int task)
+	{
+		this.task = task;
+	}
+	
+	public long getStartMillis()
+	{
+		return startMillis;
+	}
+	
+	public void setStartMillis(long startMillis)
+	{
+		this.startMillis = startMillis;
+	}
+	
+	public UList<GameRegistrant> getRegistrants()
+	{
+		return registrants;
+	}
+	
+	public void setRegistrants(UList<GameRegistrant> registrants)
+	{
+		this.registrants = registrants;
 	}
 }
