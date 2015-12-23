@@ -1,7 +1,6 @@
 package com.ulticraft.game;
 
 import com.ulticraft.GlacialRush;
-import com.ulticraft.map.Map;
 import com.ulticraft.uapi.UList;
 
 public class Game
@@ -12,11 +11,11 @@ public class Game
 	protected long startMillis;
 	protected UList<GameRegistrant> registrants;
 	
-	public Game(GlacialRush pl, Map map)
+	public Game(GlacialRush pl)
 	{
 		this.pl = pl;
 		
-		gameData = new GameData(map, 0);
+		gameData = new GameData(null, 0);
 		
 		registrants = new UList<GameRegistrant>();
 	}
