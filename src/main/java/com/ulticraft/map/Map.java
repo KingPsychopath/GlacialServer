@@ -1,6 +1,7 @@
 package com.ulticraft.map;
 
 import java.io.Serializable;
+import java.util.Collections;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -22,7 +23,6 @@ public class Map implements Serializable
 	protected UList<Region> regions;
 	protected GlacialRush pl;
 	protected UMap<Faction, Region> factions;
-	protected UMap<Player, Faction> players;
 	protected Integer x;
 	protected Integer z;
 	protected Integer w;
@@ -35,7 +35,7 @@ public class Map implements Serializable
 		this.pl = pl;
 		
 		regions = new UList<Region>();
-				
+		
 		for(RegionData i : md.getRegions())
 		{
 			regions.add(new Region(pl, i.getName(), pl.getServer().getWorld(world).getChunkAt(i.getX(), i.getZ())));
@@ -45,6 +45,57 @@ public class Map implements Serializable
 		z = md.getZ();
 		w = md.getW();
 		h = md.getH();
+		
+		factions = new UMap<Faction, Region>();
+		
+		UList<Region> spawns = new UList<Region>();
+		
+		int minz = Integer.MAX_VALUE;
+		int minx = Integer.MAX_VALUE;
+		int maxz = Integer.MIN_VALUE;
+		int maxx = Integer.MIN_VALUE;
+		
+		for(Region i : regions)
+		{
+			if(i.getCenterChunk().getX() < minx)
+			{
+				minx = i.getCenterChunk().getX();
+			}
+			
+			if(i.getCenterChunk().getZ() < minz)
+			{
+				minz = i.getCenterChunk().getZ();
+			}
+			
+			if(i.getCenterChunk().getX() > maxx)
+			{
+				maxx = i.getCenterChunk().getX();
+			}
+			
+			if(i.getCenterChunk().getZ() > maxz)
+			{
+				maxz = i.getCenterChunk().getZ();
+			}
+		}
+		
+		spawns.add(getRegion(new UChunk(minx, maxz, world)));
+		spawns.add(getRegion(new UChunk(maxx, maxz, world)));
+		spawns.add(getRegion(new UChunk(minx, minz, world)));
+		spawns.add(getRegion(new UChunk(maxx, minz, world)));
+		
+		if(regions.size() > 4)
+		{
+			spawns.add(getRegion(new UChunk(minx + ((maxx - minx) / 2), maxz, world)));
+			spawns.add(getRegion(new UChunk(minx + ((maxx - minx) / 2), minz, world)));
+			spawns.add(getRegion(new UChunk(minx, minz + ((maxz - minz) / 2), world)));
+			spawns.add(getRegion(new UChunk(maxx, minz + ((maxz - minz) / 2), world)));
+		}
+		
+		Collections.shuffle(spawns);
+		
+		factions.put(Faction.omni(), spawns.get(0));
+		factions.put(Faction.enigma(), spawns.get(1));
+		factions.put(Faction.cryptic(), spawns.get(2));
 	}
 	
 	public Map(GlacialRush pl, String name, World world)
@@ -89,7 +140,7 @@ public class Map implements Serializable
 	
 	public Faction getPlayerFaction(Player p)
 	{
-		return players.get(p);
+		return pl.getFactionComponent().getPlayers().get(p);
 	}
 	
 	public boolean canCapture(Faction f, Region r)
@@ -143,6 +194,31 @@ public class Map implements Serializable
 		}
 		
 		return null;
+	}
+	
+	public void deploy(Player p)
+	{
+		p.teleport(getFactionSpawn(getPlayerFaction(p)).getSpawn().toLocation());
+	}
+	
+	public void deploy(Player p, Region r)
+	{
+		p.teleport(r.getSpawn().toLocation());
+	}
+	
+	public boolean canDeploy(Player p, Region r)
+	{
+		if(getPlayerFaction(p).equals(r.getFaction()))
+		{
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public Region getFactionSpawn(Faction f)
+	{
+		return factions.get(f);
 	}
 	
 	public Region getRegion(UChunk chunk)
@@ -262,67 +338,62 @@ public class Map implements Serializable
 	{
 		this.regions = regions;
 	}
-
+	
 	public UMap<Faction, Region> getFactions()
 	{
 		return factions;
 	}
-
+	
 	public void setFactions(UMap<Faction, Region> factions)
 	{
 		this.factions = factions;
 	}
-
-	public void setPlayers(UMap<Player, Faction> players)
-	{
-		this.players = players;
-	}
-
+	
 	public GlacialRush getPl()
 	{
 		return pl;
 	}
-
+	
 	public void setPl(GlacialRush pl)
 	{
 		this.pl = pl;
 	}
-
+	
 	public Integer getX()
 	{
 		return x;
 	}
-
+	
 	public void setX(Integer x)
 	{
 		this.x = x;
 	}
-
+	
 	public Integer getZ()
 	{
 		return z;
 	}
-
+	
 	public void setZ(Integer z)
 	{
 		this.z = z;
 	}
-
+	
 	public Integer getW()
 	{
 		return w;
 	}
-
+	
 	public void setW(Integer w)
 	{
 		this.w = w;
 	}
-
+	
 	public Integer getH()
 	{
 		return h;
 	}
-
+	
 	public void setH(Integer h)
 	{
 		this.h = h;
