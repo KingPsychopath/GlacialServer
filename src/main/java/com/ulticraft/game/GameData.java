@@ -1,24 +1,24 @@
 package com.ulticraft.game;
 
-import com.ulticraft.map.DeployableMap;
+import com.ulticraft.map.Map;
 
 public class GameData
 {
-	private DeployableMap map;
+	private Map map;
 	private long millis;
 	
-	public GameData(DeployableMap map, long millis)
+	public GameData(Map map, long millis)
 	{
 		this.map = map;
 		this.millis = millis;
 	}
 	
-	public DeployableMap getMap()
+	public Map getMap()
 	{
 		return map;
 	}
 	
-	public void setMap(DeployableMap map)
+	public void setMap(Map map)
 	{
 		this.map = map;
 	}

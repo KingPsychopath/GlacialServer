@@ -1,7 +1,7 @@
 package com.ulticraft.game;
 
 import com.ulticraft.GlacialRush;
-import com.ulticraft.map.DeployableMap;
+import com.ulticraft.map.Map;
 import com.ulticraft.uapi.UList;
 
 public class Game
@@ -12,7 +12,7 @@ public class Game
 	protected long startMillis;
 	protected UList<GameRegistrant> registrants;
 	
-	public Game(GlacialRush pl, DeployableMap map)
+	public Game(GlacialRush pl, Map map)
 	{
 		this.pl = pl;
 		
