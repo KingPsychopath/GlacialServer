@@ -1,6 +1,9 @@
 package com.ulticraft.game;
 
+import java.util.Random;
 import com.ulticraft.GlacialRush;
+import com.ulticraft.map.Map;
+import com.ulticraft.uapi.UList;
 
 public class GameCapture implements GameRegistrant
 {
@@ -16,7 +19,11 @@ public class GameCapture implements GameRegistrant
 	@Override
 	public void onStart(GameData g)
 	{
+		UList<Map> maps = pl.getState().getMaps();
+		Random r = new Random();
+		Map selected = maps.get(r.nextInt(maps.size()));
 		
+		pl.getFactionComponent().rebalance();
 	}
 
 	@Override
@@ -31,6 +38,7 @@ public class GameCapture implements GameRegistrant
 		if(tick == 20)
 		{
 			g.getMap().tick();
+			tick = 0;
 		}
 		
 		tick++;

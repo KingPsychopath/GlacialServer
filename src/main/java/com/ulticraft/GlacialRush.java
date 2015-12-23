@@ -7,6 +7,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.ulticraft.component.CommandComponent;
+import com.ulticraft.component.FactionComponent;
 import com.ulticraft.component.WorldComponent;
 import com.ulticraft.map.GameState;
 import com.ulticraft.uapi.ComponentManager;
@@ -17,6 +18,7 @@ public class GlacialRush extends JavaPlugin
 	private Dispatcher dispatcher;
 	private ComponentManager componentManager;
 	private WorldComponent worldComponent;
+	private FactionComponent factionComponent;
 	private CommandComponent commandComponent;
 	
 	private GameState state;
@@ -29,9 +31,11 @@ public class GlacialRush extends JavaPlugin
 		
 		worldComponent = new WorldComponent(this);
 		commandComponent = new CommandComponent(this);
+		factionComponent = new FactionComponent(this);
 		
 		componentManager.register(worldComponent);
 		componentManager.register(commandComponent);
+		componentManager.register(factionComponent);
 		
 		getCommand(Info.COMMAND_GLACIAL_RUSH).setExecutor(commandComponent);
 		
@@ -130,6 +134,11 @@ public class GlacialRush extends JavaPlugin
 	public ComponentManager getComponentManager()
 	{
 		return componentManager;
+	}
+	
+	public FactionComponent getFactionComponent()
+	{
+		return factionComponent;
 	}
 	
 	public Dispatcher getDispatcher()
