@@ -27,6 +27,7 @@ public class Map implements Serializable
 	protected Integer z;
 	protected Integer w;
 	protected Integer h;
+	protected Faction callback;
 	
 	public Map(GlacialRush pl, MapData md)
 	{
@@ -132,9 +133,27 @@ public class Map implements Serializable
 	
 	public void tick()
 	{
+		Faction dominant = null;
+		Boolean takeover = true;
+		
 		for(Region i : regions)
 		{
 			i.tick(this);
+			
+			if(dominant == null)
+			{
+				dominant = i.getFaction();
+			}
+			
+			else if(!i.getFaction().equals(dominant))
+			{
+				takeover = false;
+			}
+		}
+		
+		if(takeover)
+		{
+			callback = dominant;
 		}
 	}
 	
@@ -397,5 +416,15 @@ public class Map implements Serializable
 	public void setH(Integer h)
 	{
 		this.h = h;
+	}
+
+	public Faction getCallback()
+	{
+		return callback;
+	}
+
+	public void setCallback(Faction callback)
+	{
+		this.callback = callback;
 	}
 }
