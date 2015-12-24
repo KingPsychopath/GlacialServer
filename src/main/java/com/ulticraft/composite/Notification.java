@@ -1,6 +1,5 @@
 package com.ulticraft.composite;
 
-import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import com.ulticraft.uapi.Title;
@@ -12,6 +11,8 @@ public class Notification
 	private String subTitle;
 	private String actionTitle;
 	private Sound sound;
+	private Float volume;
+	private Float pitch;
 	
 	public Notification()
 	{
@@ -40,6 +41,19 @@ public class Notification
 		if(actionTitle != null)
 		{
 			t.setSubSubTitle(actionTitle);
+		}
+		
+		if(title != null || subTitle != null || actionTitle != null)
+		{
+			t.send(p);
+		}
+		
+		if(sound != null)
+		{
+			float vl = volume == null ? 1f : volume;
+			float pt = pitch == null ? 1f : pitch;
+			
+			p.playSound(p.getLocation(), sound, vl, pt);
 		}
 	}
 
@@ -95,6 +109,28 @@ public class Notification
 	public Notification setSound(Sound sound)
 	{
 		this.sound = sound;
+		return this;
+	}
+
+	public Float getVolume()
+	{
+		return volume;
+	}
+
+	public Notification setVolume(Float volume)
+	{
+		this.volume = volume;
+		return this;
+	}
+
+	public Float getPitch()
+	{
+		return pitch;
+	}
+
+	public Notification setPitch(Float pitch)
+	{
+		this.pitch = pitch;
 		return this;
 	}
 }
