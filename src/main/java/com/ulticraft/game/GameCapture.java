@@ -49,6 +49,7 @@ public class GameCapture implements GameRegistrant
 			{
 				m.stop();
 				m.start();
+				g.getMap().setCallback(null);
 			}
 			
 			tick = 0;
