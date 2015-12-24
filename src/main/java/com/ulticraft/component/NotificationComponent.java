@@ -14,15 +14,34 @@ public class NotificationComponent extends Component
 	public NotificationComponent(GlacialRush pl)
 	{
 		super(pl);
+		pending = new UMap<Player, UList<Notification>>();
 	}
 	
 	public void enable()
 	{
-
+		pl.scheduleSyncRepeatingTask(0, 30, new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				for(Player i : pending.keySet())
+				{
+					if(!pending.get(i).isEmpty())
+					{
+						pending.get(i).get(0).execute(i);
+					}
+				}
+			}
+		});
 	}
 	
 	public void disable()
 	{
 		
+	}
+	
+	public void addNotification(Player p, Notification notification)
+	{
+		pending.get(p).add(notification);
 	}
 }
