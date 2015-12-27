@@ -7,6 +7,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.ulticraft.component.CommandComponent;
+import com.ulticraft.component.ManipulationComponent;
 import com.ulticraft.uapi.ComponentManager;
 import com.ulticraft.uapi.Dispatcher;
 
@@ -15,13 +16,15 @@ public class GlacialRush extends JavaPlugin
 	private Dispatcher dispatcher;
 	private ComponentManager componentManager;
 	private CommandComponent commandComponent;
-		
+	private ManipulationComponent manipulationComponent;
+	
 	public void onEnable()
 	{
 		dispatcher = new Dispatcher(this);
 		componentManager = new ComponentManager(this);
 		
 		commandComponent = new CommandComponent(this);
+		manipulationComponent = new ManipulationComponent(this);
 		
 		componentManager.register(commandComponent);
 		
@@ -93,7 +96,12 @@ public class GlacialRush extends JavaPlugin
 		
 		return null;
 	}
-
+	
+	public ManipulationComponent getManipulationComponent()
+	{
+		return manipulationComponent;
+	}
+	
 	public CommandComponent getCommandComponent()
 	{
 		return commandComponent;
