@@ -1,4 +1,4 @@
-package com.ulticraft.faction;
+package com.ulticraft.composite;
 
 import java.io.Serializable;
 import org.bukkit.DyeColor;

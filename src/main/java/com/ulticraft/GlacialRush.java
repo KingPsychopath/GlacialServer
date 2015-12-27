@@ -7,10 +7,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.ulticraft.component.CommandComponent;
-import com.ulticraft.component.FactionComponent;
-import com.ulticraft.component.NotificationComponent;
-import com.ulticraft.component.WorldComponent;
-import com.ulticraft.map.GameState;
 import com.ulticraft.uapi.ComponentManager;
 import com.ulticraft.uapi.Dispatcher;
 
@@ -18,28 +14,16 @@ public class GlacialRush extends JavaPlugin
 {
 	private Dispatcher dispatcher;
 	private ComponentManager componentManager;
-	private WorldComponent worldComponent;
-	private FactionComponent factionComponent;
 	private CommandComponent commandComponent;
-	private NotificationComponent notificationComponent;
-	
-	private GameState state;
-	
+		
 	public void onEnable()
 	{
 		dispatcher = new Dispatcher(this);
 		componentManager = new ComponentManager(this);
-		state = new GameState();
 		
-		worldComponent = new WorldComponent(this);
 		commandComponent = new CommandComponent(this);
-		factionComponent = new FactionComponent(this);
-		notificationComponent = new NotificationComponent(this);
 		
-		componentManager.register(worldComponent);
 		componentManager.register(commandComponent);
-		componentManager.register(factionComponent);
-		componentManager.register(notificationComponent);
 		
 		getCommand(Info.COMMAND_GLACIAL_RUSH).setExecutor(commandComponent);
 		
@@ -109,25 +93,10 @@ public class GlacialRush extends JavaPlugin
 		
 		return null;
 	}
-	
-	public NotificationComponent getNotificationComponent()
-	{
-		return notificationComponent;
-	}
 
 	public CommandComponent getCommandComponent()
 	{
 		return commandComponent;
-	}
-	
-	public WorldComponent getWorldComponent()
-	{
-		return worldComponent;
-	}
-	
-	public GameState getState()
-	{
-		return state;
 	}
 	
 	public void register(Listener listener)
@@ -143,11 +112,6 @@ public class GlacialRush extends JavaPlugin
 	public ComponentManager getComponentManager()
 	{
 		return componentManager;
-	}
-	
-	public FactionComponent getFactionComponent()
-	{
-		return factionComponent;
 	}
 	
 	public Dispatcher getDispatcher()
