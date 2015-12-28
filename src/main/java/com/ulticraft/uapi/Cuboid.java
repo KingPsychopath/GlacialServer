@@ -149,6 +149,11 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 		return map;
 	}
 	
+	public Cuboid flatten(int level)
+	{
+		return new Cuboid(getWorld(), x1, level, z1, x2, level, z2);
+	}
+	
 	/**
 	 * Get the Location of the lower northeast corner of the Cuboid (minimum XYZ
 	 * co-ordinates).
