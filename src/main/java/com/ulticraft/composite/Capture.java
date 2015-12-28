@@ -10,21 +10,24 @@ public class Capture
 	public Capture(Location location)
 	{
 		this.location = location;
-		dominantFaction = Faction.neutral();
+		this.dominantFaction = Faction.neutral();
 	}
 	
 	public Location getLocation()
 	{
 		return location;
 	}
+	
 	public void setLocation(Location location)
 	{
 		this.location = location;
 	}
+	
 	public Faction getDominantFaction()
 	{
 		return dominantFaction;
 	}
+	
 	public void setDominantFaction(Faction dominantFaction)
 	{
 		this.dominantFaction = dominantFaction;
