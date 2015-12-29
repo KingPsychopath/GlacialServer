@@ -61,6 +61,30 @@ public class Map
 		return contains(entity.getLocation());
 	}
 	
+	public void draw(Player p)
+	{
+		for(Region i : regions)
+		{
+			i.draw(p);
+		}
+	}
+	
+	public void build()
+	{
+		for(Region i : regions)
+		{
+			i.build();
+		}
+	}
+	
+	public void accent(Faction faction)
+	{
+		for(Region i : regions)
+		{
+			i.accent(faction);
+		}
+	}
+	
 	public boolean addRegion(Hunk hunk)
 	{
 		if(hunk.getWorld().equals(world) && (regions.isEmpty() || hasNeighbors(hunk)))
