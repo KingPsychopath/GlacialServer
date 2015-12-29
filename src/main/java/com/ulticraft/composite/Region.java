@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -45,6 +46,18 @@ public class Region implements Listener
 		this.buildStatus = "unbuilt";
 	}
 	
+	public Region(GlacialRush pl, Map map, String name, Hunk hunk)
+	{
+		this.pl = pl;
+		this.map = map;
+		this.name = name;
+		this.hunk = hunk;
+		this.accents = new UList<Location>();
+		this.captures = new UList<Capture>();
+		this.faction = Faction.neutral();
+		this.buildStatus = "unbuilt";
+	}
+
 	public void draw(Player p)
 	{
 		Cuboid c = hunk.getCuboid().flatten(p.getLocation().getBlockY());
@@ -290,6 +303,21 @@ public class Region implements Listener
 		buildStatus = "unbuilt";
 		e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.SHOOT_ARROW, 1f, 1.8f);
 		new Title("  ", ChatColor.YELLOW + "Region Modified", ChatColor.GOLD + "Requires Rebuild");
+	}
+	
+	public boolean contains(Location location)
+	{
+		return hunk.contains(location);
+	}
+	
+	public boolean contains(Player player)
+	{
+		return hunk.contains(player);
+	}
+	
+	public boolean contains(LivingEntity entity)
+	{
+		return hunk.contains(entity);
 	}
 	
 	public Hunk getHunk()
