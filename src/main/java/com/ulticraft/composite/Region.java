@@ -44,6 +44,8 @@ public class Region implements Listener
 		this.captures = new UList<Capture>();
 		this.faction = Faction.neutral();
 		this.buildStatus = "unbuilt";
+		
+		pl.register(this);
 	}
 	
 	public Region(GlacialRush pl, Map map, String name, Hunk hunk)
@@ -56,6 +58,8 @@ public class Region implements Listener
 		this.captures = new UList<Capture>();
 		this.faction = Faction.neutral();
 		this.buildStatus = "unbuilt";
+		
+		pl.register(this);
 	}
 
 	public void draw(Player p)
