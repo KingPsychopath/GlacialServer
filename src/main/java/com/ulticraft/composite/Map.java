@@ -25,6 +25,32 @@ public class Map
 		this.regions = new UList<Region>();
 	}
 	
+	public boolean isBuilt()
+	{
+		for(Region i : regions)
+		{
+			if(!i.getBuildStatus().equals("built"))
+			{
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	public boolean isBuilding()
+	{
+		for(Region i : regions)
+		{
+			if(i.getBuildStatus().equals("building"))
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 	public boolean contains(Hunk hunk)
 	{
 		for(Region i : regions)
@@ -208,5 +234,35 @@ public class Map
 		}
 		
 		return null;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public World getWorld()
+	{
+		return world;
+	}
+
+	public void setWorld(World world)
+	{
+		this.world = world;
+	}
+
+	public UList<Region> getRegions()
+	{
+		return regions;
+	}
+
+	public void setRegions(UList<Region> regions)
+	{
+		this.regions = regions;
 	}
 }
