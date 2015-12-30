@@ -1,7 +1,10 @@
-package com.ulticraft.composite;
+package com.ulticraft.data;
 
 import java.io.Serializable;
 import com.ulticraft.GlacialRush;
+import com.ulticraft.composite.Hunk;
+import com.ulticraft.composite.Map;
+import com.ulticraft.composite.Region;
 import com.ulticraft.uapi.UList;
 
 public class MapData implements Serializable

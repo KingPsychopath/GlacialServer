@@ -10,7 +10,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import com.ulticraft.GlacialRush;
 import com.ulticraft.composite.Map;
-import com.ulticraft.composite.MapData;
+import com.ulticraft.data.MapData;
 import com.ulticraft.uapi.Component;
 import com.ulticraft.uapi.UList;
 

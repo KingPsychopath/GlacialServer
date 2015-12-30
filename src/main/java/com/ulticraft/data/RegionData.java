@@ -1,4 +1,4 @@
-package com.ulticraft.composite;
+package com.ulticraft.data;
 
 import java.io.Serializable;
 
