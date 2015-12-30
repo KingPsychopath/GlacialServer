@@ -394,4 +394,14 @@ public class Region implements Listener
 	{
 		this.spawn = spawn;
 	}
+
+	public String getBuildStatus()
+	{
+		return buildStatus;
+	}
+
+	public void setBuildStatus(String buildStatus)
+	{
+		this.buildStatus = buildStatus;
+	}
 }
