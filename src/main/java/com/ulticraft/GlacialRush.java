@@ -6,9 +6,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.ulticraft.component.AdministrationComponent;
 import com.ulticraft.component.CommandComponent;
 import com.ulticraft.component.DataComponent;
 import com.ulticraft.component.ManipulationComponent;
+import com.ulticraft.component.PlayerComponent;
+import com.ulticraft.component.UIComponent;
 import com.ulticraft.game.Game;
 import com.ulticraft.uapi.ComponentManager;
 import com.ulticraft.uapi.Dispatcher;
@@ -20,6 +23,9 @@ public class GlacialRush extends JavaPlugin
 	private CommandComponent commandComponent;
 	private ManipulationComponent manipulationComponent;
 	private DataComponent dataComponent;
+	private PlayerComponent playerComponent;
+	private UIComponent uiComponent;
+	private AdministrationComponent administrationComponent;
 	private Game game;
 	
 	public void onEnable()
@@ -30,10 +36,16 @@ public class GlacialRush extends JavaPlugin
 		commandComponent = new CommandComponent(this);
 		manipulationComponent = new ManipulationComponent(this);
 		dataComponent = new DataComponent(this);
+		playerComponent = new PlayerComponent(this);
+		uiComponent = new UIComponent(this);
+		administrationComponent = new AdministrationComponent(this);
 		
 		componentManager.register(commandComponent);
 		componentManager.register(manipulationComponent);
 		componentManager.register(dataComponent);
+		componentManager.register(playerComponent);
+		componentManager.register(uiComponent);
+		componentManager.register(administrationComponent);
 		
 		getCommand(Info.COMMAND_GLACIAL_RUSH).setExecutor(commandComponent);
 		
@@ -143,6 +155,26 @@ public class GlacialRush extends JavaPlugin
 		return dataComponent;
 	}
 	
+	public PlayerComponent getPlayerComponent()
+	{
+		return playerComponent;
+	}
+
+	public UIComponent getUiComponent()
+	{
+		return uiComponent;
+	}
+
+	public AdministrationComponent getAdministrationComponent()
+	{
+		return administrationComponent;
+	}
+
+	public Game getGame()
+	{
+		return game;
+	}
+
 	public Dispatcher getDispatcher()
 	{
 		return dispatcher;
