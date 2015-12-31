@@ -1,125 +1,115 @@
 package com.ulticraft.game;
 
+import java.util.Collections;
 import com.ulticraft.GlacialRush;
+import com.ulticraft.composite.Hunk;
+import com.ulticraft.composite.Map;
 import com.ulticraft.uapi.UList;
 
 public class Game
 {
-	protected GameData gameData;
-	protected GlacialRush pl;
-	protected int task;
-	protected long startMillis;
-	protected UList<GameRegistrant> registrants;
+	private GameState state;
+	private GameRegistry registry;
+	private GlacialRush pl;
+	private UList<Map> maps;
 	
 	public Game(GlacialRush pl)
 	{
 		this.pl = pl;
-		
-		gameData = new GameData(null, 0);
-		
-		registrants = new UList<GameRegistrant>();
+		this.state = new GameState(pl, null);
+		this.registry = new GameRegistry(pl);
+		this.maps = new UList<Map>();
 	}
 	
-	public void start()
+	public void load()
 	{
-		startMillis = System.currentTimeMillis();
-		gameData.setMillis(0);
+		maps = pl.getDataComponent().loadAll();
 		
-		eventStart();
-		
-		task = pl.scheduleSyncRepeatingTask(0, 0, new Runnable()
+		for(Map i : maps)
 		{
-			@Override
-			public void run()
+			i.build();
+		}
+	}
+	
+	public void save()
+	{
+		pl.getDataComponent().saveAll(maps);
+	}
+	
+	public void startGame()
+	{
+		UList<Map> mMaps = maps.copy();
+		Collections.shuffle(mMaps);
+		state = new GameState(pl, mMaps.get(0));
+	}
+	
+	public Map findMap(String name)
+	{
+		for(Map i : maps)
+		{
+			if(i.getName().equalsIgnoreCase(name))
 			{
-				gameData.setMillis(System.currentTimeMillis() - startMillis);
-				eventTick();
+				return i;
 			}
-		});
-	}
-	
-	public void stop()
-	{
-		eventStop();
-		pl.cancelTask(task);
-	}
-	
-	public void register(GameRegistrant gameRegistrant)
-	{
-		registrants.add(gameRegistrant);
-	}
-	
-	public void eventStart()
-	{
-		for(GameRegistrant i : registrants)
-		{
-			i.onStart(this, gameData);
 		}
-	}
-	
-	public void eventStop()
-	{
-		for(GameRegistrant i : registrants)
+		
+		for(Map i : maps)
 		{
-			i.onStop(this, gameData);
+			if(i.getName().toLowerCase().contains(name.toLowerCase()))
+			{
+				return i;
+			}
 		}
+		
+		return null;
 	}
 	
-	public void eventTick()
+	public Map getMap(String name)
 	{
-		for(GameRegistrant i : registrants)
+		for(Map i : maps)
 		{
-			i.onTick(this, gameData);
+			if(i.getName().equalsIgnoreCase(name))
+			{
+				return i;
+			}
 		}
+		
+		return null;
 	}
 	
-	public GameData getGameData()
+	public Map getMap(Hunk hunk)
 	{
-		return gameData;
+		for(Map i : maps)
+		{
+			if(i.getWorld().equals(hunk.getWorld()))
+			{
+				if(i.getRegion(hunk) != null)
+				{
+					return i;
+				}
+			}
+		}
+		
+		return null;
 	}
-	
-	public void setGameData(GameData gameData)
+
+	public GameState getState()
 	{
-		this.gameData = gameData;
+		return state;
 	}
-	
-	public GlacialRush getPl()
+
+	public GameRegistry getRegistry()
 	{
-		return pl;
+		return registry;
 	}
-	
-	public void setPl(GlacialRush pl)
+
+	public UList<Map> getMaps()
 	{
-		this.pl = pl;
+		return maps;
 	}
-	
-	public int getTask()
+
+	public void setMaps(UList<Map> maps)
 	{
-		return task;
-	}
-	
-	public void setTask(int task)
-	{
-		this.task = task;
-	}
-	
-	public long getStartMillis()
-	{
-		return startMillis;
-	}
-	
-	public void setStartMillis(long startMillis)
-	{
-		this.startMillis = startMillis;
-	}
-	
-	public UList<GameRegistrant> getRegistrants()
-	{
-		return registrants;
-	}
-	
-	public void setRegistrants(UList<GameRegistrant> registrants)
-	{
-		this.registrants = registrants;
+		this.maps = maps;
 	}
 }

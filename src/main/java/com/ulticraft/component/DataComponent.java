@@ -9,12 +9,15 @@ import java.io.ObjectOutputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import com.ulticraft.GlacialRush;
-import com.ulticraft.composite.MapData;
-import com.ulticraft.map.Map;
+import com.ulticraft.composite.Map;
+import com.ulticraft.data.MapData;
 import com.ulticraft.uapi.Component;
+import com.ulticraft.uapi.UList;
 
 public class DataComponent extends Component
-{	
+{
+	private File base;
+	
 	public DataComponent(GlacialRush pl)
 	{
 		super(pl);
@@ -22,129 +25,101 @@ public class DataComponent extends Component
 	
 	public void enable()
 	{
-		loadMaps();
+		base = new File(pl.getDataFolder(), "maps");
+		
+		if(!base.exists())
+		{
+			verify(base);
+		}
 	}
 	
 	public void disable()
 	{
-		saveMaps();
+	
 	}
 	
-	public void saveMaps()
+	public void saveAll(UList<Map> maps)
 	{
-		for(Map i : pl.getState().getMaps())
+		for(Map i : maps)
 		{
-			saveMap(i);
+			File mFile = new File(base, i.getName().toLowerCase().replace(" ", "-") + ".grap");
+			
+			try
+			{
+				saveMap(i, mFile);
+			}
+			
+			catch(IOException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 	
-	public void loadMaps()
+	public UList<Map> loadAll()
 	{
-		for(File i : new File(pl.getDataFolder(), "maps").listFiles())
+		UList<Map> maps = new UList<Map>();
+		
+		for(File i : base.listFiles())
 		{
-			if(i.getName().endsWith(".grap"))
+			try
 			{
-				Map m = loadMap(i);
-				boolean safe = true;
+				Map map = loadMap(i);
 				
-				for(Map j : pl.getState().getMaps())
+				for(Map j : maps)
 				{
-					if(j.getName().equals(m))
+					if(j.getName().equals(map.getName()))
 					{
-						safe = false;
+						continue;
 					}
 				}
 				
-				if(safe)
-				{
-					pl.getState().getMaps().add(m);
-				}
+				maps.add(map);
+			}
+			
+			catch(ClassNotFoundException | IOException e)
+			{
+				e.printStackTrace();
 			}
 		}
-	}
-	
-	public void saveMap(Map map)
-	{
-		if(map.isCompleted())
-		{
-			MapData md = new MapData(map);
-			
-			File file = new File(new File(pl.getDataFolder(), "maps"), map.getName().toLowerCase().replace(' ', '-') + ".grap");
-			verifyFile(file);
-			serialize(md, file);
-		}
-	}
-	
-	public Map loadMap(File file)
-	{
-		MapData md = (MapData) deserialize(MapData.class, file);
 		
-		if(md != null)
-		{
-			return new Map(pl, md);
-		}
-		
-		return null;
+		return maps;
 	}
 	
-	public void serialize(Object o, File f)
+	public void saveMap(Map map, File file) throws IOException
 	{
-		try
-		{
-			FileOutputStream fos = new FileOutputStream(f);
-			GZIPOutputStream gzo = new GZIPOutputStream(fos);
-			ObjectOutputStream oos = new ObjectOutputStream(gzo);
-			
-			oos.writeObject(o);
-			oos.close();
-		}
+		FileOutputStream fos = new FileOutputStream(file);
+		GZIPOutputStream gzo = new GZIPOutputStream(fos);
+		ObjectOutputStream oos = new ObjectOutputStream(gzo);
 		
-		catch(Exception e)
-		{
-			pl.f("DATA FAILURE: Failed to write object to " + f.getPath());
-		}
+		MapData md = MapData.fromMap(map);
+		oos.writeObject(md);
+		oos.close();
 	}
 	
-	public Object deserialize(Class<?> clazz, File f)
+	public Map loadMap(File file) throws IOException, ClassNotFoundException
 	{
-		try
+		if(file.exists() && !file.isDirectory() && file.getName().endsWith(".grap"))
 		{
-			FileInputStream fin = new FileInputStream(f);
+			FileInputStream fin = new FileInputStream(file);
 			GZIPInputStream gzi = new GZIPInputStream(fin);
 			ObjectInputStream ois = new ObjectInputStream(gzi);
 			
-			Object o = ois.readObject();
+			MapData md = (MapData) ois.readObject();
 			
 			ois.close();
 			
-			if(o != null && o.getClass().equals(clazz))
+			if(md == null)
 			{
-				return o;
+				throw new IOException();
 			}
 			
-			return null;
+			return md.toMap(pl);
 		}
 		
-		catch(Exception e)
+		else
 		{
-			pl.f("DATA FAILURE: Failed to read object from " + f.getPath());
-		}
-		
-		return null;
-	}
-	
-	public void verifyFile(File file)
-	{
-		verify(file.getParentFile());
-		
-		try
-		{
-			file.createNewFile();
-		}
-		
-		catch(IOException e)
-		{
-			e.printStackTrace();
+			throw new IOException("Cannot find file, or does not end in .grap");
 		}
 	}
 	
@@ -156,5 +131,23 @@ public class DataComponent extends Component
 		}
 		
 		file.mkdir();
+	}
+	
+	public void verifyFile(File file)
+	{
+		if(!file.getParentFile().exists())
+		{
+			verify(file.getParentFile());
+		}
+		
+		try
+		{
+			file.createNewFile();
+		}
+		
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }

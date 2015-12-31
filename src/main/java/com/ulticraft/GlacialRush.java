@@ -6,11 +6,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.ulticraft.component.AdministrationComponent;
 import com.ulticraft.component.CommandComponent;
-import com.ulticraft.component.FactionComponent;
-import com.ulticraft.component.NotificationComponent;
-import com.ulticraft.component.WorldComponent;
-import com.ulticraft.map.GameState;
+import com.ulticraft.component.DataComponent;
+import com.ulticraft.component.ManipulationComponent;
+import com.ulticraft.component.PlayerComponent;
+import com.ulticraft.component.UIComponent;
+import com.ulticraft.game.Game;
 import com.ulticraft.uapi.ComponentManager;
 import com.ulticraft.uapi.Dispatcher;
 
@@ -18,37 +20,50 @@ public class GlacialRush extends JavaPlugin
 {
 	private Dispatcher dispatcher;
 	private ComponentManager componentManager;
-	private WorldComponent worldComponent;
-	private FactionComponent factionComponent;
 	private CommandComponent commandComponent;
-	private NotificationComponent notificationComponent;
-	
-	private GameState state;
+	private ManipulationComponent manipulationComponent;
+	private DataComponent dataComponent;
+	private PlayerComponent playerComponent;
+	private UIComponent uiComponent;
+	private AdministrationComponent administrationComponent;
+	private Game game;
 	
 	public void onEnable()
 	{
 		dispatcher = new Dispatcher(this);
 		componentManager = new ComponentManager(this);
-		state = new GameState();
 		
-		worldComponent = new WorldComponent(this);
 		commandComponent = new CommandComponent(this);
-		factionComponent = new FactionComponent(this);
-		notificationComponent = new NotificationComponent(this);
+		manipulationComponent = new ManipulationComponent(this);
+		dataComponent = new DataComponent(this);
+		playerComponent = new PlayerComponent(this);
+		uiComponent = new UIComponent(this);
+		administrationComponent = new AdministrationComponent(this);
 		
-		componentManager.register(worldComponent);
 		componentManager.register(commandComponent);
-		componentManager.register(factionComponent);
-		componentManager.register(notificationComponent);
+		componentManager.register(manipulationComponent);
+		componentManager.register(dataComponent);
+		componentManager.register(playerComponent);
+		componentManager.register(uiComponent);
+		componentManager.register(administrationComponent);
 		
 		getCommand(Info.COMMAND_GLACIAL_RUSH).setExecutor(commandComponent);
 		
 		componentManager.enable();
+		
+		game = new Game(this);
+		game.load();
 	}
 	
 	public void onDisable()
 	{
+		game.save();
 		componentManager.disable();
+	}
+	
+	public Game gg()
+	{
+		return game;
 	}
 	
 	public void msg(CommandSender sender, String msg)
@@ -110,24 +125,14 @@ public class GlacialRush extends JavaPlugin
 		return null;
 	}
 	
-	public NotificationComponent getNotificationComponent()
+	public ManipulationComponent getManipulationComponent()
 	{
-		return notificationComponent;
+		return manipulationComponent;
 	}
-
+	
 	public CommandComponent getCommandComponent()
 	{
 		return commandComponent;
-	}
-	
-	public WorldComponent getWorldComponent()
-	{
-		return worldComponent;
-	}
-	
-	public GameState getState()
-	{
-		return state;
 	}
 	
 	public void register(Listener listener)
@@ -145,11 +150,31 @@ public class GlacialRush extends JavaPlugin
 		return componentManager;
 	}
 	
-	public FactionComponent getFactionComponent()
+	public DataComponent getDataComponent()
 	{
-		return factionComponent;
+		return dataComponent;
 	}
 	
+	public PlayerComponent getPlayerComponent()
+	{
+		return playerComponent;
+	}
+
+	public UIComponent getUiComponent()
+	{
+		return uiComponent;
+	}
+
+	public AdministrationComponent getAdministrationComponent()
+	{
+		return administrationComponent;
+	}
+
+	public Game getGame()
+	{
+		return game;
+	}
+
 	public Dispatcher getDispatcher()
 	{
 		return dispatcher;
