@@ -1,6 +1,6 @@
 package com.ulticraft.weapon;
 
-public class Armor extends Obtainable
+public class Armor extends Obtainable implements Timed, Defensive
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -33,5 +33,17 @@ public class Armor extends Obtainable
 	public void setHeaft(Double heaft)
 	{
 		this.heaft = heaft;
+	}
+
+	@Override
+	public double onDamage(double damage)
+	{
+		return 0;
+	}
+
+	@Override
+	public void onTick()
+	{
+		
 	}
 }

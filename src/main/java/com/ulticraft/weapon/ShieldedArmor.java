@@ -8,6 +8,8 @@ public class ShieldedArmor extends Armor
 	protected Double shieldRegenRate;
 	protected Double shieldRechargeDelay;
 	protected Double shieldDamageResistance;
+	protected Double currentShields;
+	protected Double currentDelay;
 	
 	public ShieldedArmor(String name, String description, String id, Integer cost)
 	{
@@ -17,6 +19,8 @@ public class ShieldedArmor extends Armor
 		shieldRegenRate = 0.0;
 		shieldRechargeDelay = 0.0;
 		shieldDamageResistance = 0.0;
+		currentShields = 0.0;
+		currentDelay = 0.0;
 	}
 
 	public Double getShieldCapacity()
@@ -57,5 +61,25 @@ public class ShieldedArmor extends Armor
 	public void setShieldDamageResistance(Double shieldDamageResistance)
 	{
 		this.shieldDamageResistance = shieldDamageResistance;
+	}
+
+	public Double getCurrentShields()
+	{
+		return currentShields;
+	}
+
+	public void setCurrentShields(Double currentShields)
+	{
+		this.currentShields = currentShields;
+	}
+
+	public Double getCurrentDelay()
+	{
+		return currentDelay;
+	}
+
+	public void setCurrentDelay(Double currentDelay)
+	{
+		this.currentDelay = currentDelay;
 	}
 }
