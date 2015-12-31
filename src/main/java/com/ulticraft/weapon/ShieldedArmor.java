@@ -82,4 +82,22 @@ public class ShieldedArmor extends Armor
 	{
 		this.currentDelay = currentDelay;
 	}
+	
+	@Override
+	public double onDamage(double damage)
+	{
+		damage = damage - (damage * (damageResistance + currentShields != 0 ? shieldDamageResistance : 0));
+		currentShields -= damage < currentShields ? damage : 0;
+		currentDelay = shieldRechargeDelay;
+		
+		return damage;
+	}
+	
+	@Override
+	public void onInternalTick()
+	{
+		currentDelay = currentDelay - 0.05 < 0 ? 0 : currentDelay - 0.05;
+		currentShields += currentDelay == 0 ? shieldRegenRate : 0;
+		currentShields = currentShields > shieldCapacity ? shieldCapacity : currentShields;
+	}
 }
