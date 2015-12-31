@@ -73,9 +73,9 @@ public class CommandComponent extends Component implements CommandExecutor
 				{
 					if(args.length > 0)
 					{
-						if(args[0].equals("list") || args[0].equals("select"))
+						if(args[0].equals("addiup") || args[0].equals("admin"))
 						{
-							
+							pl.getAdministrationComponent().administrate(p);
 						}
 					}
 				}
