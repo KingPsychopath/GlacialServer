@@ -38,11 +38,11 @@ public class Armor extends Obtainable implements Timed, Defensive
 	@Override
 	public double onDamage(double damage)
 	{
-		return 0;
+		return damage - (damage * damageResistance);
 	}
 
 	@Override
-	public void onTick()
+	public void onInternalTick()
 	{
 		
 	}
