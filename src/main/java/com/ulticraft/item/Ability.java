@@ -1,4 +1,4 @@
-package com.ulticraft.weapon;
+package com.ulticraft.item;
 
 public class Ability extends Obtainable
 {
