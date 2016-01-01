@@ -1,6 +1,6 @@
 package com.ulticraft.component;
 
-import com.ulticraft.GlacialRush;
+import com.ulticraft.GlacialServer;
 import com.ulticraft.composite.Manipulation;
 import com.ulticraft.uapi.Component;
 import com.ulticraft.uapi.UList;
@@ -9,7 +9,7 @@ public class ManipulationComponent extends Component
 {
 	private UList<Manipulation> manipulations;
 	
-	public ManipulationComponent(final GlacialRush pl)
+	public ManipulationComponent(final GlacialServer pl)
 	{
 		super(pl);
 		manipulations = new UList<Manipulation>();

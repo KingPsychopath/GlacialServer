@@ -4,18 +4,18 @@ import java.io.File;
 import java.io.IOException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import com.ulticraft.GlacialRush;
+import com.ulticraft.GlacialServer;
 
 public class DataManager
 {
 	private File file;
 	
-	public DataManager(GlacialRush pl, String localPath)
+	public DataManager(GlacialServer pl, String localPath)
 	{
 		file = new File(pl.getDataFolder(), localPath);
 	}
 	
-	public DataManager(GlacialRush pl, File file)
+	public DataManager(GlacialServer pl, File file)
 	{
 		this.file = file;
 	}

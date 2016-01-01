@@ -12,7 +12,7 @@ import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import com.ulticraft.GlacialRush;
+import com.ulticraft.GlacialServer;
 import com.ulticraft.composite.Hunk;
 import com.ulticraft.composite.Map;
 import com.ulticraft.uapi.Component;
@@ -24,7 +24,7 @@ public class AdministrationComponent extends Component implements Listener
 {
 	private UMap<Player, String> administrators;
 	
-	public AdministrationComponent(GlacialRush pl)
+	public AdministrationComponent(GlacialServer pl)
 	{
 		super(pl);
 		

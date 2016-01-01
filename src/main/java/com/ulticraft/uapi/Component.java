@@ -1,13 +1,13 @@
 package com.ulticraft.uapi;
 
-import com.ulticraft.GlacialRush;
+import com.ulticraft.GlacialServer;
 
 public class Component
 {
-	protected final GlacialRush pl;
+	protected final GlacialServer pl;
 	private boolean enabled;
 	
-	public Component(GlacialRush pl)
+	public Component(GlacialServer pl)
 	{
 		this.pl = pl;
 		enabled = false;

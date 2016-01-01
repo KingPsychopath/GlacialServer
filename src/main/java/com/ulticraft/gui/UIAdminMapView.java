@@ -2,7 +2,7 @@ package com.ulticraft.gui;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import com.ulticraft.GlacialRush;
+import com.ulticraft.GlacialServer;
 import com.ulticraft.composite.Map;
 import com.ulticraft.uapi.Gui;
 import com.ulticraft.uapi.Gui.Pane;
@@ -12,7 +12,7 @@ public class UIAdminMapView
 {
 	private Gui gui;
 	
-	public UIAdminMapView(GlacialRush pl, Player player, final Map map)
+	public UIAdminMapView(GlacialServer pl, Player player, final Map map)
 	{
 		gui = new Gui(player, pl);
 		Pane pane = gui.new Pane("Map: " + map.getName());

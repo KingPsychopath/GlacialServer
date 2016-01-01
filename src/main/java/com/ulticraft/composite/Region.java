@@ -14,7 +14,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import com.ulticraft.GlacialRush;
+import com.ulticraft.GlacialServer;
 import com.ulticraft.component.ManipulationComponent;
 import com.ulticraft.uapi.Cuboid;
 import com.ulticraft.uapi.Cuboid.CuboidDirection;
@@ -24,7 +24,7 @@ import net.md_5.bungee.api.ChatColor;
 
 public class Region implements Listener
 {
-	private GlacialRush pl;
+	private GlacialServer pl;
 	private Hunk hunk;
 	private UList<Location> accents;
 	private UList<Capture> captures;
@@ -34,7 +34,7 @@ public class Region implements Listener
 	private Location spawn;
 	private String buildStatus;
 	
-	public Region(GlacialRush pl, Map map, String name, Location location)
+	public Region(GlacialServer pl, Map map, String name, Location location)
 	{
 		this.pl = pl;
 		this.map = map;
@@ -48,7 +48,7 @@ public class Region implements Listener
 		pl.register(this);
 	}
 	
-	public Region(GlacialRush pl, Map map, String name, Hunk hunk)
+	public Region(GlacialServer pl, Map map, String name, Hunk hunk)
 	{
 		this.pl = pl;
 		this.map = map;

@@ -1,11 +1,11 @@
 package com.ulticraft.component;
 
-import com.ulticraft.GlacialRush;
+import com.ulticraft.GlacialServer;
 import com.ulticraft.uapi.Component;
 
 public class UIComponent extends Component
 {
-	public UIComponent(GlacialRush pl)
+	public UIComponent(GlacialServer pl)
 	{
 		super(pl);
 	}

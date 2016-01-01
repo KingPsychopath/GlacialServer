@@ -1,7 +1,7 @@
 package com.ulticraft.game;
 
 import java.util.Collections;
-import com.ulticraft.GlacialRush;
+import com.ulticraft.GlacialServer;
 import com.ulticraft.composite.Hunk;
 import com.ulticraft.composite.Map;
 import com.ulticraft.uapi.UList;
@@ -10,10 +10,10 @@ public class Game
 {
 	private GameState state;
 	private GameRegistry registry;
-	private GlacialRush pl;
+	private GlacialServer pl;
 	private UList<Map> maps;
 	
-	public Game(GlacialRush pl)
+	public Game(GlacialServer pl)
 	{
 		this.pl = pl;
 		this.state = new GameState(pl, null);

@@ -2,7 +2,7 @@ package com.ulticraft.gui;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import com.ulticraft.GlacialRush;
+import com.ulticraft.GlacialServer;
 import com.ulticraft.uapi.Gui;
 import com.ulticraft.uapi.Gui.Pane;
 
@@ -10,7 +10,7 @@ public class UIAdmin
 {
 	private Gui gui;
 	
-	public UIAdmin(final GlacialRush pl, final Player player)
+	public UIAdmin(final GlacialServer pl, final Player player)
 	{
 		gui = new Gui(player, pl);
 		

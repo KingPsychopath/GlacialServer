@@ -16,7 +16,7 @@ import com.ulticraft.game.Game;
 import com.ulticraft.uapi.ComponentManager;
 import com.ulticraft.uapi.Dispatcher;
 
-public class GlacialRush extends JavaPlugin
+public class GlacialServer extends JavaPlugin
 {
 	private Dispatcher dispatcher;
 	private ComponentManager componentManager;

@@ -4,7 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import com.ulticraft.GlacialRush;
+import com.ulticraft.GlacialServer;
 import com.ulticraft.composite.Hunk.HunkFace;
 import com.ulticraft.uapi.FastMath;
 import com.ulticraft.uapi.UList;
@@ -15,9 +15,9 @@ public class Map
 	private String name;
 	private World world;
 	private UList<Region> regions;
-	private GlacialRush pl;
+	private GlacialServer pl;
 	
-	public Map(GlacialRush pl, String name, World world)
+	public Map(GlacialServer pl, String name, World world)
 	{
 		this.pl = pl;
 		this.name = name;

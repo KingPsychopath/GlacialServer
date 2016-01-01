@@ -1,5 +1,5 @@
-name: GlacialRush
-main: com.ulticraft.GlacialRush
+name: GlacialServer
+main: com.ulticraft.GlacialServer
 version: 1.0
 commands:
   glacialrush: 

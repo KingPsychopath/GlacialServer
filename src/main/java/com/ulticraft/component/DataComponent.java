@@ -8,7 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-import com.ulticraft.GlacialRush;
+import com.ulticraft.GlacialServer;
 import com.ulticraft.composite.Map;
 import com.ulticraft.data.MapData;
 import com.ulticraft.uapi.Component;
@@ -18,7 +18,7 @@ public class DataComponent extends Component
 {
 	private File base;
 	
-	public DataComponent(GlacialRush pl)
+	public DataComponent(GlacialServer pl)
 	{
 		super(pl);
 	}

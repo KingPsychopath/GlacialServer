@@ -6,16 +6,16 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import com.ulticraft.GlacialRush;
+import com.ulticraft.GlacialServer;
 import com.ulticraft.uapi.UList;
 import com.ulticraft.uapi.UMap;
 
 public class FactionMap implements Listener
 {
 	private UMap<Faction, UList<Player>> players;
-	private GlacialRush pl;
+	private GlacialServer pl;
 	
-	public FactionMap(GlacialRush pl)
+	public FactionMap(GlacialServer pl)
 	{
 		this.pl = pl;
 		this.players = new UMap<Faction, UList<Player>>();

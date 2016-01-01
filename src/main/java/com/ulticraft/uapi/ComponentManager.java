@@ -3,15 +3,15 @@ package com.ulticraft.uapi;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.apache.commons.lang.StringUtils;
-import com.ulticraft.GlacialRush;
+import com.ulticraft.GlacialServer;
 
 public class ComponentManager
 {
 	private UMap<Object, Boolean> components;
 	private UList<Object> order;
-	private GlacialRush pl;
+	private GlacialServer pl;
 	
-	public ComponentManager(GlacialRush glacialRush)
+	public ComponentManager(GlacialServer glacialRush)
 	{
 		components = new UMap<Object, Boolean>();
 		this.pl = glacialRush;

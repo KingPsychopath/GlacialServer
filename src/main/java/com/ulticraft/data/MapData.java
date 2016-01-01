@@ -1,7 +1,7 @@
 package com.ulticraft.data;
 
 import java.io.Serializable;
-import com.ulticraft.GlacialRush;
+import com.ulticraft.GlacialServer;
 import com.ulticraft.composite.Hunk;
 import com.ulticraft.composite.Map;
 import com.ulticraft.composite.Region;
@@ -22,7 +22,7 @@ public class MapData implements Serializable
 		this.regionData = new UList<RegionData>();
 	}
 	
-	public Map toMap(GlacialRush pl)
+	public Map toMap(GlacialServer pl)
 	{
 		Map map = new Map(pl, name, pl.getServer().getWorld(world));
 		

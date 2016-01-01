@@ -1,14 +1,14 @@
 package com.ulticraft.game;
 
-import com.ulticraft.GlacialRush;
+import com.ulticraft.GlacialServer;
 import com.ulticraft.uapi.UList;
 
 public class GameRegistry
 {
-	private GlacialRush pl;
+	private GlacialServer pl;
 	private UList<GameComponent> components;
 	
-	public GameRegistry(GlacialRush pl)
+	public GameRegistry(GlacialServer pl)
 	{
 		this.pl = pl;
 		this.components = new UList<GameComponent>();
