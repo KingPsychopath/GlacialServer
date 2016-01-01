@@ -25,7 +25,7 @@
 						<artifactId>maven-jar-plugin</artifactId>
 						<version>2.3.1</version>
 						<configuration>
-							<finalName>GlacialWebServer</finalName>
+							<finalName>GlacialServer</finalName>
 							<outputDirectory>X:\development\server\plugins</outputDirectory>
 						</configuration>
 					</plugin>
