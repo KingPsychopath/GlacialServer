@@ -21,7 +21,7 @@ public class ManipulationComponent extends Component
 	
 	public void enable()
 	{
-		pl.scheduleSyncRepeatingTask(0, 5, new Runnable()
+		pl.scheduleSyncRepeatingTask(0, 0, new Runnable()
 		{
 			@Override
 			public void run()
@@ -31,28 +31,28 @@ public class ManipulationComponent extends Component
 					return;
 				}
 				
+				Title t = new Title();
+				t.setTitle(ChatColor.AQUA + progress[prog]);				
+				
+				t.setFadeInTime(0);
+				t.setFadeOutTime(0);
+				prog++;
+				
+				if(prog > 3)
+				{
+					prog = 0;
+				}
+				
+				t.send();
+				
 				long ms = System.currentTimeMillis();
 				
-				while(System.currentTimeMillis() - ms < 30)
+				while(System.currentTimeMillis() - ms < 45)
 				{
 					if(!manipulations.isEmpty())
 					{
-						pl.o("doin job" + " " + manipulations.size());
 						manipulations.get(0).exec();
 						manipulations.remove(0);
-						
-						Title t = new Title();
-						t.setSubtitle(ChatColor.AQUA + progress[prog]);
-						t.setFadeInTime(0);
-						t.setFadeOutTime(0);
-						prog++;
-						
-						if(prog > 3)
-						{
-							prog = 0;
-						}
-						
-						t.send();
 					}
 					
 					else
