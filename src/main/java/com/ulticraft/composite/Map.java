@@ -1,14 +1,16 @@
 package com.ulticraft.composite;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import com.ulticraft.GlacialServer;
 import com.ulticraft.composite.Hunk.HunkFace;
-import com.ulticraft.uapi.FastMath;
+import com.ulticraft.uapi.Title;
 import com.ulticraft.uapi.UList;
-import com.ulticraft.uapi.UMap;
+import net.md_5.bungee.api.ChatColor;
 
 public class Map
 {
@@ -16,6 +18,8 @@ public class Map
 	private World world;
 	private UList<Region> regions;
 	private GlacialServer pl;
+	private Boolean buildServicing;
+	private Integer buildService;
 	
 	public Map(GlacialServer pl, String name, World world)
 	{
@@ -23,6 +27,8 @@ public class Map
 		this.name = name;
 		this.world = world;
 		this.regions = new UList<Region>();
+		this.buildService = 0;
+		this.buildServicing = false;
 	}
 	
 	public boolean isBuilt()
@@ -97,10 +103,43 @@ public class Map
 	
 	public void build()
 	{
-		for(Region i : regions)
+		if(buildServicing)
 		{
-			i.build();
+			return;
 		}
+		
+		final Iterator<Region> it = regions.iterator();
+		final Integer[] i = {0};
+		
+		buildServicing = true;
+		
+		buildService = pl.scheduleSyncRepeatingTask(0, 5, new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if(it.hasNext())
+				{
+					i[0] = i[0] + 1;
+					it.next().build();
+					
+					Title t = new Title();
+					t.setFadeInTime(0);
+					t.setFadeOutTime(0);
+					
+					String s = String.valueOf((int)(100 * ((double)i[0]) / (double)regions.size()));
+					
+					t.setSubSubTitle(ChatColor.GOLD + "Building " + name + ": " + ChatColor.AQUA +  s + "%");
+					t.send();
+				}
+				
+				else
+				{
+					pl.cancelTask(buildService);
+					buildServicing = false;
+				}
+			}
+		});
 	}
 	
 	public void accent(Faction faction)
@@ -122,77 +161,127 @@ public class Map
 		return false;
 	}
 	
-	public boolean addRegionNear(Player p, Location location)
+	@SuppressWarnings("deprecation")
+	public boolean addRegionNear(Player p)
 	{
+		Location location = p.getTargetBlock((HashSet<Byte>)null, 256).getLocation();
+		
 		if(location.getWorld().equals(world))
 		{
 			if(regions.isEmpty())
 			{
 				regions.add(new Region(pl, this, name, location));
+				regions.get(0).draw(p, location.getBlockY());
 				return true;
+			}
+			
+			Hunk hunk = new Hunk(location);
+			
+			if(getRegion(hunk) == null)
+			{
+				if(hasNeighbors(hunk))
+				{
+					regions.add(new Region(pl, this, name, hunk));
+					
+					if(maxDim() > 9)
+					{
+						regions.remove(getRegion(hunk));
+						pl.getCommandComponent().err(p, "Map cannot span over 9 hunks");
+						return false;
+					}
+					
+					getRegion(hunk).draw(p, location.getBlockY());
+					return true;
+				}
+				
+				else
+				{
+					pl.getCommandComponent().err(p, "Must have a connected region");
+					return false;
+				}
 			}
 			
 			else
 			{
-				Region closest = getRegionNearby(location);
-				
-				if(closest != null)
-				{
-					UMap<HunkFace, Double> distances = new UMap<HunkFace, Double>();
-					
-					distances.put(HunkFace.NORTH, FastMath.distance2D(closest.getHunk().getRelative(HunkFace.NORTH).getCenter(0), location));
-					distances.put(HunkFace.SOUTH, FastMath.distance2D(closest.getHunk().getRelative(HunkFace.SOUTH).getCenter(0), location));
-					distances.put(HunkFace.EAST, FastMath.distance2D(closest.getHunk().getRelative(HunkFace.EAST).getCenter(0), location));
-					distances.put(HunkFace.WEST, FastMath.distance2D(closest.getHunk().getRelative(HunkFace.WEST).getCenter(0), location));
-					
-					double smallest = Double.MAX_VALUE;
-					Hunk hunk = null;
-					
-					for(HunkFace i : distances.keySet())
-					{
-						if(distances.get(i) < smallest)
-						{
-							smallest = distances.get(i);
-							hunk = closest.getHunk().getRelative(i);
-						}
-					}
-					
-					if(getRegion(hunk) == null)
-					{
-						addRegion(hunk);
-						getRegion(hunk).draw(p, location.getBlockY());
-						pl.o("drawn");
-						return true;
-					}
-				}
+				pl.getCommandComponent().err(p, "Cannot be an existing region.");
+				return false;
 			}
 		}
 		
-		return false;
+		else
+		{
+			pl.getCommandComponent().err(p, "Region must be in world: " + world.getName());
+			return false;
+		}
 	}
 	
-	public Region getRegionNearby(Location location)
+	public void unbuild()
 	{
-		double closest = Double.MAX_VALUE;
-		Region cc = null;
-		
-		if(!location.getWorld().equals(world) || regions.isEmpty())
+		for(Region i : regions)
 		{
-			return null;
+			i.unbuild();
 		}
+	}
+	
+	public int maxDim()
+	{
+		return Math.max(maxWidth(), maxHeight());
+	}
+	
+	public int maxWidth()
+	{
+		if(regions.isEmpty())
+		{
+			return 0;
+		}
+		
+		int min = Integer.MIN_VALUE;
+		int max = Integer.MAX_VALUE;
 		
 		for(Region i : regions)
 		{
-			double dist = FastMath.distance2D(i.getHunk().getCenter(0), location);
+			int x = i.getHunk().getX();
 			
-			if(dist < closest)
+			if(x > min)
 			{
-				closest = dist;
-				cc = i;
+				min = x;
+			}
+			
+			if(x < max)
+			{
+				max = x;
 			}
 		}
 		
-		return cc;
+		return Math.abs(max - min) + 1;
+	}
+	
+	public int maxHeight()
+	{
+		if(regions.isEmpty())
+		{
+			return 0;
+		}
+		
+		int min = Integer.MIN_VALUE;
+		int max = Integer.MAX_VALUE;
+		
+		for(Region i : regions)
+		{
+			int z = i.getHunk().getZ();
+			
+			if(z > min)
+			{
+				min = z;
+			}
+			
+			if(z < max)
+			{
+				max = z;
+			}
+		}
+		
+		return Math.abs(max - min) + 1;
 	}
 	
 	public boolean hasNeighbors(Region region)

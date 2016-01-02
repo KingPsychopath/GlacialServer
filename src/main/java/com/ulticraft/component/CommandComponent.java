@@ -1,6 +1,5 @@
 package com.ulticraft.component;
 
-import java.util.HashSet;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -324,7 +323,7 @@ public class CommandComponent extends Component implements CommandExecutor
 						{
 							if(hasSelection(p))
 							{
-								boolean added = getSelection(p).addRegionNear(p, p.getTargetBlock((HashSet<Byte>) null, 256).getLocation());
+								boolean added = getSelection(p).addRegionNear(p);
 								
 								if(added)
 								{

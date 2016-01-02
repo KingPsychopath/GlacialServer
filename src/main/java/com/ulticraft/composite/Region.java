@@ -74,6 +74,11 @@ public class Region implements Listener
 		hallucinate(p, c.getFace(CuboidDirection.West));
 	}
 	
+	public void unbuild()
+	{
+		setBuildStatus("unbuilt");
+	}
+	
 	public void hallucinate(final Player p, Cuboid c)
 	{
 		final int[] t = {0};
@@ -293,8 +298,9 @@ public class Region implements Listener
 		}
 		
 		buildStatus = "unbuilt";
+		map.unbuild();
 		e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.SHOOT_ARROW, 1f, 1.8f);
-		new Title("  ", ChatColor.YELLOW + "Region Modified", ChatColor.GOLD + "Requires Rebuild");
+		new Title("  ", ChatColor.YELLOW + "Region Modified", ChatColor.GOLD + "Requires Rebuild").send(e.getPlayer());
 	}
 	
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
@@ -306,8 +312,9 @@ public class Region implements Listener
 		}
 		
 		buildStatus = "unbuilt";
+		map.unbuild();
 		e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.SHOOT_ARROW, 1f, 1.8f);
-		new Title("  ", ChatColor.YELLOW + "Region Modified", ChatColor.GOLD + "Requires Rebuild");
+		new Title("  ", ChatColor.YELLOW + "Region Modified", ChatColor.GOLD + "Requires Rebuild").send(e.getPlayer());
 	}
 	
 	public boolean contains(Location location)
