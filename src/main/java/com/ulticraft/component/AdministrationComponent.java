@@ -166,7 +166,7 @@ public class AdministrationComponent extends Component implements Listener
 				{
 					Map m = pl.getGame().getMap(administrators.get(e.getPlayer()));
 					
-					boolean b = m.addRegionNear(e.getPlayer(), e.getPlayer().getTargetBlock((HashSet<Byte>)null, 256).getLocation());
+					boolean b = m.addRegionNear(e.getPlayer());
 					
 					if(b)
 					{
