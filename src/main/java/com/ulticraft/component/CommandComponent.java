@@ -11,7 +11,9 @@ import com.ulticraft.Info;
 import com.ulticraft.composite.Faction;
 import com.ulticraft.composite.Hunk;
 import com.ulticraft.composite.Map;
+import com.ulticraft.composite.Region;
 import com.ulticraft.uapi.Component;
+import com.ulticraft.uapi.Teleporter;
 import com.ulticraft.uapi.UMap;
 import net.md_5.bungee.api.ChatColor;
 
@@ -100,7 +102,7 @@ public class CommandComponent extends Component implements CommandExecutor
 			p = (Player) sender;
 			isPlayer = true;
 		}
-				
+		
 		if(cmd.getName().equalsIgnoreCase(Info.COMMAND_GLACIAL_RUSH))
 		{
 			if(sender.hasPermission(Info.PERMISSION_GOD))
@@ -114,7 +116,7 @@ public class CommandComponent extends Component implements CommandExecutor
 							if(hasSelection(p))
 							{
 								getSelection(p).build();
-								suc(p, "Building...");
+								suc(p, "Build Process Started for " + getSelection(p).getName());
 							}
 							
 							else
@@ -123,7 +125,105 @@ public class CommandComponent extends Component implements CommandExecutor
 							}
 						}
 						
-						if(args[0].equals("accent") || args[0].equals("ac"))
+						else if(args[0].equals("setname") || args[0].equals("name"))
+						{
+							if(args.length < 2)
+							{
+								err(p, "Supply a name...");
+								return true;
+							}
+							
+							if(hasSelection(p))
+							{
+								if(getSelection(p).getRegions().isEmpty())
+								{
+									err(p, "There are no regions for this map");
+									return true;
+								}
+								
+								String name = "";
+								
+								for(int i = 1; i < args.length; i++)
+								{
+									name = name + " " + args[i];
+								}
+								
+								name = name.substring(1);
+								Map m = getSelection(p);
+								
+								for(Region i : m.getRegions())
+								{
+									if(i.contains(p))
+									{
+										i.setName(name);
+										suc(p, "Region named: " + name);
+										return true;
+									}
+								}
+								
+								err(p, "Stand in a region to set the name");
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						else if(args[0].equals("setspawn") || args[0].equals("settp"))
+						{
+							if(hasSelection(p))
+							{
+								if(getSelection(p).getRegions().isEmpty())
+								{
+									err(p, "There are no regions for this map");
+									return true;
+								}
+								
+								for(Region i : getSelection(p).getRegions())
+								{
+									if(i.contains(p))
+									{
+										i.setSpawn(p.getLocation());
+										p.getWorld().strikeLightningEffect(p.getLocation());
+										suc(p, "Region " + i.getName() + "'s spawn updated");
+										return true;
+									}
+								}
+								
+								err(p, "You need to be inside of a region to set it's spawn");
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						else if(args[0].equals("spawn") || args[0].equals("tp"))
+						{
+							if(hasSelection(p))
+							{
+								Map m = getSelection(p);
+								
+								if(!m.getRegions().isEmpty())
+								{
+									boolean d = Teleporter.safeTeleport(p, m.getRegions().get(0).getSpawn());
+									
+									if(!d)
+									{
+										err(p, "No safe place to put ya >> " + m.getRegions().get(0).getSpawn());
+									}
+								}
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						else if(args[0].equals("accent") || args[0].equals("acc"))
 						{
 							if(hasSelection(p))
 							{
@@ -137,7 +237,90 @@ public class CommandComponent extends Component implements CommandExecutor
 							}
 						}
 						
-						if(args[0].equals("add") || args[0].equals("add"))
+						else if(args[0].equals("draw") || args[0].equals("show"))
+						{
+							if(hasSelection(p))
+							{
+								getSelection(p).draw(p);
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						else if(args[0].equals("info") || args[0].equals("inf"))
+						{
+							if(hasSelection(p))
+							{
+								Map m = getSelection(p);
+								
+								for(Region i : m.getRegions())
+								{
+									if(i.contains(p))
+									{
+										nte(p, "Map: " + m.getName());
+										nte(p, "Region Count: " + m.getRegions().size());
+										suc(p, "Current Region: " + i.getName());
+										suc(p, "  CAPP: " + i.getCaptures().size() + " ACCS: " + i.getAccents().size());
+										return true;
+									}
+								}
+								
+								nte(p, "Map: " + m.getName());
+								nte(p, "Region Count: " + m.getRegions().size());
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						else if(args[0].equals("accent-cryptic") || args[0].equals("acc-c"))
+						{
+							if(hasSelection(p))
+							{
+								getSelection(p).accent(Faction.cryptic());
+								suc(p, "Accenting: Cryptic");
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						else if(args[0].equals("accent-omni") || args[0].equals("acc-o"))
+						{
+							if(hasSelection(p))
+							{
+								getSelection(p).accent(Faction.omni());
+								suc(p, "Accenting: Omni");
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						else if(args[0].equals("accent-enigma") || args[0].equals("acc-e"))
+						{
+							if(hasSelection(p))
+							{
+								getSelection(p).accent(Faction.enigma());
+								suc(p, "Accenting: Enigma");
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						else if(args[0].equals("add") || args[0].equals("+"))
 						{
 							if(hasSelection(p))
 							{
@@ -160,7 +343,7 @@ public class CommandComponent extends Component implements CommandExecutor
 							}
 						}
 						
-						if(args[0].equals("select") || args[0].equals("sel"))
+						else if(args[0].equals("select") || args[0].equals("sel"))
 						{
 							if(args.length == 1)
 							{
@@ -203,7 +386,7 @@ public class CommandComponent extends Component implements CommandExecutor
 							}
 						}
 						
-						if(args[0].equals("unselect") || args[0].equals("uns"))
+						else if(args[0].equals("unselect") || args[0].equals("uns"))
 						{
 							if(hasSelection(p))
 							{
@@ -218,7 +401,7 @@ public class CommandComponent extends Component implements CommandExecutor
 							}
 						}
 						
-						if(args[0].equals("new") || args[0].equals("newmap"))
+						else if(args[0].equals("new") || args[0].equals("newmap"))
 						{
 							if(args.length > 1)
 							{
@@ -247,12 +430,17 @@ public class CommandComponent extends Component implements CommandExecutor
 							}
 						}
 						
-						if(args[0].equals("list") || args[0].equals("ls"))
+						else if(args[0].equals("list") || args[0].equals("ls"))
 						{
 							for(Map i : pl.getGame().getMaps())
 							{
 								msg(p, ChatColor.AQUA + i.getName() + ": " + i.getRegions().size() + "R " + (i.isBuilding() ? ChatColor.RED + "Building..." : i.isBuilt() ? ChatColor.GREEN + "Built" : ChatColor.RED + "Unbuilt"));
 							}
+						}
+						
+						else
+						{
+						
 						}
 					}
 				}
