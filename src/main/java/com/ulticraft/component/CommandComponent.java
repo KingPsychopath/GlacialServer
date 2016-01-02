@@ -1,11 +1,14 @@
 package com.ulticraft.component;
 
+import java.util.HashSet;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import com.ulticraft.GlacialServer;
 import com.ulticraft.Info;
+import com.ulticraft.composite.Faction;
 import com.ulticraft.composite.Hunk;
 import com.ulticraft.composite.Map;
 import com.ulticraft.uapi.Component;
@@ -85,6 +88,7 @@ public class CommandComponent extends Component implements CommandExecutor
 		msg(p, ChatColor.AQUA + msg);
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
 	{
@@ -96,7 +100,7 @@ public class CommandComponent extends Component implements CommandExecutor
 			p = (Player) sender;
 			isPlayer = true;
 		}
-		
+				
 		if(cmd.getName().equalsIgnoreCase(Info.COMMAND_GLACIAL_RUSH))
 		{
 			if(sender.hasPermission(Info.PERMISSION_GOD))
@@ -105,6 +109,57 @@ public class CommandComponent extends Component implements CommandExecutor
 				{
 					if(args.length > 0)
 					{
+						if(args[0].equals("build") || args[0].equals("bd"))
+						{
+							if(hasSelection(p))
+							{
+								getSelection(p).build();
+								suc(p, "Building...");
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						if(args[0].equals("accent") || args[0].equals("ac"))
+						{
+							if(hasSelection(p))
+							{
+								getSelection(p).accent(Faction.neutral());
+								suc(p, "Accenting: Neutral");
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						if(args[0].equals("add") || args[0].equals("add"))
+						{
+							if(hasSelection(p))
+							{
+								boolean added = getSelection(p).addRegionNear(p, p.getTargetBlock((HashSet<Byte>) null, 256).getLocation());
+								
+								if(added)
+								{
+									p.playSound(p.getLocation(), Sound.SHOOT_ARROW, 1f, 1.8f);
+								}
+								
+								else
+								{
+									p.playSound(p.getLocation(), Sound.ITEM_BREAK, 1f, 0.3f);
+								}
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
 						if(args[0].equals("select") || args[0].equals("sel"))
 						{
 							if(args.length == 1)
