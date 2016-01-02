@@ -1,6 +1,7 @@
 package com.ulticraft.game;
 
 import java.util.Collections;
+import java.util.Iterator;
 import com.ulticraft.GlacialServer;
 import com.ulticraft.composite.Hunk;
 import com.ulticraft.composite.Map;
@@ -91,6 +92,60 @@ public class Game
 		}
 		
 		return null;
+	}
+	
+	public UList<Map> getMapsBuilding()
+	{
+		UList<Map> mapps = maps.copy();
+		Iterator<Map> it = maps.iterator();
+		
+		while(it.hasNext())
+		{
+			Map i = it.next();
+			
+			if(!i.isBuilding())
+			{
+				it.remove();
+			}
+		}
+		
+		return mapps;
+	}
+	
+	public UList<Map> getMapsBuilt()
+	{
+		UList<Map> mapps = maps.copy();
+		Iterator<Map> it = maps.iterator();
+		
+		while(it.hasNext())
+		{
+			Map i = it.next();
+			
+			if(!i.isBuilt())
+			{
+				it.remove();
+			}
+		}
+		
+		return mapps;
+	}
+	
+	public UList<Map> getMapsUnbuilt()
+	{
+		UList<Map> mapps = maps.copy();
+		Iterator<Map> it = maps.iterator();
+		
+		while(it.hasNext())
+		{
+			Map i = it.next();
+			
+			if(!i.isBuilt() && !i.isBuilding())
+			{
+				it.remove();
+			}
+		}
+		
+		return mapps;
 	}
 
 	public GameState getState()
