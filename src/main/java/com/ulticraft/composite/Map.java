@@ -91,7 +91,7 @@ public class Map
 	{
 		for(Region i : regions)
 		{
-			i.draw(p);
+			i.draw(p, p.getLocation().getBlockY());
 		}
 	}
 	
@@ -160,7 +160,9 @@ public class Map
 					if(getRegion(hunk) == null)
 					{
 						addRegion(hunk);
-						getRegion(hunk).draw(p);
+						getRegion(hunk).draw(p, location.getBlockY());
+						pl.o("drawn");
+						return true;
 					}
 				}
 			}

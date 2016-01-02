@@ -44,6 +44,7 @@ public class Region implements Listener
 		this.captures = new UList<Capture>();
 		this.faction = Faction.neutral();
 		this.buildStatus = "unbuilt";
+		this.spawn = hunk.getCenter(64);
 		
 		pl.register(this);
 	}
@@ -58,13 +59,14 @@ public class Region implements Listener
 		this.captures = new UList<Capture>();
 		this.faction = Faction.neutral();
 		this.buildStatus = "unbuilt";
+		this.spawn = hunk.getCenter(64);
 		
 		pl.register(this);
 	}
 
-	public void draw(Player p)
+	public void draw(Player p, int level)
 	{
-		Cuboid c = hunk.getCuboid().flatten(p.getLocation().getBlockY());
+		Cuboid c = hunk.getCuboid().flatten(level);
 		
 		hallucinate(p, c.getFace(CuboidDirection.North));
 		hallucinate(p, c.getFace(CuboidDirection.South));
@@ -84,10 +86,9 @@ public class Region implements Listener
 			{
 				long ms = System.currentTimeMillis();
 				
-				while(System.currentTimeMillis() - ms < 1 && it.hasNext())
+				while(System.currentTimeMillis() - ms < 10 && it.hasNext())
 				{
 					Block b = it.next();
-					
 					pl.getManipulationComponent().add(new Manipulation(b.getLocation(), Material.SEA_LANTERN, p));
 				}
 				
