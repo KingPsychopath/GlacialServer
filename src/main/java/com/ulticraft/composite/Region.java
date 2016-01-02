@@ -44,6 +44,7 @@ public class Region implements Listener
 		this.captures = new UList<Capture>();
 		this.faction = Faction.neutral();
 		this.buildStatus = "unbuilt";
+		this.spawn = hunk.getCenter(64);
 		
 		pl.register(this);
 	}
@@ -58,6 +59,7 @@ public class Region implements Listener
 		this.captures = new UList<Capture>();
 		this.faction = Faction.neutral();
 		this.buildStatus = "unbuilt";
+		this.spawn = hunk.getCenter(64);
 		
 		pl.register(this);
 	}
