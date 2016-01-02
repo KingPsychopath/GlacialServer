@@ -40,16 +40,16 @@ public class GlacialServer extends JavaPlugin
 		uiComponent = new UIComponent(this);
 		administrationComponent = new AdministrationComponent(this);
 		
-		componentManager.register(commandComponent);
 		componentManager.register(manipulationComponent);
 		componentManager.register(dataComponent);
 		componentManager.register(playerComponent);
 		componentManager.register(uiComponent);
 		componentManager.register(administrationComponent);
-		
-		getCommand(Info.COMMAND_GLACIAL_RUSH).setExecutor(commandComponent);
+		componentManager.register(commandComponent);
 		
 		componentManager.enable();
+		
+		getCommand(Info.COMMAND_GLACIAL_RUSH).setExecutor(commandComponent);
 		
 		game = new Game(this);
 		game.load();

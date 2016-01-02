@@ -1,19 +1,31 @@
 package com.ulticraft.component;
 
+import java.util.HashSet;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import com.ulticraft.GlacialServer;
 import com.ulticraft.Info;
+import com.ulticraft.composite.Faction;
+import com.ulticraft.composite.Hunk;
+import com.ulticraft.composite.Map;
+import com.ulticraft.composite.Region;
 import com.ulticraft.uapi.Component;
+import com.ulticraft.uapi.Teleporter;
+import com.ulticraft.uapi.UMap;
 import net.md_5.bungee.api.ChatColor;
 
 public class CommandComponent extends Component implements CommandExecutor
 {
+	private UMap<Player, Map> selection;
+	
 	public CommandComponent(final GlacialServer pl)
 	{
 		super(pl);
+		
+		selection = new UMap<Player, Map>();
 	}
 	
 	public void enable()
@@ -26,9 +38,34 @@ public class CommandComponent extends Component implements CommandExecutor
 	
 	}
 	
+	public void setSelection(Player p, Map m)
+	{
+		selection.put(p, m);
+	}
+	
+	public Map getSelection(Player p)
+	{
+		return selection.get(p);
+	}
+	
+	public boolean hasSelection(Player p)
+	{
+		return selection.containsKey(p);
+	}
+	
+	public void clearSelection(Player p)
+	{
+		selection.remove(p);
+	}
+	
 	public void msg(Player p, String msg)
 	{
 		String tag = ChatColor.DARK_GRAY + "[" + ChatColor.AQUA + "GRush";
+		
+		if(hasSelection(p))
+		{
+			tag = tag + ChatColor.GREEN + " - " + getSelection(p).getName();
+		}
 		
 		p.sendMessage(tag + ChatColor.DARK_GRAY + "]" + ChatColor.YELLOW + ": " + ChatColor.WHITE + msg);
 	}
@@ -53,6 +90,7 @@ public class CommandComponent extends Component implements CommandExecutor
 		msg(p, ChatColor.AQUA + msg);
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
 	{
@@ -73,9 +111,336 @@ public class CommandComponent extends Component implements CommandExecutor
 				{
 					if(args.length > 0)
 					{
-						if(args[0].equals("addiup") || args[0].equals("admin"))
+						if(args[0].equals("build") || args[0].equals("bd"))
 						{
-							pl.getAdministrationComponent().administrate(p);
+							if(hasSelection(p))
+							{
+								getSelection(p).build();
+								suc(p, "Build Process Started for " + getSelection(p).getName());
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						else if(args[0].equals("setname") || args[0].equals("name"))
+						{
+							if(args.length < 2)
+							{
+								err(p, "Supply a name...");
+								return true;
+							}
+							
+							if(hasSelection(p))
+							{
+								if(getSelection(p).getRegions().isEmpty())
+								{
+									err(p, "There are no regions for this map");
+									return true;
+								}
+								
+								String name = "";
+								
+								for(int i = 1; i < args.length; i++)
+								{
+									name = name + " " + args[i];
+								}
+								
+								name = name.substring(1);
+								Map m = getSelection(p);
+								
+								for(Region i : m.getRegions())
+								{
+									if(i.contains(p))
+									{
+										i.setName(name);
+										suc(p, "Region named: " + name);
+										return true;
+									}
+								}
+								
+								err(p, "Stand in a region to set the name");
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						else if(args[0].equals("setspawn") || args[0].equals("settp"))
+						{
+							if(hasSelection(p))
+							{
+								if(getSelection(p).getRegions().isEmpty())
+								{
+									err(p, "There are no regions for this map");
+									return true;
+								}
+								
+								for(Region i : getSelection(p).getRegions())
+								{
+									if(i.contains(p))
+									{
+										i.setSpawn(p.getLocation());
+										p.getWorld().strikeLightningEffect(p.getLocation());
+										suc(p, "Region " + i.getName() + "'s spawn updated");
+										return true;
+									}
+								}
+								
+								err(p, "You need to be inside of a region to set it's spawn");
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						else if(args[0].equals("spawn") || args[0].equals("tp"))
+						{
+							if(hasSelection(p))
+							{
+								Map m = getSelection(p);
+								
+								if(!m.getRegions().isEmpty())
+								{
+									boolean d = Teleporter.safeTeleport(p, m.getRegions().get(0).getSpawn());
+									
+									if(!d)
+									{
+										err(p, "No safe place to put ya >> " + m.getRegions().get(0).getSpawn());
+									}
+								}
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						else if(args[0].equals("accent") || args[0].equals("acc"))
+						{
+							if(hasSelection(p))
+							{
+								getSelection(p).accent(Faction.neutral());
+								suc(p, "Accenting: Neutral");
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						else if(args[0].equals("draw") || args[0].equals("show"))
+						{
+							if(hasSelection(p))
+							{
+								getSelection(p).draw(p);
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						else if(args[0].equals("info") || args[0].equals("inf"))
+						{
+							if(hasSelection(p))
+							{
+								Map m = getSelection(p);
+								
+								for(Region i : m.getRegions())
+								{
+									if(i.contains(p))
+									{
+										nte(p, "Map: " + m.getName());
+										nte(p, "Region Count: " + m.getRegions().size());
+										suc(p, "Current Region: " + i.getName());
+										suc(p, "  CAPP: " + i.getCaptures().size() + " ACCS: " + i.getAccents().size());
+										return true;
+									}
+								}
+								
+								nte(p, "Map: " + m.getName());
+								nte(p, "Region Count: " + m.getRegions().size());
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						else if(args[0].equals("accent-cryptic") || args[0].equals("acc-c"))
+						{
+							if(hasSelection(p))
+							{
+								getSelection(p).accent(Faction.cryptic());
+								suc(p, "Accenting: Cryptic");
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						else if(args[0].equals("accent-omni") || args[0].equals("acc-o"))
+						{
+							if(hasSelection(p))
+							{
+								getSelection(p).accent(Faction.omni());
+								suc(p, "Accenting: Omni");
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						else if(args[0].equals("accent-enigma") || args[0].equals("acc-e"))
+						{
+							if(hasSelection(p))
+							{
+								getSelection(p).accent(Faction.enigma());
+								suc(p, "Accenting: Enigma");
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						else if(args[0].equals("add") || args[0].equals("+"))
+						{
+							if(hasSelection(p))
+							{
+								boolean added = getSelection(p).addRegionNear(p, p.getTargetBlock((HashSet<Byte>) null, 256).getLocation());
+								
+								if(added)
+								{
+									p.playSound(p.getLocation(), Sound.SHOOT_ARROW, 1f, 1.8f);
+								}
+								
+								else
+								{
+									p.playSound(p.getLocation(), Sound.ITEM_BREAK, 1f, 0.3f);
+								}
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						else if(args[0].equals("select") || args[0].equals("sel"))
+						{
+							if(args.length == 1)
+							{
+								Map map = pl.getGame().getMap(new Hunk(p.getLocation()));
+								
+								if(map != null)
+								{
+									setSelection(p, map);
+									suc(p, "Selected Map: " + ChatColor.AQUA + map.getName());
+								}
+								
+								else
+								{
+									err(p, "You aren't inside of a map. Try using the name");
+								}
+							}
+							
+							else
+							{
+								String name = "";
+								
+								for(int i = 1; i < args.length; i++)
+								{
+									name = name + " " + args[i];
+								}
+								
+								name = name.substring(1);
+								Map map = pl.getGame().findMap(name);
+								
+								if(map != null)
+								{
+									setSelection(p, map);
+									suc(p, "Selected Map: " + ChatColor.AQUA + map.getName());
+								}
+								
+								else
+								{
+									err(p, "You aren't inside of a map. Try using the real name");
+								}
+							}
+						}
+						
+						else if(args[0].equals("unselect") || args[0].equals("uns"))
+						{
+							if(hasSelection(p))
+							{
+								String mmp = getSelection(p).getName();
+								clearSelection(p);
+								suc(p, mmp + " Unselected");
+							}
+							
+							else
+							{
+								err(p, "Try actually having something selected first.");
+							}
+						}
+						
+						else if(args[0].equals("new") || args[0].equals("newmap"))
+						{
+							if(args.length > 1)
+							{
+								String name = "";
+								
+								for(int i = 1; i < args.length; i++)
+								{
+									name = name + " " + args[i];
+								}
+								
+								name = name.substring(1);
+								
+								Map map = new Map(pl, name, p.getWorld());
+								
+								if(pl.getGame().getMap(name) == null)
+								{
+									pl.getGame().getMaps().add(map);
+									setSelection(p, map);
+									suc(p, "Created Map: " + map.getName() + " and selected it");
+								}
+								
+								else
+								{
+									err(p, "That's already a map dumbass.");
+								}
+							}
+						}
+						
+						else if(args[0].equals("list") || args[0].equals("ls"))
+						{
+							for(Map i : pl.getGame().getMaps())
+							{
+								msg(p, ChatColor.AQUA + i.getName() + ": " + i.getRegions().size() + "R " + (i.isBuilding() ? ChatColor.RED + "Building..." : i.isBuilt() ? ChatColor.GREEN + "Built" : ChatColor.RED + "Unbuilt"));
+							}
+						}
+						
+						else
+						{
+						
 						}
 					}
 				}
