@@ -89,7 +89,6 @@ public class CommandComponent extends Component implements CommandExecutor
 		msg(p, ChatColor.AQUA + msg);
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
 	{
@@ -213,6 +212,31 @@ public class CommandComponent extends Component implements CommandExecutor
 									{
 										err(p, "No safe place to put ya >> " + m.getRegions().get(0).getSpawn());
 									}
+								}
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						else if(args[0].equals("ready") || args[0].equals("rdy"))
+						{
+							if(hasSelection(p))
+							{
+								Map m = getSelection(p);
+								boolean mrd = m.ready(p);
+								
+								if(mrd)
+								{
+									suc(p, "Map set to ready, use /g urdy  to edit");
+								}
+								
+								else
+								{
+									err(p, "---------------------------");
+									err(p, "Please fix the above errors");
 								}
 							}
 							
