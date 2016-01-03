@@ -20,6 +20,7 @@ public class Map
 	private GlacialServer pl;
 	private Boolean buildServicing;
 	private Integer buildService;
+	private Boolean ready;
 	
 	public Map(GlacialServer pl, String name, World world)
 	{
@@ -29,6 +30,7 @@ public class Map
 		this.regions = new UList<Region>();
 		this.buildService = 0;
 		this.buildServicing = false;
+		this.ready = false;
 	}
 	
 	public boolean isBuilt()
@@ -81,6 +83,44 @@ public class Map
 		}
 		
 		return false;
+	}
+	
+	public boolean isEmpty()
+	{
+		return getRegions().isEmpty();
+	}
+	
+	public boolean ready(Player p)
+	{
+		if(getReady())
+		{
+			pl.getCommandComponent().err(p, "Map is already ready!");
+			return false;
+		}
+		
+		if(isEmpty())
+		{
+			pl.getCommandComponent().err(p, "Map is empty!");
+			return false;
+		}
+		
+		if(!isBuilt())
+		{
+			pl.getCommandComponent().err(p, "Map is not built!");
+			return false;
+		}
+		
+		for(Region i : regions)
+		{
+			if(!i.ready(p))
+			{
+				return false;
+			}
+		}
+		
+		pl.getCommandComponent().suc(p, "Map is ready!");
+		setReady(true);
+		return true;
 	}
 	
 	public boolean contains(Player player)
@@ -355,5 +395,35 @@ public class Map
 	public void setRegions(UList<Region> regions)
 	{
 		this.regions = regions;
+	}
+
+	public Boolean getBuildServicing()
+	{
+		return buildServicing;
+	}
+
+	public void setBuildServicing(Boolean buildServicing)
+	{
+		this.buildServicing = buildServicing;
+	}
+
+	public Integer getBuildService()
+	{
+		return buildService;
+	}
+
+	public void setBuildService(Integer buildService)
+	{
+		this.buildService = buildService;
+	}
+
+	public Boolean getReady()
+	{
+		return ready;
+	}
+
+	public void setReady(Boolean ready)
+	{
+		this.ready = ready;
 	}
 }
