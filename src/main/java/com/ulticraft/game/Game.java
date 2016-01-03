@@ -39,7 +39,13 @@ public class Game
 	
 	public void startGame()
 	{
-		UList<Map> mMaps = maps.copy();
+		UList<Map> mMaps = getMapsReady();
+		
+		if(mMaps.isEmpty())
+		{
+			return;
+		}
+		
 		Collections.shuffle(mMaps);
 		state = new GameState(pl, mMaps.get(0));
 	}
@@ -104,6 +110,24 @@ public class Game
 			Map i = it.next();
 			
 			if(!i.isBuilding())
+			{
+				it.remove();
+			}
+		}
+		
+		return mapps;
+	}
+	
+	public UList<Map> getMapsReady()
+	{
+		UList<Map> mapps = maps.copy();
+		Iterator<Map> it = maps.iterator();
+		
+		while(it.hasNext())
+		{
+			Map i = it.next();
+			
+			if(!i.getReady())
 			{
 				it.remove();
 			}

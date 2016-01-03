@@ -33,6 +33,7 @@ public class Region implements Listener
 	private String name;
 	private Location spawn;
 	private String buildStatus;
+	private Boolean hasSpawn;
 	
 	public Region(GlacialServer pl, Map map, String name, Location location)
 	{
@@ -45,6 +46,7 @@ public class Region implements Listener
 		this.faction = Faction.neutral();
 		this.buildStatus = "unbuilt";
 		this.spawn = hunk.getCenter(64);
+		this.hasSpawn = false;
 		
 		pl.register(this);
 	}
@@ -60,6 +62,7 @@ public class Region implements Listener
 		this.faction = Faction.neutral();
 		this.buildStatus = "unbuilt";
 		this.spawn = hunk.getCenter(64);
+		this.hasSpawn = false;
 		
 		pl.register(this);
 	}
@@ -72,6 +75,25 @@ public class Region implements Listener
 		hallucinate(p, c.getFace(CuboidDirection.South));
 		hallucinate(p, c.getFace(CuboidDirection.East));
 		hallucinate(p, c.getFace(CuboidDirection.West));
+	}
+	
+	public boolean ready(Player p)
+	{
+		if(!hasSpawn)
+		{
+			pl.getCommandComponent().err(p, "No Spawn for this Region");
+			p.teleport(getSpawn());
+			return false;
+		}
+		
+		if(getName().equals(map.getName()))
+		{
+			pl.getCommandComponent().err(p, "No Name for this Region");
+			p.teleport(getSpawn());
+			return false;
+		}
+		
+		return true;
 	}
 	
 	public void unbuild()
@@ -297,6 +319,12 @@ public class Region implements Listener
 			return;
 		}
 		
+		if(map.getReady())
+		{
+			e.setCancelled(true);
+			return;
+		}
+		
 		buildStatus = "unbuilt";
 		map.unbuild();
 		e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.SHOOT_ARROW, 1f, 1.8f);
@@ -308,6 +336,12 @@ public class Region implements Listener
 	{
 		if(!hunk.contains(e.getBlock()) || !buildStatus.equals("built"))
 		{
+			return;
+		}
+		
+		if(map.getReady())
+		{
+			e.setCancelled(true);
 			return;
 		}
 		
@@ -401,6 +435,17 @@ public class Region implements Listener
 	public void setSpawn(Location spawn)
 	{
 		this.spawn = spawn;
+		hasSpawn = true;
+	}
+	
+	public boolean hasSpawn()
+	{
+		return hasSpawn();
+	}
+	
+	public void setHasSpawn(boolean s)
+	{
+		hasSpawn = s;
 	}
 
 	public String getBuildStatus()
