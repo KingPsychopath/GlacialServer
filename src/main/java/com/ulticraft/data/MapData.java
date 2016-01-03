@@ -13,12 +13,14 @@ public class MapData implements Serializable
 	
 	private String name;
 	private String world;
+	private boolean ready;
 	private UList<RegionData> regionData;
 	
-	public MapData(String name, String world)
+	public MapData(String name, String world, boolean ready)
 	{
 		this.name = name;
 		this.world = world;
+		this.ready = ready;
 		this.regionData = new UList<RegionData>();
 	}
 	
@@ -32,12 +34,14 @@ public class MapData implements Serializable
 			map.getRegion(new Hunk(i.getHx(), i.getHz(), pl.getServer().getWorld(world))).setName(i.getName());
 		}
 		
+		map.setReady(ready);
+		
 		return map;
 	}
 	
 	public static MapData fromMap(Map map)
 	{
-		MapData md = new MapData(map.getName(), map.getWorld().getName());
+		MapData md = new MapData(map.getName(), map.getWorld().getName(), map.getReady());
 		
 		for(Region i : map.getRegions())
 		{
@@ -80,5 +84,15 @@ public class MapData implements Serializable
 	public void setRegionData(UList<RegionData> regionData)
 	{
 		this.regionData = regionData;
+	}
+
+	public boolean isReady()
+	{
+		return ready;
+	}
+
+	public void setReady(boolean ready)
+	{
+		this.ready = ready;
 	}
 }
