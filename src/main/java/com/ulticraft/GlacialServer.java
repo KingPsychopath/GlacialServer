@@ -13,8 +13,8 @@ import com.ulticraft.component.ManipulationComponent;
 import com.ulticraft.component.PlayerComponent;
 import com.ulticraft.component.UIComponent;
 import com.ulticraft.game.Game;
-import com.ulticraft.uapi.ComponentManager;
-import com.ulticraft.uapi.Dispatcher;
+import com.ulticraft.xapi.ComponentManager;
+import com.ulticraft.xapi.Dispatcher;
 
 public class GlacialServer extends JavaPlugin
 {

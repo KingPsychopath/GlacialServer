@@ -3,8 +3,8 @@ package com.ulticraft.gui;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import com.ulticraft.GlacialServer;
-import com.ulticraft.uapi.Gui;
-import com.ulticraft.uapi.Gui.Pane;
+import com.ulticraft.xapi.Gui;
+import com.ulticraft.xapi.Gui.Pane;
 
 public class UIAdmin
 {
