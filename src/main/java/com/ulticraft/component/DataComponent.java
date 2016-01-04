@@ -10,9 +10,9 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import com.ulticraft.GlacialServer;
 import com.ulticraft.composite.Map;
-import com.ulticraft.data.MapData;
-import com.ulticraft.uapi.Component;
-import com.ulticraft.uapi.UList;
+import com.ulticraft.composite.MapData;
+import com.ulticraft.xapi.Component;
+import com.ulticraft.xapi.UList;
 
 public class DataComponent extends Component
 {

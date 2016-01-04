@@ -7,8 +7,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import com.ulticraft.GlacialServer;
-import com.ulticraft.uapi.UList;
-import com.ulticraft.uapi.UMap;
+import com.ulticraft.xapi.UList;
+import com.ulticraft.xapi.UMap;
 
 public class FactionMap implements Listener
 {

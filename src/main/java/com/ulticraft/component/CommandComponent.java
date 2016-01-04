@@ -11,9 +11,9 @@ import com.ulticraft.composite.Faction;
 import com.ulticraft.composite.Hunk;
 import com.ulticraft.composite.Map;
 import com.ulticraft.composite.Region;
-import com.ulticraft.uapi.Component;
-import com.ulticraft.uapi.Teleporter;
-import com.ulticraft.uapi.UMap;
+import com.ulticraft.xapi.Component;
+import com.ulticraft.xapi.Teleporter;
+import com.ulticraft.xapi.UMap;
 import net.md_5.bungee.api.ChatColor;
 
 public class CommandComponent extends Component implements CommandExecutor

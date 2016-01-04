@@ -1,7 +1,7 @@
 package com.ulticraft.component;
 
 import com.ulticraft.GlacialServer;
-import com.ulticraft.uapi.Component;
+import com.ulticraft.xapi.Component;
 
 public class UIComponent extends Component
 {

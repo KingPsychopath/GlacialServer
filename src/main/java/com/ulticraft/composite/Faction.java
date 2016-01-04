@@ -2,7 +2,7 @@ package com.ulticraft.composite;
 
 import java.io.Serializable;
 import org.bukkit.DyeColor;
-import com.ulticraft.uapi.ColorUtils;
+import com.ulticraft.xapi.ColorUtils;
 import net.md_5.bungee.api.ChatColor;
 
 public class Faction implements Serializable

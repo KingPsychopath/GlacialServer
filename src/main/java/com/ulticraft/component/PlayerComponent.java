@@ -2,9 +2,9 @@ package com.ulticraft.component;
 
 import org.bukkit.entity.Player;
 import com.ulticraft.GlacialServer;
-import com.ulticraft.data.PlayerData;
-import com.ulticraft.uapi.Component;
-import com.ulticraft.uapi.UMap;
+import com.ulticraft.composite.PlayerData;
+import com.ulticraft.xapi.Component;
+import com.ulticraft.xapi.UMap;
 
 public class PlayerComponent extends Component
 {

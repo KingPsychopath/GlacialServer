@@ -2,9 +2,9 @@ package com.ulticraft.component;
 
 import com.ulticraft.GlacialServer;
 import com.ulticraft.composite.Manipulation;
-import com.ulticraft.uapi.Component;
-import com.ulticraft.uapi.Title;
-import com.ulticraft.uapi.UList;
+import com.ulticraft.xapi.Component;
+import com.ulticraft.xapi.Title;
+import com.ulticraft.xapi.UList;
 import net.md_5.bungee.api.ChatColor;
 
 public class ManipulationComponent extends Component
