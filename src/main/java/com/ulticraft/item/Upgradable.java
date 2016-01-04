@@ -1,6 +1,6 @@
 package com.ulticraft.item;
 
-import com.ulticraft.uapi.UList;
+import com.ulticraft.xapi.UList;
 
 public interface Upgradable
 {

@@ -1,7 +1,7 @@
 package com.ulticraft.game;
 
 import com.ulticraft.GlacialServer;
-import com.ulticraft.uapi.UList;
+import com.ulticraft.xapi.UList;
 
 public class GameRegistry
 {

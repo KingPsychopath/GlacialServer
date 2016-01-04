@@ -4,9 +4,9 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import com.ulticraft.GlacialServer;
 import com.ulticraft.composite.Map;
-import com.ulticraft.uapi.Gui;
-import com.ulticraft.uapi.Gui.Pane;
-import com.ulticraft.uapi.Gui.Pane.Element;
+import com.ulticraft.xapi.Gui;
+import com.ulticraft.xapi.Gui.Pane;
+import com.ulticraft.xapi.Gui.Pane.Element;
 
 public class UIAdminMapView
 {

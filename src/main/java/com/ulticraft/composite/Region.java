@@ -16,10 +16,10 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import com.ulticraft.GlacialServer;
 import com.ulticraft.component.ManipulationComponent;
-import com.ulticraft.uapi.Cuboid;
-import com.ulticraft.uapi.Cuboid.CuboidDirection;
-import com.ulticraft.uapi.Title;
-import com.ulticraft.uapi.UList;
+import com.ulticraft.xapi.Cuboid;
+import com.ulticraft.xapi.Title;
+import com.ulticraft.xapi.UList;
+import com.ulticraft.xapi.Cuboid.CuboidDirection;
 import net.md_5.bungee.api.ChatColor;
 
 public class Region implements Listener

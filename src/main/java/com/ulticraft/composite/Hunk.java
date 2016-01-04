@@ -6,7 +6,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import com.ulticraft.uapi.Cuboid;
+import com.ulticraft.xapi.Cuboid;
 
 public class Hunk implements Cloneable
 {
