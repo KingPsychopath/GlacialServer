@@ -2,7 +2,7 @@ package com.ulticraft.game;
 
 public interface GameComponent
 {
-	void onTick(GameState state);
-	void onStart(GameState state);
-	void onStop(GameState state);
+	void onTick(Game g);
+	void onStart(Game g);
+	void onStop(Game g);
 }
