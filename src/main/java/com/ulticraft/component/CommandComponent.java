@@ -109,7 +109,7 @@ public class CommandComponent extends Component implements CommandExecutor
 				{
 					if(args.length > 0)
 					{
-						if(args[0].equals("build") || args[0].equals("bd"))
+						if(args[0].equalsIgnoreCase("build") || args[0].equalsIgnoreCase("bd"))
 						{
 							if(hasSelection(p))
 							{
@@ -123,7 +123,7 @@ public class CommandComponent extends Component implements CommandExecutor
 							}
 						}
 						
-						else if(args[0].equals("setname") || args[0].equals("name"))
+						else if(args[0].equalsIgnoreCase("setname") || args[0].equalsIgnoreCase("name"))
 						{
 							if(args.length < 2)
 							{
@@ -168,7 +168,7 @@ public class CommandComponent extends Component implements CommandExecutor
 							}
 						}
 						
-						else if(args[0].equals("setspawn") || args[0].equals("settp"))
+						else if(args[0].equalsIgnoreCase("setspawn") || args[0].equalsIgnoreCase("settp"))
 						{
 							if(hasSelection(p))
 							{
@@ -198,7 +198,7 @@ public class CommandComponent extends Component implements CommandExecutor
 							}
 						}
 						
-						else if(args[0].equals("spawn") || args[0].equals("tp"))
+						else if(args[0].equalsIgnoreCase("spawn") || args[0].equalsIgnoreCase("tp"))
 						{
 							if(hasSelection(p))
 							{
@@ -221,11 +221,18 @@ public class CommandComponent extends Component implements CommandExecutor
 							}
 						}
 						
-						else if(args[0].equals("ready") || args[0].equals("rdy"))
+						else if(args[0].equalsIgnoreCase("ready") || args[0].equalsIgnoreCase("rdy"))
 						{
 							if(hasSelection(p))
 							{
 								Map m = getSelection(p);
+								
+								if(m.getReady())
+								{
+									err(p, "Map is already ready!");
+									return true;
+								}
+								
 								boolean mrd = m.ready(p);
 								
 								if(mrd)
@@ -246,7 +253,30 @@ public class CommandComponent extends Component implements CommandExecutor
 							}
 						}
 						
-						else if(args[0].equals("accent") || args[0].equals("acc"))
+						else if(args[0].equalsIgnoreCase("unredy") || args[0].equalsIgnoreCase("urdy"))
+						{
+							if(hasSelection(p))
+							{
+								Map m = getSelection(p);
+								
+								if(!m.getReady())
+								{
+									err(p, "Map isn't ready!");
+									return true;
+								}
+								
+								m.setReady(false);
+								
+								suc(p, "Unready set, go ahead and edit");
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						else if(args[0].equalsIgnoreCase("accent") || args[0].equalsIgnoreCase("acc"))
 						{
 							if(hasSelection(p))
 							{
@@ -260,7 +290,20 @@ public class CommandComponent extends Component implements CommandExecutor
 							}
 						}
 						
-						else if(args[0].equals("draw") || args[0].equals("show"))
+						else if(args[0].equalsIgnoreCase("forcebuild") || args[0].equalsIgnoreCase("build-f"))
+						{
+							if(hasSelection(p))
+							{
+								getSelection(p).rebuild();
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						else if(args[0].equalsIgnoreCase("draw") || args[0].equalsIgnoreCase("show"))
 						{
 							if(hasSelection(p))
 							{
@@ -273,7 +316,7 @@ public class CommandComponent extends Component implements CommandExecutor
 							}
 						}
 						
-						else if(args[0].equals("info") || args[0].equals("inf"))
+						else if(args[0].equalsIgnoreCase("info") || args[0].equalsIgnoreCase("inf"))
 						{
 							if(hasSelection(p))
 							{
@@ -301,7 +344,7 @@ public class CommandComponent extends Component implements CommandExecutor
 							}
 						}
 						
-						else if(args[0].equals("accent-cryptic") || args[0].equals("acc-c"))
+						else if(args[0].equalsIgnoreCase("accent-cryptic") || args[0].equalsIgnoreCase("acc-c"))
 						{
 							if(hasSelection(p))
 							{
@@ -315,7 +358,7 @@ public class CommandComponent extends Component implements CommandExecutor
 							}
 						}
 						
-						else if(args[0].equals("accent-omni") || args[0].equals("acc-o"))
+						else if(args[0].equalsIgnoreCase("accent-omni") || args[0].equalsIgnoreCase("acc-o"))
 						{
 							if(hasSelection(p))
 							{
@@ -329,7 +372,7 @@ public class CommandComponent extends Component implements CommandExecutor
 							}
 						}
 						
-						else if(args[0].equals("accent-enigma") || args[0].equals("acc-e"))
+						else if(args[0].equalsIgnoreCase("accent-enigma") || args[0].equalsIgnoreCase("acc-e"))
 						{
 							if(hasSelection(p))
 							{
@@ -343,7 +386,7 @@ public class CommandComponent extends Component implements CommandExecutor
 							}
 						}
 						
-						else if(args[0].equals("add") || args[0].equals("+"))
+						else if(args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("+"))
 						{
 							if(hasSelection(p))
 							{
@@ -366,7 +409,7 @@ public class CommandComponent extends Component implements CommandExecutor
 							}
 						}
 						
-						else if(args[0].equals("select") || args[0].equals("sel"))
+						else if(args[0].equalsIgnoreCase("select") || args[0].equalsIgnoreCase("sel"))
 						{
 							if(args.length == 1)
 							{
@@ -409,7 +452,7 @@ public class CommandComponent extends Component implements CommandExecutor
 							}
 						}
 						
-						else if(args[0].equals("unselect") || args[0].equals("uns"))
+						else if(args[0].equalsIgnoreCase("unselect") || args[0].equalsIgnoreCase("uns"))
 						{
 							if(hasSelection(p))
 							{
@@ -424,7 +467,7 @@ public class CommandComponent extends Component implements CommandExecutor
 							}
 						}
 						
-						else if(args[0].equals("new") || args[0].equals("newmap"))
+						else if(args[0].equalsIgnoreCase("new") || args[0].equalsIgnoreCase("newmap"))
 						{
 							if(args.length > 1)
 							{
@@ -453,7 +496,7 @@ public class CommandComponent extends Component implements CommandExecutor
 							}
 						}
 						
-						else if(args[0].equals("list") || args[0].equals("ls"))
+						else if(args[0].equalsIgnoreCase("list") || args[0].equalsIgnoreCase("ls"))
 						{
 							for(Map i : pl.getGame().getMaps())
 							{

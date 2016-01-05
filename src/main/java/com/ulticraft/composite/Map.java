@@ -85,6 +85,16 @@ public class Map
 		return false;
 	}
 	
+	public void rebuild()
+	{
+		for(Region i : regions)
+		{
+			i.setBuildStatus("unbuilt");
+		}
+		
+		build();
+	}
+	
 	public boolean isEmpty()
 	{
 		return getRegions().isEmpty();
@@ -153,7 +163,7 @@ public class Map
 		
 		buildServicing = true;
 		
-		buildService = pl.scheduleSyncRepeatingTask(0, 5, new Runnable()
+		buildService = pl.scheduleSyncRepeatingTask(0, 0, new Runnable()
 		{
 			@Override
 			public void run()
@@ -161,7 +171,26 @@ public class Map
 				if(it.hasNext())
 				{
 					i[0] = i[0] + 1;
-					it.next().build();
+					Region r = it.next();
+					
+					if(r.getBuildStatus().equals("built"))
+					{
+						while(it.hasNext())
+						{
+							r = it.next();
+							i[0] = i[0] + 1;
+							
+							if(r.getBuildStatus().equals("unbuilt"))
+							{
+								break;
+							}
+						}
+					}
+					
+					else
+					{
+						r.build();
+					}
 					
 					Title t = new Title();
 					t.setFadeInTime(0);
