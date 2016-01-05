@@ -5,6 +5,7 @@ import java.util.Iterator;
 import com.ulticraft.GlacialServer;
 import com.ulticraft.composite.Hunk;
 import com.ulticraft.composite.Map;
+import com.ulticraft.game.GameState.Status;
 import com.ulticraft.xapi.UList;
 
 public class Game
@@ -13,6 +14,7 @@ public class Game
 	private GameRegistry registry;
 	private GlacialServer pl;
 	private UList<Map> maps;
+	private Integer gameTask;
 	
 	public Game(GlacialServer pl)
 	{
@@ -37,6 +39,13 @@ public class Game
 		pl.getDataComponent().saveAll(maps);
 	}
 	
+	public void stopGame()
+	{
+		pl.cancelTask(gameTask);
+		registry.stop();
+		state.stop();
+	}
+	
 	public void startGame()
 	{
 		UList<Map> mMaps = getMapsReady();
@@ -48,6 +57,20 @@ public class Game
 		
 		Collections.shuffle(mMaps);
 		state = new GameState(pl, mMaps.get(0));
+		state.start();
+		registry.start();
+		
+		gameTask = pl.scheduleSyncRepeatingTask(0, 0, new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if(state.getStatus().equals(Status.RUNNING))
+				{
+					registry.tick();
+				}
+			}
+		});
 	}
 	
 	public Map findMap(String name)
@@ -190,5 +213,10 @@ public class Game
 	public void setMaps(UList<Map> maps)
 	{
 		this.maps = maps;
+	}
+	
+	public GlacialServer pl()
+	{
+		return pl;
 	}
 }
