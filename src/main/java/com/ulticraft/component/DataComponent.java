@@ -77,7 +77,7 @@ public class DataComponent extends Component
 				maps.add(map);
 			}
 			
-			catch(ClassNotFoundException | IOException e)
+			catch(Exception e)
 			{
 				e.printStackTrace();
 			}

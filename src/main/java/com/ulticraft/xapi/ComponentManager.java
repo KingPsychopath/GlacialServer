@@ -86,8 +86,9 @@ public class ComponentManager
 					pl.v("Component " + StringUtils.remove(c.getClass().getSimpleName(), "Component") + " Enabled");
 				}
 				
-				catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+				catch(Exception e)
 				{
+					e.printStackTrace();
 					return;
 				}
 			}
@@ -109,8 +110,9 @@ public class ComponentManager
 					pl.v("Component " + StringUtils.remove(c.getClass().getSimpleName(), "Component") + " Disabled");
 				}
 				
-				catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+				catch(Exception e)
 				{
+					e.printStackTrace();
 					return;
 				}
 			}
@@ -142,8 +144,9 @@ public class ComponentManager
 			return o.getClass().getDeclaredMethod(mn);
 		}
 		
-		catch(NoSuchMethodException | SecurityException e)
+		catch(Exception e)
 		{
+			e.printStackTrace();
 			return null;
 		}
 	}
