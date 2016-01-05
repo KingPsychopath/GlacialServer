@@ -18,6 +18,7 @@ import com.ulticraft.xapi.Dispatcher;
 
 public class GlacialServer extends JavaPlugin
 {
+	//f sdf 
 	private Dispatcher dispatcher;
 	private ComponentManager componentManager;
 	private CommandComponent commandComponent;
