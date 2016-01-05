@@ -9,22 +9,29 @@ public class GameState
 	private GlacialServer pl;
 	private Map map;
 	private FactionMap factionMap;
+	private Status status;
+	
+	public enum Status
+	{
+		RUNNING, OFFLINE
+	}
 	
 	public GameState(GlacialServer pl, Map map)
 	{
 		this.pl = pl;
 		this.factionMap = new FactionMap(pl);
 		this.map = map;
+		this.status = Status.OFFLINE;
 	}
-
-	public GlacialServer getPl()
+	
+	public void start()
 	{
-		return pl;
+		status = Status.RUNNING;
 	}
-
-	public void setPl(GlacialServer pl)
+	
+	public void stop()
 	{
-		this.pl = pl;
+		status = Status.OFFLINE;
 	}
 
 	public Map getMap()
@@ -45,5 +52,15 @@ public class GameState
 	public void setFactionMap(FactionMap factionMap)
 	{
 		this.factionMap = factionMap;
+	}
+
+	public Status getStatus()
+	{
+		return status;
+	}
+
+	public void setStatus(Status status)
+	{
+		this.status = status;
 	}
 }
