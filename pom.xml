@@ -2,6 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.ulticraft</groupId>
   <artifactId>GlacialServer</artifactId>
+  <description>Desc</description>
   <version>0.1</version>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
