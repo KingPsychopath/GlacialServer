@@ -60,7 +60,7 @@
 		</repository>
 		<repository>
 			<id>grush-repo</id>
-			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+			<url>https://raw.githubusercontent.com/GlacialRush/GlacialAPI/master/repository/</url>
 		</repository>
 	</repositories>
 	<dependencies>
