@@ -57,6 +57,22 @@ public class FactionMap implements Listener
 		players.get(smallest).add(p);
 	}
 	
+	public Faction getFaction(Player player)
+	{
+		for(Faction i : players.keySet())
+		{
+			for(Player j : players.get(i))
+			{
+				if(player.equals(j))
+				{
+					return i;
+				}
+			}
+		}
+		
+		return null;
+	}
+	
 	@EventHandler
 	public void onPlayer(PlayerJoinEvent e)
 	{

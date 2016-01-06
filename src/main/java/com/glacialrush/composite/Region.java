@@ -18,8 +18,8 @@ import com.glacialrush.GlacialServer;
 import com.glacialrush.api.dispatch.Title;
 import com.glacialrush.component.ManipulationComponent;
 import com.glacialrush.xapi.Cuboid;
-import com.glacialrush.xapi.UList;
 import com.glacialrush.xapi.Cuboid.CuboidDirection;
+import com.glacialrush.xapi.UList;
 import net.md_5.bungee.api.ChatColor;
 
 public class Region implements Listener
@@ -186,7 +186,7 @@ public class Region implements Listener
 					
 					if(block.getType().equals(Material.BEACON))
 					{
-						captures.add(new Capture(block.getLocation()));
+						captures.add(new Capture(Region.this, block.getLocation()));
 						
 						w.add(new Manipulation(block.getRelative(BlockFace.DOWN).getLocation(), Material.IRON_BLOCK));
 						w.add(new Manipulation(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.NORTH).getLocation(), Material.IRON_BLOCK));
@@ -267,8 +267,6 @@ public class Region implements Listener
 	
 	public void capture(Capture cap, Faction f)
 	{
-		cap.setDominantFaction(f);
-		
 		ManipulationComponent w = pl.getManipulationComponent();
 		Block b = cap.getLocation().getBlock();
 		DyeColor dye = f.getDyeColor();
