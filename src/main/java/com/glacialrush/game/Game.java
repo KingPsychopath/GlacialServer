@@ -6,6 +6,8 @@ import com.glacialrush.GlacialServer;
 import com.glacialrush.composite.Hunk;
 import com.glacialrush.composite.Map;
 import com.glacialrush.game.GameState.Status;
+import com.glacialrush.game.component.EventRippler;
+import com.glacialrush.game.component.MapHandler;
 import com.glacialrush.xapi.UList;
 
 public class Game
@@ -16,12 +18,21 @@ public class Game
 	private UList<Map> maps;
 	private Integer gameTask;
 	
+	private EventRippler eventRippler;
+	private MapHandler mapHandler;
+	
 	public Game(GlacialServer pl)
 	{
 		this.pl = pl;
 		this.state = new GameState(pl, null);
 		this.registry = new GameRegistry(pl);
 		this.maps = new UList<Map>();
+		
+		this.eventRippler = new EventRippler();
+		this.mapHandler = new MapHandler();
+		
+		registry.add(eventRippler);
+		registry.add(mapHandler);
 	}
 	
 	public void load()
@@ -218,5 +229,25 @@ public class Game
 	public GlacialServer pl()
 	{
 		return pl;
+	}
+
+	public GlacialServer getPl()
+	{
+		return pl;
+	}
+
+	public Integer getGameTask()
+	{
+		return gameTask;
+	}
+
+	public EventRippler getEventRippler()
+	{
+		return eventRippler;
+	}
+
+	public MapHandler getMapHandler()
+	{
+		return mapHandler;
 	}
 }
