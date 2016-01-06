@@ -17,6 +17,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.api.dispatch.Title;
 import com.glacialrush.component.ManipulationComponent;
+import com.glacialrush.game.Game;
 import com.glacialrush.xapi.Cuboid;
 import com.glacialrush.xapi.Cuboid.CuboidDirection;
 import com.glacialrush.xapi.UList;
@@ -65,6 +66,11 @@ public class Region implements Listener
 		this.hasSpawn = false;
 		
 		pl.register(this);
+	}
+	
+	public Game getGame()
+	{
+		return pl.getGame();
 	}
 
 	public void draw(Player p, int level)
