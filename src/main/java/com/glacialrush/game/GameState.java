@@ -6,7 +6,6 @@ import com.glacialrush.composite.Map;
 
 public class GameState
 {
-	private GlacialServer pl;
 	private Map map;
 	private FactionMap factionMap;
 	private Status status;
@@ -18,7 +17,6 @@ public class GameState
 	
 	public GameState(GlacialServer pl, Map map)
 	{
-		this.pl = pl;
 		this.factionMap = new FactionMap(pl);
 		this.map = map;
 		this.status = Status.OFFLINE;
