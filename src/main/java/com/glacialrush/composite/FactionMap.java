@@ -77,6 +77,7 @@ public class FactionMap implements Listener
 	public void onPlayer(PlayerJoinEvent e)
 	{
 		insert(e.getPlayer());
+		pl.getGame().respawn(e.getPlayer());
 	}
 	
 	@EventHandler
