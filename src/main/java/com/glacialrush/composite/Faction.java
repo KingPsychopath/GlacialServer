@@ -3,6 +3,7 @@ package com.glacialrush.composite;
 import java.io.Serializable;
 import org.bukkit.DyeColor;
 import com.glacialrush.xapi.ColorUtils;
+import com.glacialrush.xapi.UList;
 import net.md_5.bungee.api.ChatColor;
 
 public class Faction implements Serializable
@@ -79,5 +80,15 @@ public class Faction implements Serializable
 	public static Faction cryptic()
 	{
 		return cryptic;
+	}
+	
+	public static Faction random()
+	{
+		return new UList<Faction>().qadd(cryptic).qadd(enigma).qadd(omni).pickRandom();
+	}
+
+	public static UList<Faction> all()
+	{
+		return new UList<Faction>().qadd(cryptic).qadd(enigma).qadd(omni);
 	}
 }
