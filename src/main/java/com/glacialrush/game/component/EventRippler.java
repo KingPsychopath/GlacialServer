@@ -1,9 +1,12 @@
 package com.glacialrush.game.component;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import com.glacialrush.composite.Capture;
 import com.glacialrush.composite.Faction;
 import com.glacialrush.composite.Hunk;
@@ -25,11 +28,13 @@ public class EventRippler implements GameComponent, Listener
 	
 	private UMap<Capture, UList<Player>> offensives;
 	private UMap<Capture, FactionCaptureEvent> events;
+	private UMap<Player, Location> respawns;
 	
 	public EventRippler()
 	{
 		offensives = new UMap<Capture, UList<Player>>();
 		events = new UMap<Capture, FactionCaptureEvent>();
+		respawns = new UMap<Player, Location>();
 	}
 	
 	@Override
@@ -167,6 +172,28 @@ public class EventRippler implements GameComponent, Listener
 					events.put(i, fce);
 				}
 			}
+		}
+	}
+	
+	@EventHandler
+	public void onPlayerDeath(PlayerDeathEvent e)
+	{
+		respawns.put(e.getEntity(), e.getEntity().getLocation());
+	}
+	
+	@EventHandler
+	public void onPlayerRespawn(PlayerRespawnEvent e)
+	{
+		if(respawns.containsKey(e.getPlayer()))
+		{
+			Location l = respawns.get(e.getPlayer()).clone();
+			respawns.remove(e.getPlayer());
+			e.setRespawnLocation(game.getRespawnNear(e.getPlayer(), l));
+		}
+		
+		else
+		{
+			e.setRespawnLocation(game.getRespawn(e.getPlayer()));
 		}
 	}
 	
