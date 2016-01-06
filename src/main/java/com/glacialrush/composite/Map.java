@@ -9,7 +9,9 @@ import org.bukkit.entity.Player;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.api.dispatch.Title;
 import com.glacialrush.composite.Hunk.HunkFace;
+import com.glacialrush.xapi.FastMath;
 import com.glacialrush.xapi.UList;
+import com.glacialrush.xapi.UMap;
 import net.md_5.bungee.api.ChatColor;
 
 public class Map
@@ -21,6 +23,7 @@ public class Map
 	private Boolean buildServicing;
 	private Integer buildService;
 	private Boolean ready;
+	private UMap<Faction, Region> spawns;
 	
 	public Map(GlacialServer pl, String name, World world)
 	{
@@ -31,6 +34,7 @@ public class Map
 		this.buildService = 0;
 		this.buildServicing = false;
 		this.ready = false;
+		this.spawns = new UMap<Faction, Region>();
 	}
 	
 	public boolean isBuilt()
@@ -95,6 +99,16 @@ public class Map
 		build();
 	}
 	
+	public void setSpawn(Faction f, Region r)
+	{
+		spawns.put(f, r);
+	}
+	
+	public Location getSpawn(Faction f)
+	{
+		return spawns.get(f).getSpawn();
+	}
+	
 	public boolean isEmpty()
 	{
 		return getRegions().isEmpty();
@@ -111,6 +125,18 @@ public class Map
 		if(isEmpty())
 		{
 			pl.getCommandComponent().err(p, "Map is empty!");
+			return false;
+		}
+		
+		if(regions.size() < 9)
+		{
+			pl.getCommandComponent().err(p, "Map is too small!");
+			return false;
+		}
+		
+		if(regions.size() % 3 != 0)
+		{
+			pl.getCommandComponent().err(p, "Map is not divisible by three!");
 			return false;
 		}
 		
@@ -151,6 +177,143 @@ public class Map
 		}
 	}
 	
+	public void setMapSpawns()
+	{
+		UMap<Faction, Region> ms = new UMap<Faction, Region>();
+		Region ll = null;
+		Region tl = null;
+		Region fl = null;
+		
+		double fx = Double.MIN_VALUE;
+		
+		int lx = Integer.MAX_VALUE;
+		int lz = Integer.MAX_VALUE;
+		int tx = Integer.MIN_VALUE;
+		int tz = Integer.MIN_VALUE;
+		
+		for(Region i : regions)
+		{
+			if(i.getHunk().getX() < lx)
+			{
+				lx = i.getHunk().getX();
+			}
+		}
+		
+		for(Region i : regions)
+		{
+			if(i.getHunk().getX() == lx && i.getHunk().getZ() < lz)
+			{
+				lz = i.getHunk().getZ();
+				ll = i;
+			}
+		}
+		
+		ms.put(Faction.random(), ll);
+		
+		for(Region i : regions)
+		{
+			if(i.getHunk().getX() > tx)
+			{
+				tx = i.getHunk().getX();
+			}
+		}
+		
+		for(Region i : regions)
+		{
+			if(i.getHunk().getX() == tx && i.getHunk().getZ() > tz)
+			{
+				tz = i.getHunk().getZ();
+				tl = i;
+			}
+		}
+		
+		for(Faction i : Faction.all())
+		{
+			if(!ms.containsKey(i))
+			{
+				ms.put(i, tl);
+				break;
+			}
+		}
+		
+		for(Region i : regions)
+		{
+			if(FastMath.distance2D(i.getHunk().getCenter(0), ms.get(0).getHunk().getCenter(0)) > fx && FastMath.distance2D(i.getHunk().getCenter(0), ms.get(1).getHunk().getCenter(0)) > fx)
+			{
+				fx = Math.max(FastMath.distance2D(i.getHunk().getCenter(0), ms.get(0).getHunk().getCenter(0)), FastMath.distance2D(i.getHunk().getCenter(0), ms.get(1).getHunk().getCenter(0)));
+				fl = i;
+			}
+		}
+		
+		for(Faction i : Faction.all())
+		{
+			if(!ms.containsKey(i))
+			{
+				ms.put(i, fl);
+				break;
+			}
+		}
+		
+		spawns = ms;
+	}
+	
+	public void accentEvenley()
+	{
+		for(Region i : regions)
+		{
+			i.setFaction(Faction.neutral());
+		}
+		
+		for(Faction i : spawns.keySet())
+		{
+			spawns.get(i).setFaction(i);
+		}
+		
+		while(hasNeutralRegions())
+		{
+			for(Faction i : spawns.keySet())
+			{
+				for(Region j : regions)
+				{
+					boolean cycle = false;
+					
+					if(j.getFaction().equals(i))
+					{
+						for(HunkFace k : HunkFace.values())
+						{
+							Region t = getRegion(j.getHunk().getRelative(k));
+							
+							if(t != null && t.getFaction().equals(Faction.neutral()))
+							{
+								t.setFaction(i);
+								cycle = true;
+								break;
+							}
+						}
+					}
+					
+					if(cycle)
+					{
+						break;
+					}
+				}
+			}
+		}
+	}
+	
+	public boolean hasNeutralRegions()
+	{
+		for(Region i : regions)
+		{
+			if(i.getFaction().equals(Faction.neutral()))
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 	public void build()
 	{
 		if(buildServicing)
@@ -162,6 +325,8 @@ public class Map
 		final Integer[] i = {0};
 		
 		buildServicing = true;
+		
+		setMapSpawns();
 		
 		buildService = pl.scheduleSyncRepeatingTask(0, 0, new Runnable()
 		{
@@ -205,6 +370,7 @@ public class Map
 				else
 				{
 					pl.cancelTask(buildService);
+					accentEvenley();
 					buildServicing = false;
 				}
 			}
