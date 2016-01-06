@@ -1,10 +1,13 @@
 package com.glacialrush.game.component;
 
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import com.glacialrush.game.Game;
 import com.glacialrush.game.GameComponent;
 import com.glacialrush.game.Tickrement;
 import com.glacialrush.game.Tickreval;
+import com.glacialrush.game.event.FactionCaptureEvent;
 
 @Tickrement(Tickreval.HALFSECOND)
 public class MapHandler implements GameComponent, Listener
@@ -25,5 +28,11 @@ public class MapHandler implements GameComponent, Listener
 	public void onStop(Game g)
 	{
 		g.pl().unRegister(this);
+	}
+	
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onGlacialEvent(FactionCaptureEvent e)
+	{
+		e.getCapturePoint().capture(e.getOffense(), e.getOp(), e.getDp(), e.getOpf());
 	}
 }
