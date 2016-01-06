@@ -14,6 +14,7 @@ import com.glacialrush.game.Tickrement;
 import com.glacialrush.game.Tickreval;
 import com.glacialrush.game.event.EnterCapturePointEvent;
 import com.glacialrush.game.event.ExitCapturePointEvent;
+import com.glacialrush.game.event.FactionCaptureEvent;
 import com.glacialrush.xapi.UList;
 import com.glacialrush.xapi.UMap;
 
@@ -23,16 +24,23 @@ public class EventRippler implements GameComponent, Listener
 	private Game game;
 	
 	private UMap<Capture, UList<Player>> offensives;
+	private UMap<Capture, FactionCaptureEvent> events;
 	
 	public EventRippler()
 	{
 		offensives = new UMap<Capture, UList<Player>>();
+		events = new UMap<Capture, FactionCaptureEvent>();
 	}
 	
 	@Override
 	public void onTick(Game g)
 	{
+		for(Capture i : events.keySet())
+		{
+			g.pl().callEvent(events.get(i));
+		}
 		
+		events.clear();
 	}
 
 	@Override
@@ -87,15 +95,83 @@ public class EventRippler implements GameComponent, Listener
 				
 				Faction def = i.getDefense();
 				Faction fac = null;
+				Faction faf = null;
 				int op = 0;
 				int dp = 0;
 				int opf = 0;
+				boolean ok = true;
 				
 				for(Player j : offensives.get(i))
 				{
+					Faction f = game.getState().getFactionMap().getFaction(j);
 					
+					if(f.equals(def))
+					{
+						dp++;
+					}
+					
+					else
+					{
+						if(fac == null)
+						{
+							fac = f;
+							op++;
+						}
+						
+						else
+						{
+							if(f.equals(fac))
+							{
+								op++;
+							}
+							
+							else
+							{
+								if(faf == null)
+								{
+									faf = f;
+								}
+								
+								opf++;
+							}
+						}
+					}
+				}
+				
+				if(op < opf)
+				{
+					fac = faf;
+					int k = op;
+					int l = opf;
+					
+					op = k + l;
+					opf = op;
+				}
+				
+				else if(op > opf)
+				{
+					int k = op;
+					int l = opf;
+					
+					op = k + l;
+				}
+				
+				else
+				{
+					ok = false;
+				}
+				
+				if(ok)
+				{
+					FactionCaptureEvent fce = new FactionCaptureEvent(i, fac, op, dp, opf);
+					events.put(i, fce);
 				}
 			}
 		}
+	}
+	
+	public UList<Player> getPlayers(Capture capture)
+	{
+		return offensives.get(capture);
 	}
 }
