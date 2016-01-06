@@ -2,12 +2,16 @@ package com.glacialrush.game;
 
 import java.util.Collections;
 import java.util.Iterator;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.composite.Hunk;
 import com.glacialrush.composite.Map;
+import com.glacialrush.composite.Region;
 import com.glacialrush.game.GameState.Status;
 import com.glacialrush.game.component.EventRippler;
 import com.glacialrush.game.component.MapHandler;
+import com.glacialrush.xapi.FastMath;
 import com.glacialrush.xapi.UList;
 
 public class Game
@@ -71,6 +75,11 @@ public class Game
 		state.start();
 		registry.start();
 		
+		for(Player i : pl.onlinePlayers())
+		{
+			respawn(i);
+		}
+		
 		gameTask = pl.scheduleSyncRepeatingTask(0, 0, new Runnable()
 		{
 			@Override
@@ -82,6 +91,43 @@ public class Game
 				}
 			}
 		});
+	}
+	
+	public Location getRespawn(Player p)
+	{
+		return getState().getMap().getSpawn(getState().getFactionMap().getFaction(p));
+	}
+	
+	public void respawn(Player p)
+	{
+		p.teleport(getRespawn(p));
+	}
+	
+	public Location getRespawnNear(Player p, Location l)
+	{
+		double close = Double.MAX_VALUE;
+		Region sp = null;
+		
+		for(Region i : state.getMap().getRegions())
+		{
+			if(i.getFaction().equals(state.getFactionMap().getFaction(p)))
+			{
+				double dst = FastMath.distance2D(i.getSpawn(), l);
+				
+				if(dst < close)
+				{
+					dst = close;
+					sp = i;
+				}
+			}
+		}
+		
+		return sp.getSpawn();
+	}
+	
+	public void respawnNear(Player p, Location l)
+	{
+		p.teleport(getRespawnNear(p, l));
 	}
 	
 	public Map findMap(String name)
