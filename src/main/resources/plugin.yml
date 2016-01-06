@@ -1,6 +1,7 @@
 name: GlacialServer
-main: com.ulticraft.GlacialServer
+main: com.glacialrush.GlacialServer
 version: 1.0
+depend: [GlacialAPI]
 commands:
   glacialrush: 
     aliases: [g, grush, rush, gr]
