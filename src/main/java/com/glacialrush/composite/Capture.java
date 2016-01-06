@@ -1,6 +1,8 @@
 package com.glacialrush.composite;
 
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import com.glacialrush.xapi.UList;
 
 public class Capture
 {
@@ -10,6 +12,8 @@ public class Capture
 	private Integer state;
 	private Region region;
 	
+	private static final int size = 20;
+	
 	public Capture(Region region, Location location)
 	{
 		this.location = location;
@@ -17,6 +21,11 @@ public class Capture
 		this.state = 100;
 		this.offense = null;
 		this.defense = Faction.neutral();
+	}
+	
+	public UList<Player> getPlayers()
+	{
+		return region.getGame().getEventRippler().getPlayers(this);
 	}
 	
 	public void reset()
@@ -53,7 +62,7 @@ public class Capture
 			return defense;
 		}
 		
-		else if(state == -100)	
+		else if(state == -100)
 		{
 			return offense;
 		}
@@ -74,12 +83,12 @@ public class Capture
 			
 			if(op > dp)
 			{
-				state--;
+				state -= size;
 			}
 			
 			else if(dp > op)
 			{
-				state++;
+				state += size;
 			}
 		}
 		
@@ -94,18 +103,18 @@ public class Capture
 						this.offense = offense;
 					}
 					
-					state--;
+					state -= size;
 				}
 				
 				else if(state < 0)
 				{
-					state--;
+					state -= size;
 				}
 			}
 			
 			else if(dp > op)
 			{
-				state++;
+				state += size;
 			}
 		}
 		
@@ -113,12 +122,12 @@ public class Capture
 		{
 			if(op > dp)
 			{
-				state--;
+				state -= size;
 			}
 			
 			else if(dp > op)
 			{
-				state++;
+				state += size;
 			}
 		}
 		
@@ -138,52 +147,52 @@ public class Capture
 			region.capture(this, getSecured());
 		}
 	}
-
+	
 	public Location getLocation()
 	{
 		return location;
 	}
-
+	
 	public void setLocation(Location location)
 	{
 		this.location = location;
 	}
-
+	
 	public Faction getOffense()
 	{
 		return offense;
 	}
-
+	
 	public void setOffense(Faction offense)
 	{
 		this.offense = offense;
 	}
-
+	
 	public Faction getDefense()
 	{
 		return defense;
 	}
-
+	
 	public void setDefense(Faction defense)
 	{
 		this.defense = defense;
 	}
-
+	
 	public Integer getState()
 	{
 		return state;
 	}
-
+	
 	public void setState(Integer state)
 	{
 		this.state = state;
 	}
-
+	
 	public Region getRegion()
 	{
 		return region;
 	}
-
+	
 	public void setRegion(Region region)
 	{
 		this.region = region;
