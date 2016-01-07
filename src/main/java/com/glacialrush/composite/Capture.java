@@ -3,10 +3,10 @@ package com.glacialrush.composite;
 import java.util.Iterator;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import com.glacialrush.api.object.GList;
 import com.glacialrush.composite.Hunk.HunkFace;
 import com.glacialrush.game.Game;
 import com.glacialrush.game.event.FactionCaptureEvent;
-import com.glacialrush.xapi.UList;
 import com.glacialrush.xapi.UMap;
 
 public class Capture
@@ -30,9 +30,9 @@ public class Capture
 		this.secured = Faction.neutral();
 	}
 	
-	public UList<Player> getPlayers()
+	public GList<Player> getPlayers()
 	{
-		UList<Player> players = new UList<Player>();
+		GList<Player> players = new GList<Player>();
 		
 		for(Player i : region.getGame().pl().onlinePlayers())
 		{

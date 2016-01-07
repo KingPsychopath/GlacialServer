@@ -11,9 +11,9 @@ import java.util.zip.GZIPOutputStream;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.api.GlacialPlugin;
 import com.glacialrush.api.component.GlacialComponent;
+import com.glacialrush.api.object.GList;
 import com.glacialrush.composite.Map;
 import com.glacialrush.composite.MapData;
-import com.glacialrush.xapi.UList;
 
 public class DataComponent extends GlacialComponent
 {
@@ -34,7 +34,7 @@ public class DataComponent extends GlacialComponent
 		}
 	}
 	
-	public void saveAll(UList<Map> maps)
+	public void saveAll(GList<Map> maps)
 	{
 		for(Map i : maps)
 		{
@@ -52,9 +52,9 @@ public class DataComponent extends GlacialComponent
 		}
 	}
 	
-	public UList<Map> loadAll()
+	public GList<Map> loadAll()
 	{
-		UList<Map> maps = new UList<Map>();
+		GList<Map> maps = new GList<Map>();
 		
 		for(File i : base.listFiles())
 		{

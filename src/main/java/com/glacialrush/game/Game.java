@@ -5,6 +5,7 @@ import java.util.Iterator;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import com.glacialrush.GlacialServer;
+import com.glacialrush.api.object.GList;
 import com.glacialrush.composite.Hunk;
 import com.glacialrush.composite.Map;
 import com.glacialrush.composite.Region;
@@ -13,7 +14,6 @@ import com.glacialrush.game.component.EventRippler;
 import com.glacialrush.game.component.MapHandler;
 import com.glacialrush.game.component.PlayerHandler;
 import com.glacialrush.xapi.FastMath;
-import com.glacialrush.xapi.UList;
 import net.md_5.bungee.api.ChatColor;
 
 public class Game
@@ -21,7 +21,7 @@ public class Game
 	private GameState state;
 	private GameRegistry registry;
 	private GlacialServer pl;
-	private UList<Map> maps;
+	private GList<Map> maps;
 	private Integer gameTask;
 	
 	private EventRippler eventRippler;
@@ -33,7 +33,7 @@ public class Game
 		this.pl = pl;
 		this.state = new GameState(pl, null);
 		this.registry = new GameRegistry(pl);
-		this.maps = new UList<Map>();
+		this.maps = new GList<Map>();
 		
 		this.eventRippler = new EventRippler();
 		this.mapHandler = new MapHandler();
@@ -68,7 +68,7 @@ public class Game
 	
 	public void startGame()
 	{
-		UList<Map> mMaps = getMapsReady();
+		GList<Map> mMaps = getMapsReady();
 		
 		if(mMaps.isEmpty())
 		{
@@ -186,9 +186,9 @@ public class Game
 		return null;
 	}
 	
-	public UList<Map> getMapsBuilding()
+	public GList<Map> getMapsBuilding()
 	{
-		UList<Map> mapps = maps.copy();
+		GList<Map> mapps = maps.copy();
 		Iterator<Map> it = maps.iterator();
 		
 		while(it.hasNext())
@@ -204,9 +204,9 @@ public class Game
 		return mapps;
 	}
 	
-	public UList<Map> getMapsReady()
+	public GList<Map> getMapsReady()
 	{
-		UList<Map> mapps = maps.copy();
+		GList<Map> mapps = maps.copy();
 		Iterator<Map> it = maps.iterator();
 		
 		while(it.hasNext())
@@ -222,9 +222,9 @@ public class Game
 		return mapps;
 	}
 	
-	public UList<Map> getMapsBuilt()
+	public GList<Map> getMapsBuilt()
 	{
-		UList<Map> mapps = maps.copy();
+		GList<Map> mapps = maps.copy();
 		Iterator<Map> it = maps.iterator();
 		
 		while(it.hasNext())
@@ -240,9 +240,9 @@ public class Game
 		return mapps;
 	}
 	
-	public UList<Map> getMapsUnbuilt()
+	public GList<Map> getMapsUnbuilt()
 	{
-		UList<Map> mapps = maps.copy();
+		GList<Map> mapps = maps.copy();
 		Iterator<Map> it = maps.iterator();
 		
 		while(it.hasNext())
@@ -268,12 +268,12 @@ public class Game
 		return registry;
 	}
 
-	public UList<Map> getMaps()
+	public GList<Map> getMaps()
 	{
 		return maps;
 	}
 
-	public void setMaps(UList<Map> maps)
+	public void setMaps(GList<Map> maps)
 	{
 		this.maps = maps;
 	}

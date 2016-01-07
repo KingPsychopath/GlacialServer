@@ -1,19 +1,19 @@
 package com.glacialrush.game;
 
 import com.glacialrush.GlacialServer;
-import com.glacialrush.xapi.UList;
+import com.glacialrush.api.object.GList;
 import com.glacialrush.xapi.UMap;
 
 public class GameRegistry
 {
 	private GlacialServer pl;
-	private UList<GameComponent> components;
+	private GList<GameComponent> components;
 	private UMap<Tickreval, Integer> timings;
 	
 	public GameRegistry(GlacialServer pl)
 	{
 		this.pl = pl;
-		this.components = new UList<GameComponent>();
+		this.components = new GList<GameComponent>();
 		this.timings = new UMap<Tickreval, Integer>();
 	}
 	
@@ -75,12 +75,12 @@ public class GameRegistry
 		components.add(gc);
 	}
 	
-	public UList<GameComponent> getComponents()
+	public GList<GameComponent> getComponents()
 	{
 		return components;
 	}
 	
-	public void setComponents(UList<GameComponent> components)
+	public void setComponents(GList<GameComponent> components)
 	{
 		this.components = components;
 	}

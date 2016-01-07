@@ -6,6 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import com.glacialrush.api.object.GList;
 import com.glacialrush.composite.Capture;
 import com.glacialrush.composite.Region;
 import com.glacialrush.game.Game;
@@ -13,7 +14,6 @@ import com.glacialrush.game.GameComponent;
 import com.glacialrush.game.Tickrement;
 import com.glacialrush.game.Tickreval;
 import com.glacialrush.game.event.FactionCaptureEvent;
-import com.glacialrush.xapi.UList;
 import com.glacialrush.xapi.UMap;
 
 @Tickrement(Tickreval.SECOND)
@@ -21,13 +21,13 @@ public class EventRippler implements GameComponent, Listener
 {
 	private Game game;
 	
-	private UMap<Capture, UList<Player>> offensives;
+	private UMap<Capture, GList<Player>> offensives;
 	private UMap<Capture, FactionCaptureEvent> events;
 	private UMap<Player, Location> respawns;
 	
 	public EventRippler()
 	{
-		offensives = new UMap<Capture, UList<Player>>();
+		offensives = new UMap<Capture, GList<Player>>();
 		events = new UMap<Capture, FactionCaptureEvent>();
 		respawns = new UMap<Player, Location>();
 	}
@@ -89,7 +89,7 @@ public class EventRippler implements GameComponent, Listener
 		}
 	}
 	
-	public UList<Player> getPlayers(Capture capture)
+	public GList<Player> getPlayers(Capture capture)
 	{
 		return offensives.get(capture);
 	}

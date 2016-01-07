@@ -1,9 +1,9 @@
 package com.glacialrush.item;
 
-import com.glacialrush.xapi.UList;
+import com.glacialrush.api.object.GList;
 
 public interface Upgradable
 {
 	void upgrade(Upgrade upgrade);
-	UList<Upgrade> getCompatibleUpgrades();
+	GList<Upgrade> getCompatibleUpgrades();
 }

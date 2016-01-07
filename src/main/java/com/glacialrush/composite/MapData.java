@@ -2,7 +2,7 @@ package com.glacialrush.composite;
 
 import java.io.Serializable;
 import com.glacialrush.GlacialServer;
-import com.glacialrush.xapi.UList;
+import com.glacialrush.api.object.GList;
 import com.glacialrush.xapi.ULocation;
 
 public class MapData implements Serializable
@@ -12,14 +12,14 @@ public class MapData implements Serializable
 	private String name;
 	private String world;
 	private boolean ready;
-	private UList<RegionData> regionData;
+	private GList<RegionData> regionData;
 	
 	public MapData(String name, String world, boolean ready)
 	{
 		this.name = name;
 		this.world = world;
 		this.ready = ready;
-		this.regionData = new UList<RegionData>();
+		this.regionData = new GList<RegionData>();
 	}
 	
 	public Map toMap(GlacialServer pl)
@@ -75,12 +75,12 @@ public class MapData implements Serializable
 		this.world = world;
 	}
 	
-	public UList<RegionData> getRegionData()
+	public GList<RegionData> getRegionData()
 	{
 		return regionData;
 	}
 	
-	public void setRegionData(UList<RegionData> regionData)
+	public void setRegionData(GList<RegionData> regionData)
 	{
 		this.regionData = regionData;
 	}

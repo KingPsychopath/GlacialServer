@@ -3,14 +3,14 @@ package com.glacialrush.component;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.api.component.GlacialComponent;
 import com.glacialrush.api.dispatch.Title;
+import com.glacialrush.api.object.GList;
 import com.glacialrush.composite.Manipulation;
 import com.glacialrush.game.GameState.Status;
-import com.glacialrush.xapi.UList;
 import net.md_5.bungee.api.ChatColor;
 
 public class ManipulationComponent extends GlacialComponent
 {
-	private UList<Manipulation> manipulations;
+	private GList<Manipulation> manipulations;
 	private final String[] progress = new String[] {"v", "<", "^", ">"};
 	private int prog = 0;
 	private GlacialServer gs;
@@ -19,7 +19,7 @@ public class ManipulationComponent extends GlacialComponent
 	{
 		super(pl);
 		gs = pl;
-		manipulations = new UList<Manipulation>();
+		manipulations = new GList<Manipulation>();
 	}
 	
 	public boolean isIdle()

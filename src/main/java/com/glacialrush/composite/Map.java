@@ -9,9 +9,9 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.api.dispatch.Title;
+import com.glacialrush.api.object.GList;
 import com.glacialrush.composite.Hunk.HunkFace;
 import com.glacialrush.xapi.FastMath;
-import com.glacialrush.xapi.UList;
 import com.glacialrush.xapi.UMap;
 import net.md_5.bungee.api.ChatColor;
 
@@ -19,7 +19,7 @@ public class Map
 {
 	private String name;
 	private World world;
-	private UList<Region> regions;
+	private GList<Region> regions;
 	private GlacialServer pl;
 	private Boolean buildServicing;
 	private Integer buildService;
@@ -31,7 +31,7 @@ public class Map
 		this.pl = pl;
 		this.name = name;
 		this.world = world;
-		this.regions = new UList<Region>();
+		this.regions = new GList<Region>();
 		this.buildService = 0;
 		this.buildServicing = false;
 		this.ready = false;
@@ -243,7 +243,7 @@ public class Map
 		Region b = null;
 		Region c = null;
 		
-		UList<Faction> ffs = Faction.all().copy();
+		GList<Faction> ffs = Faction.all().copy();
 		Collections.shuffle(ffs);
 		
 		a = getTopRightRegion();
@@ -631,12 +631,12 @@ public class Map
 		this.world = world;
 	}
 
-	public UList<Region> getRegions()
+	public GList<Region> getRegions()
 	{
 		return regions;
 	}
 
-	public void setRegions(UList<Region> regions)
+	public void setRegions(GList<Region> regions)
 	{
 		this.regions = regions;
 	}

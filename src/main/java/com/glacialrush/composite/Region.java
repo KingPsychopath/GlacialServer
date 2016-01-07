@@ -16,19 +16,19 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.api.dispatch.Title;
+import com.glacialrush.api.object.GList;
 import com.glacialrush.component.ManipulationComponent;
 import com.glacialrush.game.Game;
 import com.glacialrush.xapi.Cuboid;
 import com.glacialrush.xapi.Cuboid.CuboidDirection;
-import com.glacialrush.xapi.UList;
 import net.md_5.bungee.api.ChatColor;
 
 public class Region implements Listener
 {
 	private GlacialServer pl;
 	private Hunk hunk;
-	private UList<Location> accents;
-	private UList<Capture> captures;
+	private GList<Location> accents;
+	private GList<Capture> captures;
 	private Faction faction;
 	private Map map;
 	private String name;
@@ -42,8 +42,8 @@ public class Region implements Listener
 		this.map = map;
 		this.name = name;
 		this.hunk = new Hunk(location);
-		this.accents = new UList<Location>();
-		this.captures = new UList<Capture>();
+		this.accents = new GList<Location>();
+		this.captures = new GList<Capture>();
 		this.faction = Faction.neutral();
 		this.buildStatus = "unbuilt";
 		this.spawn = hunk.getCenter(64);
@@ -58,8 +58,8 @@ public class Region implements Listener
 		this.map = map;
 		this.name = name;
 		this.hunk = hunk;
-		this.accents = new UList<Location>();
-		this.captures = new UList<Capture>();
+		this.accents = new GList<Location>();
+		this.captures = new GList<Capture>();
 		this.faction = Faction.neutral();
 		this.buildStatus = "unbuilt";
 		this.spawn = hunk.getCenter(64);
@@ -392,22 +392,22 @@ public class Region implements Listener
 		this.map = map;
 	}
 	
-	public UList<Location> getAccents()
+	public GList<Location> getAccents()
 	{
 		return accents;
 	}
 	
-	public void setAccents(UList<Location> accents)
+	public void setAccents(GList<Location> accents)
 	{
 		this.accents = accents;
 	}
 	
-	public UList<Capture> getCaptures()
+	public GList<Capture> getCaptures()
 	{
 		return captures;
 	}
 	
-	public void setCaptures(UList<Capture> captures)
+	public void setCaptures(GList<Capture> captures)
 	{
 		this.captures = captures;
 	}

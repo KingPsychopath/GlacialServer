@@ -7,32 +7,32 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import com.glacialrush.GlacialServer;
+import com.glacialrush.api.object.GList;
 import com.glacialrush.game.GameState;
 import com.glacialrush.game.GameState.Status;
 import com.glacialrush.game.event.PlayerFactionChangedEvent;
-import com.glacialrush.xapi.UList;
 import com.glacialrush.xapi.UMap;
 
 public class FactionMap implements Listener
 {
-	private UMap<Faction, UList<Player>> players;
+	private UMap<Faction, GList<Player>> players;
 	private GlacialServer pl;
 	
 	public FactionMap(GlacialServer pl)
 	{
 		this.pl = pl;
-		this.players = new UMap<Faction, UList<Player>>();
+		this.players = new UMap<Faction, GList<Player>>();
 		
-		players.put(Faction.omni(), new UList<Player>());
-		players.put(Faction.cryptic(), new UList<Player>());
-		players.put(Faction.enigma(), new UList<Player>());
+		players.put(Faction.omni(), new GList<Player>());
+		players.put(Faction.cryptic(), new GList<Player>());
+		players.put(Faction.enigma(), new GList<Player>());
 		
 		pl.register(this);
 	}
 	
-	public UMap<Faction, UList<Player>> factionize(UList<Player> plrs)
+	public UMap<Faction, GList<Player>> factionize(GList<Player> plrs)
 	{
-		UMap<Faction, UList<Player>> factions = players.copy();
+		UMap<Faction, GList<Player>> factions = players.copy();
 		
 		for(Faction i : factions.keySet())
 		{
@@ -52,7 +52,7 @@ public class FactionMap implements Listener
 		return factions;
 	}
 	
-	public UMap<Player, Faction> getFactions(UList<Player> plrs)
+	public UMap<Player, Faction> getFactions(GList<Player> plrs)
 	{
 		UMap<Player, Faction> factions = new UMap<Player, Faction>();
 		
