@@ -426,6 +426,14 @@ public class Map
 		});
 	}
 	
+	public void tick()
+	{
+		for(Region i : regions)
+		{
+			i.tick();
+		}
+	}
+	
 	public void accent(Faction faction)
 	{
 		for(Region i : regions)
