@@ -107,6 +107,11 @@ public class Map
 	
 	public Location getSpawn(Faction f)
 	{
+		if(f == null)
+		{
+			pl.f("INVALID SPAWN FOR FACTION: NULL");
+		}
+		
 		return spawns.get(f).getSpawn();
 	}
 	
@@ -135,10 +140,9 @@ public class Map
 			return false;
 		}
 		
-		if(regions.size() % 3 != 0)
+		if(spawns.size() != 3)
 		{
-			pl.getCommandComponent().err(p, "Map is not divisible by three!");
-			return false;
+			setMapSpawns();
 		}
 		
 		if(!isBuilt())
@@ -416,7 +420,6 @@ public class Map
 				else
 				{
 					pl.cancelTask(buildService);
-					accentEvenley();
 					buildServicing = false;
 				}
 			}
