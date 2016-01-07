@@ -80,6 +80,11 @@ public class EventRippler implements GameComponent, Listener
 			
 			for(Capture i : r.getCaptures())
 			{
+				if(!offensives.containsKey(i))
+				{
+					offensives.put(i, new UList<Player>());
+				}
+				
 				if(e.getTo().distanceSquared(i.getLocation()) < 25)
 				{
 					if(!offensives.get(i).contains(e.getPlayer()))
@@ -109,6 +114,11 @@ public class EventRippler implements GameComponent, Listener
 				for(Player j : offensives.get(i))
 				{
 					Faction f = game.getState().getFactionMap().getFaction(j);
+					
+					if(f == null)
+					{
+						continue;
+					}
 					
 					if(f.equals(def))
 					{
