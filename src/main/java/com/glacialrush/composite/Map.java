@@ -1,5 +1,6 @@
 package com.glacialrush.composite;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import org.bukkit.Location;
@@ -177,88 +178,96 @@ public class Map
 		}
 	}
 	
+	public Region getBottomLeftRegion()
+	{
+		Region zz = null;
+		int x = Integer.MAX_VALUE;
+		int z = Integer.MAX_VALUE;
+		
+		for(Region i : regions)
+		{
+			if(i.getHunk().getX() < x)
+			{
+				x = i.getHunk().getX();
+			}
+		}
+		
+		for(Region i : regions)
+		{
+			if(i.getHunk().getX() == x && i.getHunk().getZ() < z)
+			{
+				z = i.getHunk().getZ();
+				zz = i;
+			}
+		}
+		
+		return zz;
+	}
+	
+	public Region getTopRightRegion()
+	{
+		Region zz = null;
+		int x = Integer.MIN_VALUE;
+		int z = Integer.MIN_VALUE;
+		
+		for(Region i : regions)
+		{
+			if(i.getHunk().getX() > x)
+			{
+				x = i.getHunk().getX();
+			}
+		}
+		
+		for(Region i : regions)
+		{
+			if(i.getHunk().getX() == x && i.getHunk().getZ() > z)
+			{
+				z = i.getHunk().getZ();
+				zz = i;
+			}
+		}
+		
+		return zz;
+	}
+	
 	public void setMapSpawns()
 	{
 		UMap<Faction, Region> ms = new UMap<Faction, Region>();
-		Region ll = null;
-		Region tl = null;
-		Region fl = null;
+		Double maxdist = Double.MIN_VALUE;
 		
-		double fx = Double.MIN_VALUE;
+		Region a = null;
+		Region b = null;
+		Region c = null;
 		
-		int lx = Integer.MAX_VALUE;
-		int lz = Integer.MAX_VALUE;
-		int tx = Integer.MIN_VALUE;
-		int tz = Integer.MIN_VALUE;
+		UList<Faction> ffs = Faction.all().copy();
+		Collections.shuffle(ffs);
 		
-		for(Region i : regions)
-		{
-			if(i.getHunk().getX() < lx)
-			{
-				lx = i.getHunk().getX();
-			}
-		}
+		a = getTopRightRegion();
+		b = getBottomLeftRegion();
 		
 		for(Region i : regions)
 		{
-			if(i.getHunk().getX() == lx && i.getHunk().getZ() < lz)
+			Double da = FastMath.distance2D(a.getSpawn(), i.getSpawn());
+			Double db = FastMath.distance2D(b.getSpawn(), i.getSpawn());
+			
+			if(da > maxdist && db > maxdist)
 			{
-				lz = i.getHunk().getZ();
-				ll = i;
+				maxdist = Double.max(da, db);
+				c = i;
 			}
 		}
 		
-		ms.put(Faction.random(), ll);
-		
-		for(Region i : regions)
-		{
-			if(i.getHunk().getX() > tx)
-			{
-				tx = i.getHunk().getX();
-			}
-		}
-		
-		for(Region i : regions)
-		{
-			if(i.getHunk().getX() == tx && i.getHunk().getZ() > tz)
-			{
-				tz = i.getHunk().getZ();
-				tl = i;
-			}
-		}
-		
-		for(Faction i : Faction.all())
-		{
-			if(!ms.containsKey(i))
-			{
-				ms.put(i, tl);
-				break;
-			}
-		}
-		
-		for(Region i : regions)
-		{
-			if(FastMath.distance2D(i.getHunk().getCenter(0), ms.get(0).getHunk().getCenter(0)) > fx && FastMath.distance2D(i.getHunk().getCenter(0), ms.get(1).getHunk().getCenter(0)) > fx)
-			{
-				fx = Math.max(FastMath.distance2D(i.getHunk().getCenter(0), ms.get(0).getHunk().getCenter(0)), FastMath.distance2D(i.getHunk().getCenter(0), ms.get(1).getHunk().getCenter(0)));
-				fl = i;
-			}
-		}
-		
-		for(Faction i : Faction.all())
-		{
-			if(!ms.containsKey(i))
-			{
-				ms.put(i, fl);
-				break;
-			}
-		}
+		ms.put(ffs.get(0), a);
+		ms.put(ffs.get(1), b);
+		ms.put(ffs.get(2), c);
 		
 		spawns = ms;
 	}
 	
 	public void accentEvenley()
 	{
+		setMapSpawns();
+		
 		for(Region i : regions)
 		{
 			i.setFaction(Faction.neutral());
@@ -269,36 +278,73 @@ public class Map
 			spawns.get(i).setFaction(i);
 		}
 		
-		while(hasNeutralRegions())
+		final Integer[] k = new Integer[1];
+		
+		k[0] = pl.scheduleSyncRepeatingTask(10, 0, new Runnable()
 		{
-			for(Faction i : spawns.keySet())
+			@Override
+			public void run()
 			{
-				for(Region j : regions)
+				if(pl.getManipulationComponent().isIdle())
 				{
-					boolean cycle = false;
+					pl.cancelTask(k[0]);
 					
-					if(j.getFaction().equals(i))
+					while(hasNeutralRegions())
 					{
-						for(HunkFace k : HunkFace.values())
+						for(Faction i : spawns.keySet())
 						{
-							Region t = getRegion(j.getHunk().getRelative(k));
-							
-							if(t != null && t.getFaction().equals(Faction.neutral()))
+							for(Region j : regions)
 							{
-								t.setFaction(i);
-								cycle = true;
-								break;
+								boolean cycle = false;
+								
+								if(j.getFaction().equals(i))
+								{
+									for(HunkFace k : HunkFace.values())
+									{
+										Region t = getRegion(j.getHunk().getRelative(k));
+										
+										if(t != null && t.getFaction().equals(Faction.neutral()))
+										{
+											t.setFaction(i);
+											cycle = true;
+											break;
+										}
+									}
+								}
+								
+								if(cycle)
+								{
+									break;
+								}
 							}
 						}
 					}
 					
-					if(cycle)
+					while(hasNeutralRegions())
 					{
-						break;
+						for(Region i : regions)
+						{
+							if(i.getFaction().equals(Faction.neutral()))
+							{
+								for(HunkFace j : HunkFace.values())
+								{
+									Region k = getRegion(i.getHunk().getRelative(j));
+									
+									if(k != null)
+									{
+										if(!k.getFaction().equals(Faction.neutral()))
+										{
+											i.setFaction(k.getFaction());
+											break;
+										}
+									}
+								}
+							}
+						}
 					}
 				}
 			}
-		}
+		});
 	}
 	
 	public boolean hasNeutralRegions()
@@ -381,7 +427,7 @@ public class Map
 	{
 		for(Region i : regions)
 		{
-			i.accent(faction);
+			i.setFaction(faction);
 		}
 	}
 	
