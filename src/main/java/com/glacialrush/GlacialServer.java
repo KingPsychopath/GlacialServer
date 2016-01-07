@@ -4,6 +4,7 @@ import com.glacialrush.api.GlacialPlugin;
 import com.glacialrush.component.CommandComponent;
 import com.glacialrush.component.DataComponent;
 import com.glacialrush.component.ManipulationComponent;
+import com.glacialrush.composite.Faction;
 import com.glacialrush.game.Game;
 
 public class GlacialServer extends GlacialPlugin
@@ -31,6 +32,15 @@ public class GlacialServer extends GlacialPlugin
 		
 		game = new Game(this);
 		game.load();
+		
+		scheduleSyncTask(200, new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				game.startGame();
+			}
+		});
 	}
 	
 	public void onDisable()
@@ -38,6 +48,12 @@ public class GlacialServer extends GlacialPlugin
 		game.save();
 		
 		super.onDisable();
+	}
+	
+	public void restart()
+	{
+		game.stopGame();
+		getServer().dispatchCommand(getServer().getConsoleSender(), "plugman restart GlacialServer");
 	}
 
 	public CommandComponent getCommandComponent()
