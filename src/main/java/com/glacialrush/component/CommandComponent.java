@@ -19,10 +19,12 @@ import net.md_5.bungee.api.ChatColor;
 public class CommandComponent extends GlacialComponent implements CommandExecutor
 {
 	private UMap<Player, Map> selection;
+	private GlacialServer gs;
 	
 	public CommandComponent(final GlacialServer pl)
 	{
 		super(pl);
+		gs = pl;
 		
 		selection = new UMap<Player, Map>();
 	}
@@ -166,6 +168,24 @@ public class CommandComponent extends GlacialComponent implements CommandExecuto
 							{
 								err(p, "No map selected. Use /g sel <map>");
 							}
+						}
+						
+						else if(args[0].equalsIgnoreCase("accent-even") || args[0].equalsIgnoreCase("acc-ev"))
+						{
+							if(hasSelection(p))
+							{
+								getSelection(p).accentEvenley();
+							}
+							
+							else
+							{
+								err(p, "No map selected. Use /g sel <map>");
+							}
+						}
+						
+						else if(args[0].equalsIgnoreCase("start-game") || args[0].equalsIgnoreCase("sgame"))
+						{
+							gs.getGame().startGame();
 						}
 						
 						else if(args[0].equalsIgnoreCase("setspawn") || args[0].equalsIgnoreCase("settp"))
