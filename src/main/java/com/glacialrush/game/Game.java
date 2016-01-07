@@ -11,6 +11,7 @@ import com.glacialrush.composite.Region;
 import com.glacialrush.game.GameState.Status;
 import com.glacialrush.game.component.EventRippler;
 import com.glacialrush.game.component.MapHandler;
+import com.glacialrush.game.component.PlayerHandler;
 import com.glacialrush.xapi.FastMath;
 import com.glacialrush.xapi.UList;
 import net.md_5.bungee.api.ChatColor;
@@ -25,6 +26,7 @@ public class Game
 	
 	private EventRippler eventRippler;
 	private MapHandler mapHandler;
+	private PlayerHandler playerHandler;
 	
 	public Game(GlacialServer pl)
 	{
@@ -35,9 +37,11 @@ public class Game
 		
 		this.eventRippler = new EventRippler();
 		this.mapHandler = new MapHandler();
+		this.playerHandler = new PlayerHandler();
 		
 		registry.add(eventRippler);
 		registry.add(mapHandler);
+		registry.add(playerHandler);
 	}
 	
 	public void load()
@@ -80,7 +84,6 @@ public class Game
 		for(Player i : pl.onlinePlayers())
 		{
 			respawn(i);
-			i.sendMessage(ChatColor.RED + "Faction: " + getState().getFactionMap().getFaction(i).getName());
 		}
 		
 		gameTask = pl.scheduleSyncRepeatingTask(0, 0, new Runnable()
@@ -298,5 +301,10 @@ public class Game
 	public MapHandler getMapHandler()
 	{
 		return mapHandler;
+	}
+
+	public PlayerHandler getPlayerHandler()
+	{
+		return playerHandler;
 	}
 }
