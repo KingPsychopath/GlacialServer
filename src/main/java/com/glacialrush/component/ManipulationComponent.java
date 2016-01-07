@@ -4,18 +4,21 @@ import com.glacialrush.GlacialServer;
 import com.glacialrush.api.component.GlacialComponent;
 import com.glacialrush.api.dispatch.Title;
 import com.glacialrush.composite.Manipulation;
+import com.glacialrush.game.GameState.Status;
 import com.glacialrush.xapi.UList;
 import net.md_5.bungee.api.ChatColor;
 
 public class ManipulationComponent extends GlacialComponent
 {
 	private UList<Manipulation> manipulations;
-	private final String[] progress = new String[] {"|", "/", "-", "\\"};
+	private final String[] progress = new String[] {"v", "<", "^", ">"};
 	private int prog = 0;
+	private GlacialServer gs;
 	
 	public ManipulationComponent(final GlacialServer pl)
 	{
 		super(pl);
+		gs = pl;
 		manipulations = new UList<Manipulation>();
 	}
 	
@@ -36,19 +39,22 @@ public class ManipulationComponent extends GlacialComponent
 					return;
 				}
 				
-				Title t = new Title();
-				t.setTitle(ChatColor.AQUA + progress[prog]);				
-				
-				t.setFadeInTime(0);
-				t.setFadeOutTime(0);
-				prog++;
-				
-				if(prog > 3)
+				if(gs.getGame().getState().getStatus().equals(Status.OFFLINE))
 				{
-					prog = 0;
+					Title t = new Title();
+					t.setTitle(ChatColor.AQUA + progress[prog]);				
+					
+					t.setFadeInTime(0);
+					t.setFadeOutTime(0);
+					prog++;
+					
+					if(prog > 3)
+					{
+						prog = 0;
+					}
+					
+					t.send();
 				}
-				
-				t.send();
 				
 				long ms = System.currentTimeMillis();
 				
