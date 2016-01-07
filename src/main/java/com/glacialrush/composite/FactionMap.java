@@ -7,6 +7,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import com.glacialrush.GlacialServer;
+import com.glacialrush.game.GameState;
+import com.glacialrush.game.GameState.Status;
+import com.glacialrush.game.event.PlayerFactionChangedEvent;
 import com.glacialrush.xapi.UList;
 import com.glacialrush.xapi.UMap;
 
@@ -25,6 +28,40 @@ public class FactionMap implements Listener
 		players.put(Faction.enigma(), new UList<Player>());
 		
 		pl.register(this);
+	}
+	
+	public UMap<Faction, UList<Player>> factionize(UList<Player> plrs)
+	{
+		UMap<Faction, UList<Player>> factions = players.copy();
+		
+		for(Faction i : factions.keySet())
+		{
+			Iterator<Player> it = factions.get(i).iterator();
+			
+			while(it.hasNext())
+			{
+				Player p = it.next();
+				
+				if(!plrs.contains(p))
+				{
+					it.remove();
+				}
+			}
+		}
+		
+		return factions;
+	}
+	
+	public UMap<Player, Faction> getFactions(UList<Player> plrs)
+	{
+		UMap<Player, Faction> factions = new UMap<Player, Faction>();
+		
+		for(Player i : plrs)
+		{
+			factions.put(i, getFaction(i));
+		}
+		
+		return factions;
 	}
 	
 	public void rebalance()
@@ -55,6 +92,7 @@ public class FactionMap implements Listener
 		}
 		
 		players.get(smallest).add(p);
+		pl.callEvent(new PlayerFactionChangedEvent(p, smallest));
 	}
 	
 	public Faction getFaction(Player player)
@@ -70,14 +108,19 @@ public class FactionMap implements Listener
 			}
 		}
 		
-		return null;
+		insert(player);
+		return getFaction(player);
 	}
 	
 	@EventHandler
 	public void onPlayer(PlayerJoinEvent e)
 	{
 		insert(e.getPlayer());
-		pl.getGame().respawn(e.getPlayer());
+		
+		if(pl.getGame().getState().getStatus().equals(Status.RUNNING))
+		{
+			pl.getGame().respawn(e.getPlayer());
+		}
 	}
 	
 	@EventHandler
