@@ -14,7 +14,6 @@ import com.glacialrush.game.component.EventRippler;
 import com.glacialrush.game.component.MapHandler;
 import com.glacialrush.game.component.PlayerHandler;
 import com.glacialrush.xapi.FastMath;
-import net.md_5.bungee.api.ChatColor;
 
 public class Game
 {
@@ -27,6 +26,7 @@ public class Game
 	private EventRippler eventRippler;
 	private MapHandler mapHandler;
 	private PlayerHandler playerHandler;
+	private Boolean running;
 	
 	public Game(GlacialServer pl)
 	{
@@ -38,6 +38,7 @@ public class Game
 		this.eventRippler = new EventRippler();
 		this.mapHandler = new MapHandler();
 		this.playerHandler = new PlayerHandler();
+		this.running = false;
 		
 		registry.add(eventRippler);
 		registry.add(mapHandler);
@@ -51,6 +52,11 @@ public class Game
 		for(Map i : maps)
 		{
 			i.build();
+			
+			for(Region j : i.getRegions())
+			{
+				j.accentTask();
+			}
 		}
 	}
 	
@@ -64,6 +70,8 @@ public class Game
 		pl.cancelTask(gameTask);
 		registry.stop();
 		state.stop();
+		
+		running = false;
 	}
 	
 	public void startGame()
@@ -97,6 +105,13 @@ public class Game
 				}
 			}
 		});
+		
+		running = true;
+	}
+	
+	public boolean isRunning()
+	{
+		return running;
 	}
 	
 	public Location getRespawn(Player p)
