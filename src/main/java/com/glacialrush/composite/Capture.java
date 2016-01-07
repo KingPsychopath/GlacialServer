@@ -50,6 +50,11 @@ public class Capture
 	
 	public void tick(Game g)
 	{
+		if(!g.isRunning())
+		{
+			return;
+		}
+		
 		UMap<Player, Faction> players = g.getState().getFactionMap().getFactions(getPlayers());
 		UMap<Faction, Integer> points = new UMap<Faction, Integer>();
 		
