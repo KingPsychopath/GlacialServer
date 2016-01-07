@@ -153,7 +153,9 @@ public class Region implements Listener
 				
 				while(System.currentTimeMillis() - ms < 30 && it.hasNext())
 				{
-					pl.getManipulationComponent().add(new Manipulation(it.next(), dye));
+					Location m = it.next();
+					
+					pl.getManipulationComponent().add(new Manipulation(m, dye));
 				}
 				
 				if(!it.hasNext())
@@ -419,6 +421,14 @@ public class Region implements Listener
 	{
 		this.faction = faction;
 		accent(faction);
+		
+		for(Capture i : captures)
+		{
+			i.setDefense(faction);
+			i.setOffense(null);
+			i.setState(100);
+			i.setSecured(faction);
+		}
 	}
 	
 	public String getName()
