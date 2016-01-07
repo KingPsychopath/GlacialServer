@@ -1,5 +1,6 @@
 package com.glacialrush.composite;
 
+import java.time.Duration;
 import java.util.Iterator;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
@@ -17,8 +18,10 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.api.dispatch.Title;
 import com.glacialrush.api.object.GList;
+import com.glacialrush.api.object.GMap;
 import com.glacialrush.component.ManipulationComponent;
 import com.glacialrush.game.Game;
+import com.glacialrush.game.event.RegionCaptureEvent;
 import com.glacialrush.xapi.Cuboid;
 import com.glacialrush.xapi.Cuboid.CuboidDirection;
 import net.md_5.bungee.api.ChatColor;
@@ -35,6 +38,12 @@ public class Region implements Listener
 	private Location spawn;
 	private String buildStatus;
 	private Boolean hasSpawn;
+	private Boolean needsAccented = false;
+	private Integer timer = -1;
+	private Faction taking = Faction.neutral();
+	private char[] alphabet = "abcdefghijklmnopqrstuvwxyz".toCharArray();
+	private GMap<Player, Title> capturePanes;
+	private static final int capTime = 2400;
 	
 	public Region(GlacialServer pl, Map map, String name, Location location)
 	{
@@ -46,8 +55,10 @@ public class Region implements Listener
 		this.captures = new GList<Capture>();
 		this.faction = Faction.neutral();
 		this.buildStatus = "unbuilt";
+		this.capturePanes = new GMap<Player, Title>();
 		this.spawn = hunk.getCenter(64);
 		this.hasSpawn = false;
+		this.needsAccented = false;
 		
 		pl.register(this);
 	}
@@ -62,17 +73,220 @@ public class Region implements Listener
 		this.captures = new GList<Capture>();
 		this.faction = Faction.neutral();
 		this.buildStatus = "unbuilt";
+		this.capturePanes = new GMap<Player, Title>();
 		this.spawn = hunk.getCenter(64);
 		this.hasSpawn = false;
 		
 		pl.register(this);
 	}
 	
+	public void setPlayerCapturePane(Player p, Title title)
+	{
+		capturePanes.put(p, title);
+	}
+	
+	public void tick()
+	{
+		if(!getGame().isRunning())
+		{
+			return;
+		}
+		
+		boolean allDefended = true;
+		
+		for(Capture i : captures)
+		{
+			if(!i.getSecured().equals(faction))
+			{
+				allDefended = false;
+			}
+		}
+		
+		if(allDefended && timer == -1)
+		{
+			for(Player i : getPlayers())
+			{
+				Title t = new Title();
+				
+				for(Capture j : captures)
+				{
+					if(j.getPlayers().contains(i))
+					{
+						if(capturePanes.containsKey(i))
+						{
+							t.setTitle(capturePanes.get(i).getTitle());
+							t.setSubtitle(capturePanes.get(i).getSubtitle());
+							break;
+						}
+					}
+				}
+				
+				t.setFadeInTime(0);
+				t.setStayTime(5);
+				t.setFadeOutTime(10);
+				t.send(i);
+				
+				capturePanes.remove(i);
+			}
+			
+			return;
+		}
+		
+		if(timer == -1)
+		{
+			for(Player i : getPlayers())
+			{
+				Title t = new Title();
+				
+				for(Capture j : captures)
+				{
+					if(j.getPlayers().contains(i))
+					{
+						if(capturePanes.containsKey(i))
+						{
+							t.setTitle(capturePanes.get(i).getTitle());
+							t.setSubtitle(capturePanes.get(i).getSubtitle());
+							break;
+						}
+					}
+				}
+				
+				t.setFadeInTime(0);
+				t.setStayTime(5);
+				t.setFadeOutTime(10);
+				t.send(i);
+				
+				capturePanes.remove(i);
+			}
+		}
+		
+		GMap<Faction, Integer> cps = new GMap<Faction, Integer>();
+		cps.put(Faction.omni(), 0);
+		cps.put(Faction.enigma(), 0);
+		cps.put(Faction.cryptic(), 0);
+		cps.put(Faction.neutral(), 0);
+		
+		for(Capture i : captures)
+		{
+			cps.put(i.getSecured(), cps.get(i.getSecured()) + 1);
+		}
+		
+		GList<Faction> fmf = Faction.all();
+		fmf.remove(faction);
+		
+		if(cps.get(faction) > cps.get(fmf.get(0)) && cps.get(faction) > cps.get(fmf.get(1)))
+		{
+			taking = faction;
+		}
+		
+		else if(cps.get(fmf.get(0)) > cps.get(fmf.get(1)))
+		{
+			taking = fmf.get(0);
+		}
+		
+		else if(cps.get(fmf.get(0)) < cps.get(fmf.get(1)))
+		{
+			taking = fmf.get(1);
+		}
+		
+		else
+		{
+			taking = Faction.neutral();
+		}
+		
+		if(!taking.equals(Faction.neutral()))
+		{
+			if(timer == 0)
+			{
+				setFaction(taking);
+				timer = -1;
+				return;
+			}
+			
+			if(timer == -1)
+			{
+				timer = capTime;
+				return;
+			}
+			
+			timer--;
+		}
+		
+		else if(timer == 0)
+		{
+			setFaction(faction);
+		}
+		
+		else
+		{
+			timer = capTime;
+		}
+		
+		String m = "";
+		int c = 0;
+		Duration d = Duration.ofSeconds(timer / 20);
+		
+		m = m + ChatColor.AQUA + "Capture In" + ChatColor.DARK_AQUA + d.toString().replace('P', ':').replace('P', ':').replace('T', ' ').replace('M', ':').replace('S', ' ');
+		
+		for(Capture i : captures)
+		{
+			m = m + i.getSecured().getColor() + "[" + (alphabet[c] + "").toUpperCase() + "] ";
+			
+			c++;
+		}
+		
+		if(timer == -1)
+		{
+			return;
+		}
+		
+		for(Player i : getPlayers())
+		{
+			Title t = new Title();
+			
+			for(Capture j : captures)
+			{
+				if(j.getPlayers().contains(i))
+				{
+					if(capturePanes.containsKey(i))
+					{
+						t.setTitle(capturePanes.get(i).getTitle());
+						t.setSubtitle(capturePanes.get(i).getSubtitle());
+						break;
+					}
+				}
+			}
+			
+			t.setFadeInTime(0);
+			t.setStayTime(5);
+			t.setFadeOutTime(10);
+			t.setSubSubTitle(m);
+			
+			t.send(i);
+			capturePanes.remove(i);
+		}
+	}
+	
+	public GList<Player> getPlayers()
+	{
+		GList<Player> pls = new GList<Player>();
+		
+		for(Player i : pl.onlinePlayers())
+		{
+			if(contains(i))
+			{
+				pls.add(i);
+			}
+		}
+		
+		return pls;
+	}
+	
 	public Game getGame()
 	{
 		return pl.getGame();
 	}
-
+	
 	public void draw(Player p, int level)
 	{
 		Cuboid c = hunk.getCuboid().flatten(level);
@@ -81,6 +295,22 @@ public class Region implements Listener
 		hallucinate(p, c.getFace(CuboidDirection.South));
 		hallucinate(p, c.getFace(CuboidDirection.East));
 		hallucinate(p, c.getFace(CuboidDirection.West));
+	}
+	
+	public void accentTask()
+	{
+		pl.scheduleSyncRepeatingTask(0, 0, new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if(needsAccented)
+				{
+					needsAccented = false;
+					accent(getFaction());
+				}
+			}
+		});
 	}
 	
 	public boolean ready(Player p)
@@ -279,7 +509,7 @@ public class Region implements Listener
 		Block b = cap.getLocation().getBlock();
 		DyeColor dye = f.getDyeColor();
 		
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getLocation(), Material.STAINED_GLASS));			
+		w.add(new Manipulation(b.getRelative(BlockFace.UP).getLocation(), Material.STAINED_GLASS));
 		w.add(new Manipulation(b.getRelative(BlockFace.UP).getLocation(), dye));
 		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getLocation(), dye));
 		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).getLocation(), dye));
@@ -420,7 +650,7 @@ public class Region implements Listener
 	public void setFaction(Faction faction)
 	{
 		this.faction = faction;
-		accent(faction);
+		this.needsAccented = true;
 		
 		for(Capture i : captures)
 		{
@@ -428,6 +658,11 @@ public class Region implements Listener
 			i.setOffense(null);
 			i.setState(100);
 			i.setSecured(faction);
+		}
+		
+		if(pl.getGame().isRunning() && !faction.equals(Faction.neutral()))
+		{
+			pl.callEvent(new RegionCaptureEvent(this, faction));
 		}
 	}
 	
@@ -461,12 +696,12 @@ public class Region implements Listener
 	{
 		hasSpawn = s;
 	}
-
+	
 	public String getBuildStatus()
 	{
 		return buildStatus;
 	}
-
+	
 	public void setBuildStatus(String buildStatus)
 	{
 		this.buildStatus = buildStatus;
