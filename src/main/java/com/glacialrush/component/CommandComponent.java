@@ -183,9 +183,11 @@ public class CommandComponent extends GlacialComponent implements CommandExecuto
 							}
 						}
 						
-						else if(args[0].equalsIgnoreCase("start-game") || args[0].equalsIgnoreCase("sgame"))
+						else if(args[0].equalsIgnoreCase("restart-game") || args[0].equalsIgnoreCase("rsg"))
 						{
-							gs.getGame().startGame();
+							Faction t = Faction.random();
+							
+							gs.getGame().getState().getMap().accent(t);
 						}
 						
 						else if(args[0].equalsIgnoreCase("setspawn") || args[0].equalsIgnoreCase("settp"))
