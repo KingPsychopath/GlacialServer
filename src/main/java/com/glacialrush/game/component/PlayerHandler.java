@@ -14,25 +14,37 @@ import com.glacialrush.game.event.FactionCaptureEvent;
 import com.glacialrush.game.event.PlayerFactionChangedEvent;
 import net.md_5.bungee.api.ChatColor;
 
-@Tickrement(Tickreval.MINUTE)
+@Tickrement(Tickreval.SECOND)
 public class PlayerHandler implements GameComponent, Listener
 {
+	private int task = 0;
+	
 	@Override
 	public void onTick(Game g)
 	{
-		
+	
 	}
-
+	
 	@Override
 	public void onStart(Game g)
 	{
 		g.pl().register(this);
+		
+		task = g.pl().scheduleSyncRepeatingTask(0, 0, new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				
+			}
+		});
 	}
-
+	
 	@Override
 	public void onStop(Game g)
 	{
 		g.pl().unRegister(this);
+		g.pl().cancelTask(task);
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -57,7 +69,7 @@ public class PlayerHandler implements GameComponent, Listener
 		}
 		
 		m = m + c.getOffense().getColor() + ChatColor.STRIKETHROUGH;
-		
+				
 		for(int i = 0; i < 20 - ms; i++)
 		{
 			m = m + "-";
@@ -67,11 +79,10 @@ public class PlayerHandler implements GameComponent, Listener
 		t.setStayTime(10);
 		t.setFadeOutTime(20);
 		t.setSubtitle(m);
-		t.setTitle(c.getSecured().getColor() + c.getSecured().getName() + " Controlled");
 		
 		for(Player i : c.getPlayers())
 		{
-			t.send(i);
+			c.getRegion().setPlayerCapturePane(i, t);
 		}
 	}
 }
