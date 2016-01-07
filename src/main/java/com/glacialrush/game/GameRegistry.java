@@ -51,6 +51,12 @@ public class GameRegistry
 			{
 				Tickrement t = i.getClass().getDeclaredAnnotation(Tickrement.class);
 				
+				if(t == null || timings.get(t.value()) == null || t.value() == null)
+				{
+					i.onTick(pl.getGame());
+					continue;
+				}
+				
 				if(timings.get(t.value()) == t.value().getTicks())
 				{
 					i.onTick(pl.getGame());
