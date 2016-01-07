@@ -19,6 +19,11 @@ public class ManipulationComponent extends GlacialComponent
 		manipulations = new UList<Manipulation>();
 	}
 	
+	public boolean isIdle()
+	{
+		return manipulations.isEmpty();
+	}
+	
 	public void postEnable()
 	{
 		pl.scheduleSyncRepeatingTask(0, 0, new Runnable()
