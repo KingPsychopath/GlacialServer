@@ -29,10 +29,4 @@ public class MapHandler implements GameComponent, Listener
 	{
 		g.pl().unRegister(this);
 	}
-	
-	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void onGlacialEvent(FactionCaptureEvent e)
-	{
-		e.getCapturePoint().capture(e.getOffense(), e.getOp(), e.getDp(), e.getOpf());
-	}
 }
