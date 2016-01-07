@@ -3,6 +3,7 @@ package com.glacialrush.composite;
 import java.io.Serializable;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.xapi.UList;
+import com.glacialrush.xapi.ULocation;
 
 public class MapData implements Serializable
 {
@@ -29,6 +30,7 @@ public class MapData implements Serializable
 		{
 			map.addRegion(new Hunk(i.getHx(), i.getHz(), pl.getServer().getWorld(world)));
 			map.getRegion(new Hunk(i.getHx(), i.getHz(), pl.getServer().getWorld(world))).setName(i.getName());
+			map.getRegion(new Hunk(i.getHx(), i.getHz(), pl.getServer().getWorld(world))).setSpawn(i.getSpawn().toLocation());
 		}
 		
 		map.setReady(ready);
@@ -50,7 +52,7 @@ public class MapData implements Serializable
 	
 	public void addRegion(Region region)
 	{
-		regionData.add(new RegionData(region.getName(), region.getHunk().getX(), region.getHunk().getZ()));
+		regionData.add(new RegionData(region.getName(), new ULocation(region.getSpawn()), region.getHunk().getX(), region.getHunk().getZ()));
 	}
 	
 	public String getName()
