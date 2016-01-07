@@ -13,6 +13,7 @@ import com.glacialrush.game.component.EventRippler;
 import com.glacialrush.game.component.MapHandler;
 import com.glacialrush.xapi.FastMath;
 import com.glacialrush.xapi.UList;
+import net.md_5.bungee.api.ChatColor;
 
 public class Game
 {
@@ -72,12 +73,14 @@ public class Game
 		
 		Collections.shuffle(mMaps);
 		state = new GameState(pl, mMaps.get(0));
+		state.getMap().accentEvenley();
 		state.start();
 		registry.start();
 		
 		for(Player i : pl.onlinePlayers())
 		{
 			respawn(i);
+			i.sendMessage(ChatColor.RED + "Faction: " + getState().getFactionMap().getFaction(i).getName());
 		}
 		
 		gameTask = pl.scheduleSyncRepeatingTask(0, 0, new Runnable()
