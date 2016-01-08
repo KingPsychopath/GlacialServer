@@ -206,6 +206,7 @@ public class Region implements Listener
 			if(timer == -1)
 			{
 				timer = capTime;
+				
 				return;
 			}
 			
@@ -264,6 +265,33 @@ public class Region implements Listener
 			
 			t.send(i);
 			capturePanes.remove(i);
+		}
+		
+		Faction fxx = null;
+		boolean allbutThis = true;
+		
+		if(timer == capTime - 1)
+		{
+			for(Region j : map.getRegions())
+			{
+				if(!j.equals(this))
+				{
+					if(fxx == null)
+					{
+						fxx = j.getFaction();
+					}
+					
+					else if(!fxx.equals(j.getFaction()))
+					{
+						allbutThis = false;
+					}
+				}
+			}
+			
+			if(allbutThis)
+			{
+				pl.getServer().dispatchCommand(pl.getServer().getConsoleSender(), "playsound " + "g.music.countdown @a " + spawn.getBlockX() + " " + spawn.getBlockY() + " " + spawn.getBlockZ() + " 10 1.2");
+			}
 		}
 	}
 	
