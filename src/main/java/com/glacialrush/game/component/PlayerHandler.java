@@ -1,10 +1,12 @@
 package com.glacialrush.game.component;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import com.glacialrush.api.dispatch.Title;
+import com.glacialrush.api.object.GMap;
 import com.glacialrush.composite.Capture;
 import com.glacialrush.game.Game;
 import com.glacialrush.game.GameComponent;
@@ -18,17 +20,20 @@ import net.md_5.bungee.api.ChatColor;
 public class PlayerHandler implements GameComponent, Listener
 {
 	private int task = 0;
+	private GMap<Player, Integer> timings;
 	
 	@Override
 	public void onTick(Game g)
 	{
-	
+		
 	}
 	
 	@Override
 	public void onStart(Game g)
 	{
 		g.pl().register(this);
+		
+		timings = new GMap<Player, Integer>();
 		
 		task = g.pl().scheduleSyncRepeatingTask(0, 0, new Runnable()
 		{
@@ -82,6 +87,22 @@ public class PlayerHandler implements GameComponent, Listener
 		
 		for(Player i : c.getPlayers())
 		{
+			if(timings.containsKey(i))
+			{
+				timings.put(i, timings.get(i) + 1);
+			}
+			
+			else
+			{
+				timings.put(i, 0);
+			}
+			
+			if(timings.get(i) > 20)
+			{
+				timings.put(i, 0);
+				e.getRegion().getGame().pl().getServer().dispatchCommand(e.getRegion().getGame().pl().getServer().getConsoleSender(), "playsound " + "g.event.capture.hum " + i.getName() + " " + e.getCapturePoint().getLocation().getBlockX() + " " + e.getCapturePoint().getLocation().getBlockY() + " " + e.getCapturePoint().getLocation().getBlockZ() + " 1.0 2.0");
+			}
+			
 			c.getRegion().setPlayerCapturePane(i, t);
 		}
 	}
