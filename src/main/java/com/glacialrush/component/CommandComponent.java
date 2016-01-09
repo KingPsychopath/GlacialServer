@@ -532,6 +532,18 @@ public class CommandComponent extends GlacialComponent implements CommandExecuto
 						}
 					}
 				}
+				
+				else
+				{
+					if(args.length == 1)
+					{
+						if(args[0].equalsIgnoreCase("setup"))
+						{
+							gs.getGame().getState().getMap().accentEvenley();
+							gs.getGame().getState().getMap().accentEvenley();
+						}
+					}
+				}
 			}
 		}
 		
