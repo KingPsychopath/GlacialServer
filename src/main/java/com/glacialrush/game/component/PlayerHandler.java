@@ -1,6 +1,5 @@
 package com.glacialrush.game.component;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -64,6 +63,10 @@ public class PlayerHandler implements GameComponent, Listener
 		Title t = new Title();
 		Capture c = e.getCapturePoint();
 		Integer ms = (c.getState() + 100) / 10;
+		Double pc = new Double(c.getState() + 100) / 2;
+		
+		pc = (double)pc / (double)100;
+		
 		String m = "";
 		
 		m = m + c.getDefense().getColor() + ChatColor.STRIKETHROUGH;
@@ -97,10 +100,10 @@ public class PlayerHandler implements GameComponent, Listener
 				timings.put(i, 0);
 			}
 			
-			if(timings.get(i) > 20)
+			if(timings.get(i) > 5)
 			{
 				timings.put(i, 0);
-				e.getRegion().getGame().pl().getServer().dispatchCommand(e.getRegion().getGame().pl().getServer().getConsoleSender(), "playsound " + "g.event.capture.hum " + i.getName() + " " + e.getCapturePoint().getLocation().getBlockX() + " " + e.getCapturePoint().getLocation().getBlockY() + " " + e.getCapturePoint().getLocation().getBlockZ() + " 1.0 2.0");
+				e.getRegion().getGame().pl().getServer().dispatchCommand(e.getRegion().getGame().pl().getServer().getConsoleSender(), "playsound " + "g.event.capture.hum " + i.getName() + " " + e.getCapturePoint().getLocation().getBlockX() + " " + e.getCapturePoint().getLocation().getBlockY() + " " + e.getCapturePoint().getLocation().getBlockZ() + " 1.0 " + new Double(2.0 - ((2 * pc) + 0.1)));
 			}
 			
 			c.getRegion().setPlayerCapturePane(i, t);
