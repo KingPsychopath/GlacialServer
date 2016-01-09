@@ -1,10 +1,14 @@
 package com.glacialrush;
 
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import com.glacialrush.api.GlacialPlugin;
 import com.glacialrush.component.CommandComponent;
 import com.glacialrush.component.DataComponent;
 import com.glacialrush.component.ManipulationComponent;
+import com.glacialrush.composite.Faction;
 import com.glacialrush.game.Game;
 
 public class GlacialServer extends GlacialPlugin
@@ -33,7 +37,7 @@ public class GlacialServer extends GlacialPlugin
 		game = new Game(this);
 		game.load();
 		
-		scheduleSyncTask(200, new Runnable()
+		scheduleSyncTask(10, new Runnable()
 		{
 			@Override
 			public void run()
@@ -50,6 +54,13 @@ public class GlacialServer extends GlacialPlugin
 	public void onDisable()
 	{
 		game.save();
+		
+		for(Player j : onlinePlayers())
+		{
+			j.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 3600, 20));
+			j.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 3600, 20));
+			j.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 3600, 20));
+		}
 		
 		super.onDisable();
 	}
