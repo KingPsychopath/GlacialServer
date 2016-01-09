@@ -179,6 +179,15 @@ public class Capture
 			g.pl().callEvent(new FactionCaptureEvent(this, offense, moffense, mdefense, moffenseStray));
 		}
 		
+		if(state == -99)
+		{
+			for(Player i : getPlayers())
+			{
+				Location spawn = i.getLocation();
+				i.getServer().dispatchCommand(i.getServer().getConsoleSender(), "playsound " + "g.event.capture.capture " + i.getName() + " " + spawn.getBlockX() + " " + spawn.getBlockY() + " " + spawn.getBlockZ() + " 10 1");
+			}
+		}
+		
 		if(state > 100)
 		{
 			state = 100;
@@ -190,6 +199,7 @@ public class Capture
 		{
 			state = -100;
 			region.capture(this, offense);
+			
 			secured = offense;
 		}
 	}
