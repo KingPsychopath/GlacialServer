@@ -282,73 +282,59 @@ public class Map
 			spawns.get(i).setFaction(i);
 		}
 		
-		final Integer[] k = new Integer[1];
-		
-		k[0] = pl.scheduleSyncRepeatingTask(10, 0, new Runnable()
+		while(hasNeutralRegions())
 		{
-			@Override
-			public void run()
+			for(Faction i : spawns.keySet())
 			{
-				if(pl.getManipulationComponent().isIdle())
+				for(Region j : regions)
 				{
-					pl.cancelTask(k[0]);
+					boolean cycle = false;
 					
-					while(hasNeutralRegions())
+					if(j.getFaction().equals(i))
 					{
-						for(Faction i : spawns.keySet())
+						for(HunkFace k : HunkFace.values())
 						{
-							for(Region j : regions)
+							Region t = getRegion(j.getHunk().getRelative(k));
+							
+							if(t != null && t.getFaction().equals(Faction.neutral()))
 							{
-								boolean cycle = false;
-								
-								if(j.getFaction().equals(i))
-								{
-									for(HunkFace k : HunkFace.values())
-									{
-										Region t = getRegion(j.getHunk().getRelative(k));
-										
-										if(t != null && t.getFaction().equals(Faction.neutral()))
-										{
-											t.setFaction(i);
-											cycle = true;
-											break;
-										}
-									}
-								}
-								
-								if(cycle)
-								{
-									break;
-								}
+								t.setFaction(i);
+								cycle = true;
+								break;
 							}
 						}
 					}
 					
-					while(hasNeutralRegions())
+					if(cycle)
 					{
-						for(Region i : regions)
+						break;
+					}
+				}
+			}
+		}
+		
+		while(hasNeutralRegions())
+		{
+			for(Region i : regions)
+			{
+				if(i.getFaction().equals(Faction.neutral()))
+				{
+					for(HunkFace j : HunkFace.values())
+					{
+						Region k = getRegion(i.getHunk().getRelative(j));
+						
+						if(k != null)
 						{
-							if(i.getFaction().equals(Faction.neutral()))
+							if(!k.getFaction().equals(Faction.neutral()))
 							{
-								for(HunkFace j : HunkFace.values())
-								{
-									Region k = getRegion(i.getHunk().getRelative(j));
-									
-									if(k != null)
-									{
-										if(!k.getFaction().equals(Faction.neutral()))
-										{
-											i.setFaction(k.getFaction());
-											break;
-										}
-									}
-								}
+								i.setFaction(k.getFaction());
+								break;
 							}
 						}
 					}
 				}
 			}
-		});
+		}
 	}
 	
 	public boolean hasNeutralRegions()
