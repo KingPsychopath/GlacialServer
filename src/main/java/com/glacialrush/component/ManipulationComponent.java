@@ -58,7 +58,7 @@ public class ManipulationComponent extends GlacialComponent
 				
 				long ms = System.currentTimeMillis();
 				
-				while(System.currentTimeMillis() - ms < 45)
+				while(!manipulations.isEmpty())
 				{
 					if(!manipulations.isEmpty())
 					{
