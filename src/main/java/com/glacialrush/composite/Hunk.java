@@ -10,7 +10,7 @@ import com.glacialrush.xapi.Cuboid;
 
 public class Hunk implements Cloneable
 {
-	public static final int div = 45;
+	public static final int div = 96;
 	
 	public enum HunkFace
 	{
