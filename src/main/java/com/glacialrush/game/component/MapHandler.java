@@ -3,6 +3,8 @@ package com.glacialrush.game.component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import com.glacialrush.composite.Capture;
 import com.glacialrush.composite.Faction;
 import com.glacialrush.composite.Region;
@@ -83,7 +85,7 @@ public class MapHandler implements GameComponent, Listener
 				e.getRegion().getMap().accent(Faction.neutral());
 				rst = true;
 				
-				e.getRegion().getGame().pl().scheduleSyncTask(200, new Runnable()
+				e.getRegion().getGame().pl().scheduleSyncTask(80, new Runnable()
 				{
 					@Override
 					public void run()
@@ -91,6 +93,13 @@ public class MapHandler implements GameComponent, Listener
 						e.getRegion().getGame().pl().restart();
 					}
 				});
+				
+				for(Player j : e.getRegion().getGame().pl().onlinePlayers())
+				{
+					j.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 3600, 20));
+					j.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 3600, 20));
+					j.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 3600, 20));
+				}
 				
 				return;
 			}
