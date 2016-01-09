@@ -43,7 +43,7 @@ public class Region implements Listener
 	private Faction taking = Faction.neutral();
 	private char[] alphabet = "abcdefghijklmnopqrstuvwxyz".toCharArray();
 	private GMap<Player, Title> capturePanes;
-	private static final int capTime = 2400;
+	private static final int capTime = 2000;
 	
 	public Region(GlacialServer pl, Map map, String name, Location location)
 	{
@@ -78,6 +78,18 @@ public class Region implements Listener
 		this.hasSpawn = false;
 		
 		pl.register(this);
+	}
+	
+	public void start()
+	{
+		pl.scheduleSyncRepeatingTask(100, 100, new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				accent(getFaction());
+			}
+		});
 	}
 	
 	public void setPlayerCapturePane(Player p, Title title)
@@ -393,7 +405,6 @@ public class Region implements Listener
 	
 	public void accent(Faction f)
 	{
-		final int[] t = {0};
 		final Iterator<Location> it = accents.iterator();
 		final DyeColor dye = f.getDyeColor();
 		
@@ -402,26 +413,12 @@ public class Region implements Listener
 			capture(i, f);
 		}
 		
-		t[0] = pl.scheduleSyncRepeatingTask(0, 0, new Runnable()
+		while(it.hasNext())
 		{
-			@Override
-			public void run()
-			{
-				long ms = System.currentTimeMillis();
-				
-				while(System.currentTimeMillis() - ms < 30 && it.hasNext())
-				{
-					Location m = it.next();
-					
-					pl.getManipulationComponent().add(new Manipulation(m, dye));
-				}
-				
-				if(!it.hasNext())
-				{
-					pl.cancelTask(t[0]);
-				}
-			}
-		});
+			Location m = it.next();
+			
+			pl.getManipulationComponent().add(new Manipulation(m, dye));
+		}
 	}
 	
 	public void build()
@@ -521,7 +518,6 @@ public class Region implements Listener
 							if(!it.hasNext())
 							{
 								pl.cancelTask(t[0]);
-								
 								buildStatus = "built";
 							}
 						}
@@ -686,6 +682,12 @@ public class Region implements Listener
 			i.setOffense(null);
 			i.setState(100);
 			i.setSecured(faction);
+		}
+		
+		for(Player i : pl.onlinePlayers())
+		{
+			Location spawn = i.getLocation();
+			i.getServer().dispatchCommand(i.getServer().getConsoleSender(), "playsound " + "g.event.region.capture " + i.getName() + " " + spawn.getBlockX() + " " + spawn.getBlockY() + " " + spawn.getBlockZ() + " 10 1");
 		}
 		
 		if(pl.getGame().isRunning() && !faction.equals(Faction.neutral()))
