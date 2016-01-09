@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffectType;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.api.object.GList;
 import com.glacialrush.composite.Hunk;
@@ -27,6 +28,7 @@ public class Game
 	private MapHandler mapHandler;
 	private PlayerHandler playerHandler;
 	private Boolean running;
+	private Integer loadTask;
 	
 	public Game(GlacialServer pl)
 	{
@@ -39,6 +41,7 @@ public class Game
 		this.mapHandler = new MapHandler();
 		this.playerHandler = new PlayerHandler();
 		this.running = false;
+		this.loadTask = 0;
 		
 		registry.add(eventRippler);
 		registry.add(mapHandler);
@@ -51,8 +54,6 @@ public class Game
 		
 		for(Map i : maps)
 		{
-			i.build();
-			
 			for(Region j : i.getRegions())
 			{
 				j.accentTask();
@@ -85,28 +86,50 @@ public class Game
 		
 		Collections.shuffle(mMaps);
 		state = new GameState(pl, mMaps.get(0));
-		state.getMap().accentEvenley();
 		state.start();
-		registry.start();
+		final Map map = state.getMap();
+		map.build();
 		
-		for(Player i : pl.onlinePlayers())
-		{
-			respawn(i);
-		}
-		
-		gameTask = pl.scheduleSyncRepeatingTask(0, 0, new Runnable()
+		loadTask = pl.scheduleSyncRepeatingTask(30, 0, new Runnable()
 		{
 			@Override
 			public void run()
 			{
-				if(state.getStatus().equals(Status.RUNNING))
+				if(!state.getMap().isBuilding())
 				{
-					registry.tick();
+					pl.cancelTask(loadTask);
+					map.accentEvenley();
+					
+					for(Player i : pl.onlinePlayers())
+					{
+						respawn(i);
+					}
+					
+					registry.start();
+					
+					for(Player i : pl.onlinePlayers())
+					{
+						i.removePotionEffect(PotionEffectType.BLINDNESS);
+						i.removePotionEffect(PotionEffectType.SLOW);
+						i.removePotionEffect(PotionEffectType.SLOW_DIGGING);
+					}
+					
+					gameTask = pl.scheduleSyncRepeatingTask(60, 0, new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							if(state.getStatus().equals(Status.RUNNING))
+							{
+								registry.tick();
+							}
+						}
+					});
+					
+					running = true;
 				}
 			}
 		});
-		
-		running = true;
 	}
 	
 	public boolean isRunning()
