@@ -73,7 +73,7 @@ public class Manipulation
 	}
 	
 	@SuppressWarnings("deprecation")
-	public void exec()
+	public void execute()
 	{
 		if(material != null)
 		{

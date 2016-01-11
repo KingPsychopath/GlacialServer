@@ -6,6 +6,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import com.glacialrush.api.object.GList;
 import com.glacialrush.xapi.Cuboid;
 
 public class Hunk implements Cloneable
@@ -17,10 +18,10 @@ public class Hunk implements Cloneable
 		NORTH, SOUTH, WEST, EAST
 	}
 	
-	private Integer x;
-	private Integer z;
-	private World world;
-	private Cuboid cuboid;
+	protected Integer x;
+	protected Integer z;
+	protected World world;
+	protected Cuboid cuboid;
 	
 	public Hunk(Location location)
 	{
@@ -79,6 +80,11 @@ public class Hunk implements Cloneable
 		{
 			return null;
 		}
+	}
+	
+	public GList<Hunk> connected()
+	{
+		return new GList<Hunk>().qadd(getRelative(HunkFace.NORTH)).qadd(getRelative(HunkFace.EAST)).qadd(getRelative(HunkFace.SOUTH)).qadd(getRelative(HunkFace.WEST));
 	}
 	
 	public Iterator<Block> iterator()

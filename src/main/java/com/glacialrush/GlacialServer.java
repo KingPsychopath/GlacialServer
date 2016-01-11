@@ -1,113 +1,76 @@
 package com.glacialrush;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import com.glacialrush.api.GlacialPlugin;
-import com.glacialrush.component.CommandComponent;
-import com.glacialrush.component.DataComponent;
-import com.glacialrush.component.ManipulationComponent;
-import com.glacialrush.composite.Faction;
-import com.glacialrush.game.Game;
+import com.glacialrush.component.DataController;
+import com.glacialrush.component.GameController;
+import com.glacialrush.component.JobController;
+import com.glacialrush.component.MarketController;
+import com.glacialrush.component.NotificationController;
+import com.glacialrush.component.PlayerController;
+import com.glacialrush.component.SoundController;
 
 public class GlacialServer extends GlacialPlugin
 {
-	private CommandComponent commandComponent;
-	private ManipulationComponent manipulationComponent;
-	private DataComponent dataComponent;
-	private Game game;
+	private GameController gameController;
+	private DataController dataController;
+	private PlayerController playerController;
+	private MarketController marketController;
+	private JobController jobController;
+	private NotificationController notificationController;
+	private SoundController soundController;
 	
 	public void onEnable()
 	{
-		commandComponent = new CommandComponent(this);
-		manipulationComponent = new ManipulationComponent(this);
-		dataComponent = new DataComponent(this);
-		
-		startComponentRegistry();
-		
-		getComponentManager().register(dataComponent);
-		getComponentManager().register(manipulationComponent);
-		getComponentManager().register(commandComponent);
-		
 		super.onEnable();
 		
-		getCommand(Info.COMMAND_GLACIAL_RUSH).setExecutor(commandComponent);
+		gameController = new GameController(this);
+		dataController = new DataController(this);
+		playerController = new PlayerController(this);
+		marketController = new MarketController(this);
+		jobController = new JobController(this);
+		notificationController = new NotificationController(this);
+		soundController = new SoundController(this);
 		
-		game = new Game(this);
-		game.load();
-		
-		scheduleSyncTask(10, new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				game.startGame();
-				
-				Location spawn = game.getState().getMap().getRegions().get(0).getSpawn();
-				
-				getServer().dispatchCommand(getServer().getConsoleSender(), "playsound " + "g.music.start @a " + spawn.getBlockX() + " " + spawn.getBlockY() + " " + spawn.getBlockZ() + " 10 1");
-			}
-		});
+		super.startComponents();
 	}
 	
 	public void onDisable()
 	{
-		game.save();
-		
-		for(Player j : onlinePlayers())
-		{
-			j.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 3600, 20));
-			j.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 3600, 20));
-			j.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 3600, 20));
-		}
-		
 		super.onDisable();
 	}
-	
-	public void restart()
-	{		
-		final int[] tm = new int[] {0, 0};
-		
-		Location spawn = game.getState().getMap().getRegions().get(0).getSpawn();
-		
-		getServer().dispatchCommand(getServer().getConsoleSender(), "playsound " + "g.music.victory @a " + spawn.getBlockX() + " " + spawn.getBlockY() + " " + spawn.getBlockZ() + " 10 1");
-		
-		game.stopGame();
-		
-		tm[0] = scheduleSyncRepeatingTask(0, 20, new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				tm[1] = tm[1] + 1;
-				
-				if(tm[1] > 41)
-				{
-					cancelTask(tm[0]);
-					getServer().dispatchCommand(getServer().getConsoleSender(), "plugman restart GlacialServer");
-				}
-			}
-		});
+
+	public GameController getGameController()
+	{
+		return gameController;
 	}
 
-	public CommandComponent getCommandComponent()
+	public DataController getDataController()
 	{
-		return commandComponent;
+		return dataController;
 	}
 
-	public ManipulationComponent getManipulationComponent()
+	public PlayerController getPlayerController()
 	{
-		return manipulationComponent;
+		return playerController;
 	}
 
-	public DataComponent getDataComponent()
+	public MarketController getMarketController()
 	{
-		return dataComponent;
+		return marketController;
 	}
 
-	public Game getGame()
+	public JobController getJobController()
 	{
-		return game;
+		return jobController;
+	}
+
+	public NotificationController getNotificationController()
+	{
+		return notificationController;
+	}
+
+	public SoundController getSoundController()
+	{
+		return soundController;
 	}
 }

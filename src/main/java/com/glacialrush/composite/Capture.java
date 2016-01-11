@@ -1,311 +1,198 @@
 package com.glacialrush.composite;
 
-import java.util.Iterator;
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import com.glacialrush.GlacialServer;
 import com.glacialrush.api.object.GList;
-import com.glacialrush.composite.Hunk.HunkFace;
-import com.glacialrush.game.Game;
-import com.glacialrush.game.event.FactionCaptureEvent;
-import com.glacialrush.xapi.UMap;
+import com.glacialrush.composite.Job.JobStatus;
 
 public class Capture
 {
-	private Location location;
-	private Faction offense;
-	private Faction defense;
-	private Integer state;
-	private Region region;
-	private Faction secured;
+	protected Region region;
+	protected Map map;
+	protected Faction secured;
+	protected Faction offense;
+	protected Integer progress;
+	protected Location location;
+	protected GlacialServer pl;
+	protected Job accentJob;
 	
-	private static final int size = 1;
-	
-	public Capture(Region region, Location location)
+	public Capture(Location location, Region region)
 	{
 		this.location = location;
+		this.pl = region.pl;
 		this.region = region;
-		this.state = 100;
-		this.offense = null;
-		this.defense = Faction.neutral();
+		this.map = region.map;
 		this.secured = Faction.neutral();
+		this.offense = null;
+		this.progress = 100;
+		this.accentJob = new Job("Region [" + region.x + ", " + region.z + "]: " + region.getName() + " Capture Accent[" + Faction.neutral().getName() + "]", pl.getJobController());
 	}
 	
-	public GList<Player> getPlayers()
+	public boolean isAccenting()
 	{
-		GList<Player> players = new GList<Player>();
-		
-		for(Player i : region.getGame().pl().onlinePlayers())
-		{
-			if(getRegion().contains(i))
-			{
-				if(location.distanceSquared(i.getLocation()) < 25)
-				{
-					players.add(i);
-				}
-			}
-		}
-		
-		return players;
+		return accentJob.getStatus().equals(JobStatus.RUNNING) || accentJob.getStatus().equals(JobStatus.WAITING);
 	}
 	
-	public void tick(Game g)
+	
+	public void accent()
 	{
-		if(!g.isRunning())
+		if(isAccenting())
 		{
 			return;
 		}
 		
-		UMap<Player, Faction> players = g.getState().getFactionMap().getFactions(getPlayers());
-		UMap<Faction, Integer> points = new UMap<Faction, Integer>();
+		Block b = location.getBlock();
+		DyeColor dye = getSecured().getDyeColor();
+		accentJob = new Job("Region [" + region.x + ", " + region.z + "]: " + region.getName() + " Capture Accent[" + getSecured().getName() + "]", pl.getJobController());
+
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getLocation(), Material.STAINED_GLASS));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.EAST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.WEST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.EAST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.WEST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.EAST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.WEST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.EAST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.WEST).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getLocation(), dye));
+		accentJob.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getLocation(), dye));
 		
-		if(players.isEmpty())
-		{
-			return;
-		}
-		
-		for(Faction i : Faction.all())
-		{
-			if(!canCapture(i))
-			{
-				Iterator<Player> it = players.keySet().iterator();
-				
-				while(it.hasNext())
-				{
-					Player p = it.next();
-					
-					if(players.get(p).equals(i))
-					{
-						players.remove(p);
-					}
-				}
-			}
-		}
-		
-		for(Player i : players.keySet())
-		{
-			if(!points.containsKey(players.get(i)))
-			{
-				points.put(players.get(i), 1);
-			}
-			
-			else
-			{
-				points.put(players.get(i), points.get(players.get(i)) + 1);
-			}
-		}
-		
-		int mdefense = 0;
-		int moffense = 0;
-		int moffenseMain = 0;
-		int moffenseStray = 0;
-		
-		int a = 0;
-		int b = 0;
-		
-		Faction fa = null;
-		Faction fb = null;
-		Faction foffenseMain = null;
-		Faction foffenseStray = null;
-		
-		if(points.containsKey(defense))
-		{
-			mdefense = points.get(defense);
-		}
-		
-		for(Faction i : points.keySet())
-		{
-			if(!i.equals(defense))
-			{
-				if(fa == null)
-				{
-					fa = i;
-					a++;
-				}
-				
-				else if(fa.equals(i))
-				{
-					a++;
-				}
-				
-				else
-				{
-					fb = i;
-					b++;
-				}
-			}
-		}
-		
-		if(a > b)
-		{
-			foffenseMain = fa;
-			foffenseStray = fb;
-			moffenseMain = a;
-			moffenseStray = b;
-		}
-		
-		else if(b > a)
-		{
-			foffenseMain = fb;
-			foffenseStray = fa;
-			moffenseMain = b;
-			moffenseStray = a;
-		}
-		
-		else
-		{
-			foffenseMain = fa;
-			foffenseStray = fb;
-			moffenseMain = a;
-			moffenseStray = b;
-		}
-		
-		offense = foffenseMain;
-		moffense = moffenseMain + moffenseStray;
-		
-		if(moffense == 0 && mdefense != 0)
-		{
-			return;
-		}
-		
-		if(mdefense > moffense)
-		{
-			state += size;
-			g.pl().callEvent(new FactionCaptureEvent(this, offense, moffense, mdefense, moffenseStray));
-		}
-		
-		else if(mdefense < moffense)
-		{
-			state -= size;
-			g.pl().callEvent(new FactionCaptureEvent(this, offense, moffense, mdefense, moffenseStray));
-		}
-		
-		if(state == -99)
-		{
-			for(Player i : getPlayers())
-			{
-				Location spawn = i.getLocation();
-				i.getServer().dispatchCommand(i.getServer().getConsoleSender(), "playsound " + "g.event.capture.capture " + i.getName() + " " + spawn.getBlockX() + " " + spawn.getBlockY() + " " + spawn.getBlockZ() + " 10 1");
-			}
-		}
-		
-		if(state > 100)
-		{
-			state = 100;
-			offense = null;
-			secured = defense;
-		}
-		
-		if(state < -100)
-		{
-			state = -100;
-			region.capture(this, offense);
-			
-			secured = offense;
-		}
+		pl.getJobController().addJob(accentJob);
 	}
 	
-	public void setSecured(Faction secured)
+	public GList<Manipulation> buildTask()
 	{
-		this.secured = secured;
-	}
-	
-	public boolean canCapture(Faction f)
-	{
-		if(region.getFaction().equals(f))
-		{
-			return true;
-		}
+		GList<Manipulation> jobs = new GList<Manipulation>();
+		Block block = location.getBlock();
 		
-		for(HunkFace i : HunkFace.values())
-		{
-			if(region.getMap().getRegion(region.getHunk().getRelative(i)) != null && f.equals(region.getMap().getRegion(region.getHunk().getRelative(i)).getFaction()))
-			{
-				return true;
-			}
-		}
+		jobs.add(new Manipulation(block.getRelative(BlockFace.DOWN).getLocation(), Material.IRON_BLOCK));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.NORTH).getLocation(), Material.IRON_BLOCK));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).getLocation(), Material.IRON_BLOCK));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).getLocation(), Material.IRON_BLOCK));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).getLocation(), Material.IRON_BLOCK));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).getLocation(), Material.IRON_BLOCK));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.SOUTH).getLocation(), Material.IRON_BLOCK));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.EAST).getLocation(), Material.IRON_BLOCK));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.WEST).getLocation(), Material.IRON_BLOCK));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getLocation(), Material.STAINED_GLASS));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getLocation(), Material.STAINED_GLASS));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getLocation(), Material.STAINED_CLAY));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).getLocation(), Material.STAINED_CLAY));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).getLocation(), Material.STAINED_CLAY));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).getLocation(), Material.STAINED_CLAY));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).getLocation(), Material.STAINED_CLAY));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getLocation(), Material.STAINED_CLAY));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.EAST).getLocation(), Material.STAINED_CLAY));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.WEST).getLocation(), Material.STAINED_CLAY));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getLocation(), Material.STAINED_CLAY));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getLocation(), Material.STAINED_GLASS_PANE));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).getLocation(), Material.STAINED_GLASS_PANE));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).getLocation(), Material.STAINED_GLASS_PANE));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).getLocation(), Material.STAINED_GLASS_PANE));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).getLocation(), Material.STAINED_GLASS_PANE));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getLocation(), Material.STAINED_GLASS_PANE));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.EAST).getLocation(), Material.STAINED_GLASS_PANE));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.WEST).getLocation(), Material.STAINED_GLASS_PANE));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getLocation(), Material.STAINED_GLASS_PANE));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).getLocation(), Material.STAINED_GLASS_PANE));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).getLocation(), Material.STAINED_GLASS_PANE));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).getLocation(), Material.STAINED_GLASS_PANE));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).getLocation(), Material.STAINED_GLASS_PANE));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getLocation(), Material.STAINED_GLASS_PANE));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.EAST).getLocation(), Material.STAINED_GLASS_PANE));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.WEST).getLocation(), Material.STAINED_GLASS_PANE));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getLocation(), Material.STAINED_GLASS));
+		jobs.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getLocation(), Material.STAINED_GLASS));
 		
-		return false;
+		return jobs;
 	}
-	
-	public void reset()
-	{
-		offense = null;
-		defense = region.getFaction();
-		state = 100;
-	}
-	
-	public boolean enemySecured()
-	{
-		if(state == -100)
-		{
-			return true;
-		}
-		
-		return false;
-	}
-	
-	public boolean allySecured()
-	{
-		if(state == 100)
-		{
-			return true;
-		}
-		
-		return false;
-	}
-	
-	public Faction getSecured()
-	{
-		return secured;
-	}
-	
-	public Location getLocation()
-	{
-		return location;
-	}
-	
-	public void setLocation(Location location)
-	{
-		this.location = location;
-	}
-	
-	public Faction getOffense()
-	{
-		return offense;
-	}
-	
-	public void setOffense(Faction offense)
-	{
-		this.offense = offense;
-	}
-	
-	public Faction getDefense()
-	{
-		return defense;
-	}
-	
-	public void setDefense(Faction defense)
-	{
-		this.defense = defense;
-	}
-	
-	public Integer getState()
-	{
-		return state;
-	}
-	
-	public void setState(Integer state)
-	{
-		this.state = state;
-	}
-	
+
 	public Region getRegion()
 	{
 		return region;
 	}
-	
+
 	public void setRegion(Region region)
 	{
 		this.region = region;
+	}
+
+	public Map getMap()
+	{
+		return map;
+	}
+
+	public void setMap(Map map)
+	{
+		this.map = map;
+	}
+
+	public Faction getSecured()
+	{
+		return secured;
+	}
+
+	public void setSecured(Faction secured)
+	{
+		this.secured = secured;
+	}
+
+	public Faction getOffense()
+	{
+		return offense;
+	}
+
+	public void setOffense(Faction offense)
+	{
+		this.offense = offense;
+	}
+
+	public Integer getProgress()
+	{
+		return progress;
+	}
+
+	public void setProgress(Integer progress)
+	{
+		this.progress = progress;
+	}
+
+	public Location getLocation()
+	{
+		return location;
+	}
+
+	public void setLocation(Location location)
+	{
+		this.location = location;
 	}
 }

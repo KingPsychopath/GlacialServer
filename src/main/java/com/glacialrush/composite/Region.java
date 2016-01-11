@@ -1,739 +1,210 @@
 package com.glacialrush.composite;
 
-import java.time.Duration;
+import java.util.HashSet;
 import java.util.Iterator;
-import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import com.glacialrush.GlacialServer;
-import com.glacialrush.api.dispatch.Title;
 import com.glacialrush.api.object.GList;
-import com.glacialrush.api.object.GMap;
-import com.glacialrush.component.ManipulationComponent;
-import com.glacialrush.game.Game;
-import com.glacialrush.game.event.RegionCaptureEvent;
+import com.glacialrush.composite.Job.JobStatus;
 import com.glacialrush.xapi.Cuboid;
 import com.glacialrush.xapi.Cuboid.CuboidDirection;
-import net.md_5.bungee.api.ChatColor;
 
-public class Region implements Listener
+public class Region extends Hunk
 {
-	private GlacialServer pl;
-	private Hunk hunk;
-	private GList<Location> accents;
-	private GList<Capture> captures;
-	private Faction faction;
-	private Map map;
-	private String name;
-	private Location spawn;
-	private String buildStatus;
-	private Boolean hasSpawn;
-	private Boolean needsAccented = false;
-	private Integer timer = -1;
-	private Faction taking = Faction.neutral();
-	private char[] alphabet = "abcdefghijklmnopqrstuvwxyz".toCharArray();
-	private GMap<Player, Title> capturePanes;
-	private static final int capTime = 2000;
+	protected String name;
+	protected Location spawn;
+	protected Faction faction;
+	protected Map map;
+	protected GlacialServer pl;
+	protected GList<Capture> captures;
+	protected GList<Location> accents;
+	protected Job buildJob;
+	protected Job accentJob;
 	
-	public Region(GlacialServer pl, Map map, String name, Location location)
+	public Region(Location spawn, Map map, World world)
 	{
-		this.pl = pl;
+		super(spawn);
+		
+		this.name = map.getName();
+		this.spawn = spawn;
 		this.map = map;
-		this.name = name;
-		this.hunk = new Hunk(location);
-		this.accents = new GList<Location>();
-		this.captures = new GList<Capture>();
+		this.pl = map.pl;
 		this.faction = Faction.neutral();
-		this.buildStatus = "unbuilt";
-		this.capturePanes = new GMap<Player, Title>();
-		this.spawn = hunk.getCenter(64);
-		this.hasSpawn = false;
-		this.needsAccented = false;
-		
-		pl.register(this);
-	}
-	
-	public Region(GlacialServer pl, Map map, String name, Hunk hunk)
-	{
-		this.pl = pl;
-		this.map = map;
-		this.name = name;
-		this.hunk = hunk;
-		this.accents = new GList<Location>();
 		this.captures = new GList<Capture>();
-		this.faction = Faction.neutral();
-		this.buildStatus = "unbuilt";
-		this.capturePanes = new GMap<Player, Title>();
-		this.spawn = hunk.getCenter(64);
-		this.hasSpawn = false;
-		
-		pl.register(this);
+		this.accents = new GList<Location>();
+		this.buildJob = new Job("Region [" + x + ", " + z + "]: " + getName() + " Build", pl.getJobController());
+		this.accentJob = new Job("Region [" + x + ", " + z + "]: " + getName() + " Accent[" + Faction.neutral().getName() + "]", pl.getJobController());
 	}
 	
-	public void start()
+	public boolean isBuilding()
 	{
-		pl.scheduleSyncRepeatingTask(100, 100, new Runnable()
+		return buildJob.getStatus().equals(JobStatus.RUNNING) || buildJob.getStatus().equals(JobStatus.WAITING);
+	}
+	
+	public boolean isAccenting()
+	{
+		return accentJob.getStatus().equals(JobStatus.RUNNING) || accentJob.getStatus().equals(JobStatus.WAITING) || isCapAccenting();
+	}
+	
+	public boolean isCapAccenting()
+	{
+		for(Capture i : captures)
 		{
-			@Override
-			public void run()
+			if(i.isAccenting())
 			{
-				accent(getFaction());
+				return true;
 			}
-		});
+		}
+		
+		return false;
 	}
 	
-	public void setPlayerCapturePane(Player p, Title title)
+	public void accent()
 	{
-		capturePanes.put(p, title);
-	}
-	
-	public void tick()
-	{
-		if(!getGame().isRunning())
+		if(isBuilding() || isAccenting())
 		{
 			return;
 		}
 		
-		boolean allDefended = true;
+		accentJob = new Job("Region [" + x + ", " + z + "]: " + getName() + " Accent[" + getFaction().getName() + "]", pl.getJobController());
 		
-		for(Capture i : captures)
-		{
-			if(!i.getSecured().equals(faction))
-			{
-				allDefended = false;
-			}
-		}
-		
-		if(allDefended && timer == -1)
-		{
-			for(Player i : getPlayers())
-			{
-				Title t = new Title();
-				
-				for(Capture j : captures)
-				{
-					if(j.getPlayers().contains(i))
-					{
-						if(capturePanes.containsKey(i))
-						{
-							t.setTitle(capturePanes.get(i).getTitle());
-							t.setSubtitle(capturePanes.get(i).getSubtitle());
-							break;
-						}
-					}
-				}
-				
-				t.setFadeInTime(0);
-				t.setStayTime(5);
-				t.setFadeOutTime(10);
-				t.send(i);
-				
-				capturePanes.remove(i);
-			}
-			
-			return;
-		}
-		
-		if(timer == -1)
-		{
-			for(Player i : getPlayers())
-			{
-				Title t = new Title();
-				
-				for(Capture j : captures)
-				{
-					if(j.getPlayers().contains(i))
-					{
-						if(capturePanes.containsKey(i))
-						{
-							t.setTitle(capturePanes.get(i).getTitle());
-							t.setSubtitle(capturePanes.get(i).getSubtitle());
-							break;
-						}
-					}
-				}
-				
-				t.setFadeInTime(0);
-				t.setStayTime(5);
-				t.setFadeOutTime(10);
-				t.send(i);
-				
-				capturePanes.remove(i);
-			}
-		}
-		
-		GMap<Faction, Integer> cps = new GMap<Faction, Integer>();
-		cps.put(Faction.omni(), 0);
-		cps.put(Faction.enigma(), 0);
-		cps.put(Faction.cryptic(), 0);
-		cps.put(Faction.neutral(), 0);
-		
-		for(Capture i : captures)
-		{
-			cps.put(i.getSecured(), cps.get(i.getSecured()) + 1);
-		}
-		
-		GList<Faction> fmf = Faction.all();
-		fmf.remove(faction);
-		
-		if(cps.get(faction) > cps.get(fmf.get(0)) && cps.get(faction) > cps.get(fmf.get(1)))
-		{
-			taking = faction;
-		}
-		
-		else if(cps.get(fmf.get(0)) > cps.get(fmf.get(1)))
-		{
-			taking = fmf.get(0);
-		}
-		
-		else if(cps.get(fmf.get(0)) < cps.get(fmf.get(1)))
-		{
-			taking = fmf.get(1);
-		}
-		
-		else
-		{
-			taking = Faction.neutral();
-		}
-		
-		if(!taking.equals(Faction.neutral()))
-		{
-			if(timer == 0)
-			{
-				setFaction(taking);
-				timer = -1;
-				return;
-			}
-			
-			if(timer == -1)
-			{
-				timer = capTime;
-				
-				return;
-			}
-			
-			timer--;
-		}
-		
-		else if(timer == 0)
-		{
-			setFaction(faction);
-		}
-		
-		else
-		{
-			timer = capTime;
-		}
-		
-		String m = "";
-		int c = 0;
-		Duration d = Duration.ofSeconds(timer / 20);
-		
-		m = m + ChatColor.AQUA + "Capture In" + ChatColor.DARK_AQUA + d.toString().replace('P', ':').replace('P', ':').replace('T', ' ').replace('M', ':').replace('S', ' ');
-		
-		for(Capture i : captures)
-		{
-			m = m + i.getSecured().getColor() + "[" + (alphabet[c] + "").toUpperCase() + "] ";
-			
-			c++;
-		}
-		
-		if(timer == -1)
-		{
-			return;
-		}
-		
-		for(Player i : getPlayers())
-		{
-			Title t = new Title();
-			
-			for(Capture j : captures)
-			{
-				if(j.getPlayers().contains(i))
-				{
-					if(capturePanes.containsKey(i))
-					{
-						t.setTitle(capturePanes.get(i).getTitle());
-						t.setSubtitle(capturePanes.get(i).getSubtitle());
-						break;
-					}
-				}
-			}
-			
-			t.setFadeInTime(0);
-			t.setStayTime(5);
-			t.setFadeOutTime(10);
-			t.setSubSubTitle(m);
-			
-			t.send(i);
-			capturePanes.remove(i);
-		}
-		
-		Faction fxx = null;
-		boolean allbutThis = true;
-		
-		if(timer == capTime - 1)
-		{
-			for(Region j : map.getRegions())
-			{
-				if(!j.equals(this))
-				{
-					if(fxx == null)
-					{
-						fxx = j.getFaction();
-					}
-					
-					else if(!fxx.equals(j.getFaction()))
-					{
-						allbutThis = false;
-					}
-				}
-			}
-			
-			if(allbutThis)
-			{
-				pl.getServer().dispatchCommand(pl.getServer().getConsoleSender(), "playsound " + "g.music.countdown @a " + spawn.getBlockX() + " " + spawn.getBlockY() + " " + spawn.getBlockZ() + " 10 1.2");
-			}
-		}
-	}
-	
-	public GList<Player> getPlayers()
-	{
-		GList<Player> pls = new GList<Player>();
-		
-		for(Player i : pl.onlinePlayers())
-		{
-			if(contains(i))
-			{
-				pls.add(i);
-			}
-		}
-		
-		return pls;
-	}
-	
-	public Game getGame()
-	{
-		return pl.getGame();
-	}
-	
-	public void draw(Player p, int level)
-	{
-		Cuboid c = hunk.getCuboid().flatten(level);
-		
-		hallucinate(p, c.getFace(CuboidDirection.North));
-		hallucinate(p, c.getFace(CuboidDirection.South));
-		hallucinate(p, c.getFace(CuboidDirection.East));
-		hallucinate(p, c.getFace(CuboidDirection.West));
-	}
-	
-	public void accentTask()
-	{
-		pl.scheduleSyncRepeatingTask(0, 0, new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				if(needsAccented)
-				{
-					needsAccented = false;
-					accent(getFaction());
-				}
-			}
-		});
-	}
-	
-	public boolean ready(Player p)
-	{
-		if(!hasSpawn)
-		{
-			pl.getCommandComponent().err(p, "No Spawn for this Region");
-			p.teleport(getSpawn());
-			return false;
-		}
-		
-		if(getName().equals(map.getName()))
-		{
-			pl.getCommandComponent().err(p, "No Name for this Region");
-			p.teleport(getSpawn());
-			return false;
-		}
-		
-		return true;
-	}
-	
-	public void unbuild()
-	{
-		setBuildStatus("unbuilt");
-	}
-	
-	public void hallucinate(final Player p, Cuboid c)
-	{
-		final int[] t = {0};
-		final Iterator<Block> it = c.iterator();
-		
-		t[0] = pl.scheduleSyncRepeatingTask(0, 10, new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				long ms = System.currentTimeMillis();
-				
-				while(System.currentTimeMillis() - ms < 10 && it.hasNext())
-				{
-					Block b = it.next();
-					pl.getManipulationComponent().add(new Manipulation(b.getLocation(), Material.SEA_LANTERN, p));
-				}
-				
-				if(!it.hasNext())
-				{
-					pl.cancelTask(t[0]);
-				}
-			}
-		});
-	}
-	
-	public void accent(Faction f)
-	{
-		final Iterator<Location> it = accents.iterator();
-		final DyeColor dye = f.getDyeColor();
-		
-		for(Capture i : captures)
-		{
-			capture(i, f);
-		}
+		Iterator<Location> it = accents.iterator();
 		
 		while(it.hasNext())
 		{
-			Location m = it.next();
-			
-			pl.getManipulationComponent().add(new Manipulation(m, dye));
+			accentJob.add(it.next(), getFaction().getDyeColor());
 		}
+		
+		for(Capture i : captures)
+		{
+			i.accent();
+		}
+		
+		pl.getJobController().addJob(accentJob);
+	}
+	
+	@SuppressWarnings("deprecation")
+	public void draw(Player p)
+	{
+		Job drawJob = new Job("Region [" + x + ", " + z + "]: " + getName() + " Draw[" + p.getName() + "]", pl.getJobController());
+		
+		Iterator<Block> n = new Cuboid(cuboid).flatten(p.getTargetBlock((HashSet<Byte>)null, 256).getLocation().getBlockY()).getFace(CuboidDirection.North).iterator();
+		Iterator<Block> s = new Cuboid(cuboid).flatten(p.getTargetBlock((HashSet<Byte>)null, 256).getLocation().getBlockY()).getFace(CuboidDirection.South).iterator();
+		Iterator<Block> e = new Cuboid(cuboid).flatten(p.getTargetBlock((HashSet<Byte>)null, 256).getLocation().getBlockY()).getFace(CuboidDirection.East).iterator();
+		Iterator<Block> w = new Cuboid(cuboid).flatten(p.getTargetBlock((HashSet<Byte>)null, 256).getLocation().getBlockY()).getFace(CuboidDirection.West).iterator();
+		
+		while(n.hasNext())
+		{
+			drawJob.add(n.next().getLocation(), Material.SEA_LANTERN, p);
+		}
+		
+		while(s.hasNext())
+		{
+			drawJob.add(s.next().getLocation(), Material.SEA_LANTERN, p);
+		}
+		
+		while(e.hasNext())
+		{
+			drawJob.add(e.next().getLocation(), Material.SEA_LANTERN, p);
+		}
+		
+		while(w.hasNext())
+		{
+			drawJob.add(w.next().getLocation(), Material.SEA_LANTERN, p);
+		}
+		
+		pl.getJobController().addJob(drawJob);
 	}
 	
 	public void build()
 	{
-		if(!buildStatus.equals("unbuilt"))
+		if(isBuilding() || isAccenting())
 		{
 			return;
 		}
 		
-		final int[] t = {0};
-		final Iterator<Block> it = hunk.iterator();
-		final ManipulationComponent w = pl.getManipulationComponent();
+		buildJob = new Job("Region [" + x + ", " + z + "]: " + getName() + " Build", pl.getJobController());
 		
-		buildStatus = "building";
-		captures.clear();
+		Iterator<Block> it = iterator();
 		accents.clear();
+		captures.clear();
 		
-		t[0] = pl.scheduleSyncRepeatingTask(0, 5, new Runnable()
+		while(it.hasNext())
 		{
-			@Override
-			public void run()
+			Block block = it.next();
+			
+			if(block.getType().equals(Material.WOOL) || block.getType().equals(Material.STAINED_GLASS) || block.getType().equals(Material.STAINED_GLASS_PANE) || block.getType().equals(Material.STAINED_CLAY) || block.getType().equals(Material.BANNER) || block.getType().equals(Material.STANDING_BANNER) || block.getType().equals(Material.WALL_BANNER) || block.getType().equals(Material.CARPET))
 			{
-				long ms = System.currentTimeMillis();
-				
-				while(System.currentTimeMillis() - ms < 5 && it.hasNext())
-				{
-					Block block = it.next();
-					
-					if(block.getType().equals(Material.BEACON))
-					{
-						captures.add(new Capture(Region.this, block.getLocation()));
-						
-						w.add(new Manipulation(block.getRelative(BlockFace.DOWN).getLocation(), Material.IRON_BLOCK));
-						w.add(new Manipulation(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.NORTH).getLocation(), Material.IRON_BLOCK));
-						w.add(new Manipulation(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).getLocation(), Material.IRON_BLOCK));
-						w.add(new Manipulation(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).getLocation(), Material.IRON_BLOCK));
-						w.add(new Manipulation(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).getLocation(), Material.IRON_BLOCK));
-						w.add(new Manipulation(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).getLocation(), Material.IRON_BLOCK));
-						w.add(new Manipulation(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.SOUTH).getLocation(), Material.IRON_BLOCK));
-						w.add(new Manipulation(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.EAST).getLocation(), Material.IRON_BLOCK));
-						w.add(new Manipulation(block.getRelative(BlockFace.DOWN).getRelative(BlockFace.WEST).getLocation(), Material.IRON_BLOCK));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getLocation(), Material.STAINED_GLASS));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getLocation(), Material.STAINED_GLASS));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getLocation(), Material.STAINED_CLAY));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).getLocation(), Material.STAINED_CLAY));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).getLocation(), Material.STAINED_CLAY));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).getLocation(), Material.STAINED_CLAY));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).getLocation(), Material.STAINED_CLAY));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getLocation(), Material.STAINED_CLAY));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.EAST).getLocation(), Material.STAINED_CLAY));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.WEST).getLocation(), Material.STAINED_CLAY));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getLocation(), Material.STAINED_CLAY));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getLocation(), Material.STAINED_GLASS_PANE));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).getLocation(), Material.STAINED_GLASS_PANE));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).getLocation(), Material.STAINED_GLASS_PANE));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).getLocation(), Material.STAINED_GLASS_PANE));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).getLocation(), Material.STAINED_GLASS_PANE));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getLocation(), Material.STAINED_GLASS_PANE));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.EAST).getLocation(), Material.STAINED_GLASS_PANE));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.WEST).getLocation(), Material.STAINED_GLASS_PANE));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getLocation(), Material.STAINED_GLASS_PANE));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).getLocation(), Material.STAINED_GLASS_PANE));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).getLocation(), Material.STAINED_GLASS_PANE));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).getLocation(), Material.STAINED_GLASS_PANE));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).getLocation(), Material.STAINED_GLASS_PANE));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getLocation(), Material.STAINED_GLASS_PANE));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.EAST).getLocation(), Material.STAINED_GLASS_PANE));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.WEST).getLocation(), Material.STAINED_GLASS_PANE));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getLocation(), Material.STAINED_GLASS));
-						w.add(new Manipulation(block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getLocation(), Material.STAINED_GLASS));
-					}
-				}
-				
-				if(!it.hasNext())
-				{
-					pl.cancelTask(t[0]);
-					
-					final Iterator<Block> it = hunk.iterator();
-					
-					t[0] = pl.scheduleSyncRepeatingTask(0, 5, new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							long ms = System.currentTimeMillis();
-							
-							while(System.currentTimeMillis() - ms < 5 && it.hasNext())
-							{
-								Block block = it.next();
-								
-								if(block.getType().equals(Material.WOOL) || block.getType().equals(Material.STAINED_GLASS) || block.getType().equals(Material.STAINED_GLASS_PANE) || block.getType().equals(Material.STAINED_CLAY) || block.getType().equals(Material.BANNER) || block.getType().equals(Material.STANDING_BANNER) || block.getType().equals(Material.WALL_BANNER) || block.getType().equals(Material.CARPET))
-								{
-									accents.add(block.getLocation());
-								}
-							}
-							
-							if(!it.hasNext())
-							{
-								pl.cancelTask(t[0]);
-								buildStatus = "built";
-							}
-						}
-					});
-				}
+				accents.add(block.getLocation());
 			}
-		});
-	}
-	
-	public void capture(Capture cap, Faction f)
-	{
-		ManipulationComponent w = pl.getManipulationComponent();
-		Block b = cap.getLocation().getBlock();
-		DyeColor dye = f.getDyeColor();
-		
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getLocation(), Material.STAINED_GLASS));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.EAST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.WEST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.EAST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.WEST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.EAST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.WEST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.NORTH).getRelative(BlockFace.EAST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.WEST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getRelative(BlockFace.EAST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.SOUTH).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.EAST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.WEST).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getRelative(BlockFace.UP).getLocation(), dye));
-		w.add(new Manipulation(b.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getLocation(), dye));
-	}
-	
-	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-	public void onModification(BlockBreakEvent e)
-	{
-		if(!hunk.contains(e.getBlock()) || !buildStatus.equals("built"))
-		{
-			return;
+			
+			if(block.getType().equals(Material.BEACON))
+			{
+				Capture c = new Capture(block.getLocation(), this);
+				
+				for(Manipulation i : c.buildTask())
+				{
+					buildJob.add(i);
+				}
+				
+				captures.add(c);
+			}
 		}
 		
-		if(map.getReady())
-		{
-			e.setCancelled(true);
-			return;
-		}
-		
-		buildStatus = "unbuilt";
-		map.unbuild();
-		e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.SHOOT_ARROW, 1f, 1.8f);
-		new Title("  ", ChatColor.YELLOW + "Region Modified", ChatColor.GOLD + "Requires Rebuild").send(e.getPlayer());
+		pl.getJobController().addJob(buildJob);
 	}
-	
-	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-	public void onModification(BlockPlaceEvent e)
-	{
-		if(!hunk.contains(e.getBlock()) || !buildStatus.equals("built"))
-		{
-			return;
-		}
-		
-		if(map.getReady())
-		{
-			e.setCancelled(true);
-			return;
-		}
-		
-		buildStatus = "unbuilt";
-		map.unbuild();
-		e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.SHOOT_ARROW, 1f, 1.8f);
-		new Title("  ", ChatColor.YELLOW + "Region Modified", ChatColor.GOLD + "Requires Rebuild").send(e.getPlayer());
-	}
-	
-	public boolean contains(Location location)
-	{
-		return hunk.contains(location);
-	}
-	
-	public boolean contains(Player player)
-	{
-		return hunk.contains(player);
-	}
-	
-	public boolean contains(LivingEntity entity)
-	{
-		return hunk.contains(entity);
-	}
-	
-	public Hunk getHunk()
-	{
-		return hunk;
-	}
-	
-	public void setHunk(Hunk hunk)
-	{
-		this.hunk = hunk;
-	}
-	
-	public Map getMap()
-	{
-		return map;
-	}
-	
-	public void setMap(Map map)
-	{
-		this.map = map;
-	}
-	
-	public GList<Location> getAccents()
-	{
-		return accents;
-	}
-	
-	public void setAccents(GList<Location> accents)
-	{
-		this.accents = accents;
-	}
-	
-	public GList<Capture> getCaptures()
-	{
-		return captures;
-	}
-	
-	public void setCaptures(GList<Capture> captures)
-	{
-		this.captures = captures;
-	}
-	
-	public Faction getFaction()
-	{
-		return faction;
-	}
-	
-	public void setFaction(Faction faction)
-	{
-		this.faction = faction;
-		this.needsAccented = true;
-		
-		for(Capture i : captures)
-		{
-			i.setDefense(faction);
-			i.setOffense(null);
-			i.setState(100);
-			i.setSecured(faction);
-		}
-		
-		for(Player i : pl.onlinePlayers())
-		{
-			Location spawn = i.getLocation();
-			i.getServer().dispatchCommand(i.getServer().getConsoleSender(), "playsound " + "g.event.region.capture " + i.getName() + " " + spawn.getBlockX() + " " + spawn.getBlockY() + " " + spawn.getBlockZ() + " 10 1");
-		}
-		
-		if(pl.getGame().isRunning() && !faction.equals(Faction.neutral()))
-		{
-			pl.callEvent(new RegionCaptureEvent(this, faction));
-		}
-	}
-	
+
 	public String getName()
 	{
 		return name;
 	}
-	
+
 	public void setName(String name)
 	{
 		this.name = name;
 	}
-	
+
 	public Location getSpawn()
 	{
 		return spawn;
 	}
-	
+
 	public void setSpawn(Location spawn)
 	{
 		this.spawn = spawn;
-		hasSpawn = true;
 	}
-	
-	public boolean hasSpawn()
+
+	public Faction getFaction()
 	{
-		return hasSpawn();
+		return faction;
 	}
-	
-	public void setHasSpawn(boolean s)
+
+	public void setFaction(Faction faction)
 	{
-		hasSpawn = s;
+		this.faction = faction;
 	}
-	
-	public String getBuildStatus()
+
+	public Map getMap()
 	{
-		return buildStatus;
+		return map;
 	}
-	
-	public void setBuildStatus(String buildStatus)
+
+	public void setMap(Map map)
 	{
-		this.buildStatus = buildStatus;
+		this.map = map;
+	}
+
+	public GList<Capture> getCaptures()
+	{
+		return captures;
+	}
+
+	public void setCaptures(GList<Capture> captures)
+	{
+		this.captures = captures;
 	}
 }
