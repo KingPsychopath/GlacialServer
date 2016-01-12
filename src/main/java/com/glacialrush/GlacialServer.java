@@ -1,6 +1,7 @@
 package com.glacialrush;
 
 import com.glacialrush.api.GlacialPlugin;
+import com.glacialrush.component.CommandController;
 import com.glacialrush.component.DataController;
 import com.glacialrush.component.GameController;
 import com.glacialrush.component.JobController;
@@ -18,6 +19,7 @@ public class GlacialServer extends GlacialPlugin
 	private JobController jobController;
 	private NotificationController notificationController;
 	private SoundController soundController;
+	private CommandController commandController;
 	
 	public void onEnable()
 	{
@@ -30,6 +32,7 @@ public class GlacialServer extends GlacialPlugin
 		jobController = new JobController(this);
 		notificationController = new NotificationController(this);
 		soundController = new SoundController(this);
+		commandController = new CommandController(this);
 		
 		super.startComponents();
 	}
@@ -72,5 +75,10 @@ public class GlacialServer extends GlacialPlugin
 	public SoundController getSoundController()
 	{
 		return soundController;
+	}
+
+	public CommandController getCommandController()
+	{
+		return commandController;
 	}
 }
