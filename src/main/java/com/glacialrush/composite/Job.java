@@ -29,6 +29,7 @@ public class Job
 		
 		manipulations = new GList<Manipulation>();
 		status = JobStatus.NEW;
+		runTime = 0;
 	}
 	
 	public void execute(GlacialServer pl)
