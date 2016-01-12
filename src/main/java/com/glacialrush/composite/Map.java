@@ -68,6 +68,19 @@ public class Map
 		regions.add(region);
 	}
 	
+	public Region getRegion(Player p)
+	{
+		for(Region i : regions)
+		{
+			if(i.contains(p))
+			{
+				return i;
+			}
+		}
+		
+		return null;
+	}
+	
 	public boolean hasNeighbors(Hunk hunk)
 	{
 		for(Hunk i : hunk.connected())

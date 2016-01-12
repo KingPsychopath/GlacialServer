@@ -9,7 +9,9 @@ import com.glacialrush.GlacialServer;
 import com.glacialrush.Info;
 import com.glacialrush.api.component.Controller;
 import com.glacialrush.api.object.GMap;
+import com.glacialrush.composite.Faction;
 import com.glacialrush.composite.Map;
+import com.glacialrush.composite.Region;
 import net.md_5.bungee.api.ChatColor;
 
 public class CommandController extends Controller implements CommandExecutor
@@ -200,6 +202,171 @@ public class CommandController extends Controller implements CommandExecutor
 							if(has(p))
 							{
 								get(p).addRegion(p);
+							}
+							
+							else
+							{
+								f(p, "No Map Selected.");
+							}
+						}
+						
+						else if(sub.equalsIgnoreCase("info") || sub.equalsIgnoreCase("i"))
+						{
+							if(has(p))
+							{
+								Map m = get(p);
+								Region r = m.getRegion(p);
+								
+								s(p, "Map: " + m.getName());
+								n(p, "Regions: " + m.getRegions().size());
+								n(p, "Status: " + (m.isBuilding() ? ChatColor.RED + "Building " : ChatColor.GREEN + "Built ") + (m.isAccenting() ? ChatColor.RED + "Accenting" : ChatColor.GREEN + "Accented"));
+								
+								if(r != null)
+								{
+									s(p, "  Current Region: " + r.getName());
+									s(p, "  ACC: " + r.getAccents().size() + " CAP: " + r.getCaptures().size());
+									s(p, "  FAC: " + r.getFaction().getColor() + r.getFaction().getName());
+									n(p, "  STA: " + (r.isBuilding() ? ChatColor.RED + "Building " : ChatColor.GREEN + "Built ") + (r.isAccenting() ? ChatColor.RED + "Accenting" : ChatColor.GREEN + "Accented"));
+								}
+							}
+							
+							else
+							{
+								f(p, "No Map Selected.");
+							}
+						}
+						
+						else if(sub.equalsIgnoreCase("tp") || sub.equalsIgnoreCase("spawn"))
+						{
+							if(has(p))
+							{
+								Map m = get(p);
+								
+								if(!m.getRegions().isEmpty())
+								{
+									p.teleport(m.getRegions().get(0).getSpawn());
+								}
+								
+								else
+								{
+									f(p, "No Regions Found.");
+								}
+							}
+							
+							else
+							{
+								f(p, "No Map Selected.");
+							}
+						}
+						
+						else if(sub.equalsIgnoreCase("build") || sub.equalsIgnoreCase("b"))
+						{
+							if(has(p))
+							{
+								Map m = get(p);
+								
+								if(m.isBuilding())
+								{
+									f(p, "Map is still Building...");
+								}
+								
+								else if(m.isAccenting())
+								{
+									f(p, "Map is still Accenting...");
+								}
+								
+								else
+								{
+									s(p, "Started Build Task for " + m.getName());
+									m.build();
+								}
+							}
+							
+							else
+							{
+								f(p, "No Map Selected.");
+							}
+						}
+						
+						else if(sub.equalsIgnoreCase("accent") || sub.equalsIgnoreCase("a"))
+						{
+							if(has(p))
+							{
+								Map m = get(p);
+								Faction f = Faction.neutral();
+								
+								if(m.isBuilding())
+								{
+									f(p, "Map is still Building...");
+								}
+								
+								else if(m.isAccenting())
+								{
+									f(p, "Map is still Accenting...");
+								}
+								
+								else
+								{
+									if(args.length > 1)
+									{
+										if(f.getName().toLowerCase().contains(args[1]))
+										{
+											f = Faction.omni();
+										}
+										
+										else if(f.getName().toLowerCase().contains(args[1]))
+										{
+											f = Faction.cryptic();
+										}
+										
+										else if(f.getName().toLowerCase().contains(args[1]))
+										{
+											f = Faction.enigma();
+										}
+										
+										else if(f.getName().toLowerCase().contains(args[1]))
+										{
+											f = Faction.neutral();
+										}
+										
+										else
+										{
+											f(p, "Unknown Faction: " + args[1] + " Setting to neutral");
+										}
+									}
+									
+									s(p, "Started Accent[" + f.getColor() + f.getName() + ChatColor.GREEN + "] Task for " + m.getName());
+									m.accent(f);
+								}
+							}
+							
+							else
+							{
+								f(p, "No Map Selected.");
+							}
+						}
+						
+						else if(sub.equalsIgnoreCase("accent-e") || sub.equalsIgnoreCase("ae"))
+						{
+							if(has(p))
+							{
+								Map m = get(p);
+								
+								if(m.isBuilding())
+								{
+									f(p, "Map is still Building...");
+								}
+								
+								else if(m.isAccenting())
+								{
+									f(p, "Map is still Accenting...");
+								}
+								
+								else
+								{
+									s(p, "Started Accent[" + ChatColor.BLUE + "Even"+ ChatColor.GREEN + "] Task for " + m.getName());
+									m.accentEvenley();
+								}
 							}
 							
 							else

@@ -206,4 +206,34 @@ public class Region extends Hunk
 	{
 		this.captures = captures;
 	}
+
+	public GList<Location> getAccents()
+	{
+		return accents;
+	}
+
+	public void setAccents(GList<Location> accents)
+	{
+		this.accents = accents;
+	}
+
+	public Job getBuildJob()
+	{
+		return buildJob;
+	}
+
+	public void setBuildJob(Job buildJob)
+	{
+		this.buildJob = buildJob;
+	}
+
+	public Job getAccentJob()
+	{
+		return accentJob;
+	}
+
+	public void setAccentJob(Job accentJob)
+	{
+		this.accentJob = accentJob;
+	}
 }
