@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import com.glacialrush.GlacialServer;
@@ -25,7 +24,7 @@ public class Region extends Hunk
 	protected Job buildJob;
 	protected Job accentJob;
 	
-	public Region(Location spawn, Map map, World world)
+	public Region(Location spawn, Map map)
 	{
 		super(spawn);
 		
