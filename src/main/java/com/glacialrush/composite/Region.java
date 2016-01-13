@@ -8,9 +8,13 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.api.object.GList;
+import com.glacialrush.api.thread.GlacialTask;
 import com.glacialrush.composite.Job.JobStatus;
+import com.glacialrush.composite.data.RegionData;
 import com.glacialrush.xapi.Cuboid;
 import com.glacialrush.xapi.Cuboid.CuboidDirection;
+import com.glacialrush.xapi.ULocation;
+import net.md_5.bungee.api.ChatColor;
 
 public class Region extends Hunk
 {
@@ -23,6 +27,7 @@ public class Region extends Hunk
 	protected GList<Location> accents;
 	protected Job buildJob;
 	protected Job accentJob;
+	protected Boolean hasSpawn;
 	
 	public Region(Location spawn, Map map)
 	{
@@ -37,6 +42,35 @@ public class Region extends Hunk
 		this.accents = new GList<Location>();
 		this.buildJob = new Job("Region [" + x + ", " + z + "]: " + getName() + " Build", pl.getJobController());
 		this.accentJob = new Job("Region [" + x + ", " + z + "]: " + getName() + " Accent[" + Faction.neutral().getName() + "]", pl.getJobController());
+		this.hasSpawn = false;
+	}
+	
+	public RegionData getData()
+	{
+		GList<ULocation> caps = new GList<ULocation>();
+		
+		for(Capture i : captures)
+		{
+			caps.add(new ULocation(i.getLocation()));
+		}
+		
+		return new RegionData(name, new ULocation(spawn), caps, x, z);
+	}
+	
+	public boolean check(Player p)
+	{
+		if(name.equals(map.getName()))
+		{
+			p.sendMessage(ChatColor.GOLD + "Region " + x + ", " + z + " name is the same as map.");
+		}
+		
+		if(!hasSpawn)
+		{
+			p.sendMessage(ChatColor.RED + "Region " + x + ", " + z + " no accurate spawn.");
+			return false;
+		}
+		
+		return true;
 	}
 	
 	public boolean isBuilding()
@@ -60,6 +94,54 @@ public class Region extends Hunk
 		}
 		
 		return false;
+	}
+	
+	public GList<Region> connectedRegions()
+	{
+		GList<Region> regions = new GList<Region>();
+		
+		for(Hunk i : connected())
+		{
+			if(map.getRegion(i) != null)
+			{
+				regions.add(map.getRegion(i));
+			}
+		}
+		
+		return regions;
+	}
+	
+	public boolean connectedTo(Region r)
+	{
+		return connectedRegions().contains(r);
+	}
+	
+	public boolean connectedTo(Faction f)
+	{
+		for(Region i : connectedRegions())
+		{
+			if(i.getFaction().equals(f))
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public Boolean getHasSpawn()
+	{
+		return hasSpawn;
+	}
+
+	public void setHasSpawn(Boolean hasSpawn)
+	{
+		this.hasSpawn = hasSpawn;
+	}
+
+	public boolean isNeutral()
+	{
+		return getFaction().equals(Faction.neutral());
 	}
 	
 	public void accent()
@@ -135,28 +217,44 @@ public class Region extends Hunk
 		accents.clear();
 		captures.clear();
 		
-		while(it.hasNext())
+		long cycleTime = 0;
+		
+		pl.o("Started Job: Region[" + x + ", " + z + "]: " + getName() + " Build[ACCSC]");
+		
+		pl.newThread(new GlacialTask()
 		{
-			Block block = it.next();
-			
-			if(block.getType().equals(Material.WOOL) || block.getType().equals(Material.STAINED_GLASS) || block.getType().equals(Material.STAINED_GLASS_PANE) || block.getType().equals(Material.STAINED_CLAY) || block.getType().equals(Material.BANNER) || block.getType().equals(Material.STANDING_BANNER) || block.getType().equals(Material.WALL_BANNER) || block.getType().equals(Material.CARPET))
+			@Override
+			public void run()
 			{
-				accents.add(block.getLocation());
-			}
-			
-			if(block.getType().equals(Material.BEACON))
-			{
-				Capture c = new Capture(block.getLocation(), this);
+				long ms = System.currentTimeMillis();
 				
-				for(Manipulation i : c.buildTask())
+				while(it.hasNext() && System.currentTimeMillis() - ms < 1)
 				{
-					buildJob.add(i);
+					Block block = it.next();
+					
+					if(block.getType().equals(Material.WOOL) || block.getType().equals(Material.STAINED_GLASS) || block.getType().equals(Material.STAINED_GLASS_PANE) || block.getType().equals(Material.STAINED_CLAY) || block.getType().equals(Material.BANNER) || block.getType().equals(Material.STANDING_BANNER) || block.getType().equals(Material.WALL_BANNER) || block.getType().equals(Material.CARPET))
+					{
+						accents.add(block.getLocation());
+					}
+					
+					if(block.getType().equals(Material.BEACON))
+					{
+						Capture c = new Capture(block.getLocation(), Region.this);
+						
+						for(Manipulation i : c.buildTask())
+						{
+							buildJob.add(i);
+						}
+						
+						captures.add(c);
+					}
 				}
 				
-				captures.add(c);
+				cycleTime += System.currentTimeMillis() - ms;
 			}
-		}
+		});
 		
+		pl.o("Finished Job: Region[" + x + ", " + z + "]: " + getName() + " Build[ACCSC] " + cycleTime + "ms");
 		pl.getJobController().addJob(buildJob);
 	}
 
