@@ -4,13 +4,21 @@ import java.util.Collections;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.api.object.GList;
 import com.glacialrush.api.object.GMap;
 import com.glacialrush.api.thread.GlacialTask;
 import com.glacialrush.component.CommandController;
+import com.glacialrush.composite.data.MapData;
+import com.glacialrush.composite.data.RegionData;
+import net.md_5.bungee.api.ChatColor;
 
-public class Map
+public class Map implements Listener
 {
 	protected World world;
 	protected Faction faction;
@@ -18,6 +26,8 @@ public class Map
 	protected GList<Region> regions;
 	protected GlacialServer pl;
 	protected GMap<Faction, Region> spawns;
+	protected Boolean needsBuilt;
+	protected Boolean locked;
 	
 	public Map(GlacialServer pl, World world, String name)
 	{
@@ -26,11 +36,32 @@ public class Map
 		this.world = world;
 		this.pl = pl;
 		this.faction = Faction.neutral();
+		this.needsBuilt = false;
 		this.spawns = new GMap<Faction, Region>();
+		this.locked = false;
+		pl.register(this);
+	}
+	
+	public MapData getData()
+	{
+		GList<RegionData> rgs = new GList<RegionData>();
+		
+		for(Region i : regions)
+		{
+			rgs.add(i.getData());
+		}
+		
+		return new MapData(name, world.getName(), rgs);
 	}
 	
 	public void addRegion(Player p)
 	{
+		if(locked)
+		{
+			p.sendMessage(ChatColor.RED + "Map Locked, Unlock it to add region.");
+			return;
+		}
+		
 		CommandController c = pl.getCommandController();
 		
 		if(!world.equals(p.getWorld()))
@@ -121,84 +152,75 @@ public class Map
 		
 		for(MapCorner i : MapCorner.values())
 		{
-			int x = i.isX() ? Integer.MIN_VALUE : Integer.MAX_VALUE;
-			int z = i.isZ() ? Integer.MIN_VALUE : Integer.MAX_VALUE;
-			Region c = null;
+			Region r = getRegion(new Hunk(i.isX() ? maxX() : minX(), i.isZ() ? maxZ() : minZ(), getWorld()));
 			
-			for(Region j : regions)
+			if(r != null)
 			{
-				if(i.isX())
-				{
-					if(j.getX() > x)
-					{
-						x = j.getX();
-						
-						for(Region k : regions)
-						{
-							if(j.getX() == x)
-							{
-								if(i.isZ())
-								{
-									if(k.getZ() > z)
-									{
-										z = k.getZ();
-										c = k;
-									}
-								}
-								
-								else
-								{
-									if(k.getZ() < z)
-									{
-										z = k.getZ();
-										c = k;
-									}
-								}
-							}
-						}
-					}
-				}
-				
-				else
-				{
-					if(j.getX() < x)
-					{
-						x = j.getX();
-						
-						for(Region k : regions)
-						{
-							if(j.getX() == x)
-							{
-								if(i.isZ())
-								{
-									if(k.getZ() > z)
-									{
-										z = k.getZ();
-										c = k;
-									}
-								}
-								
-								else
-								{
-									if(k.getZ() < z)
-									{
-										z = k.getZ();
-										c = k;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			
-			if(c != null)
-			{
-				corners.put(i, c);
+				corners.put(i, r);
 			}
 		}
 		
 		return corners;
+	}
+	
+	public int maxX()
+	{
+		int m = Integer.MIN_VALUE;
+		
+		for(Region i : regions)
+		{
+			if(i.getX() > m)
+			{
+				m = i.getX();
+			}
+		}
+		
+		return m;
+	}
+	
+	public int maxZ()
+	{
+		int m = Integer.MIN_VALUE;
+		
+		for(Region i : regions)
+		{
+			if(i.getZ() > m)
+			{
+				m = i.getZ();
+			}
+		}
+		
+		return m;
+	}
+	
+	public int minX()
+	{
+		int m = Integer.MAX_VALUE;
+		
+		for(Region i : regions)
+		{
+			if(i.getX() < m)
+			{
+				m = i.getX();
+			}
+		}
+		
+		return m;
+	}
+	
+	public int minZ()
+	{
+		int m = Integer.MAX_VALUE;
+		
+		for(Region i : regions)
+		{
+			if(i.getZ() < m)
+			{
+				m = i.getZ();
+			}
+		}
+		
+		return m;
 	}
 	
 	public void randomizeSpawns()
@@ -224,10 +246,9 @@ public class Map
 		
 		this.spawns.clear();
 		
-		for(Faction i : factions)
+		for(int i = 0; i < 3; i++)
 		{
-			this.spawns.put(i, spawns.get(0));
-			spawns.remove(0);
+			this.spawns.put(factions.get(i), spawns.get(i));
 		}
 	}
 	
@@ -239,6 +260,55 @@ public class Map
 		}
 	}
 	
+	public boolean check(Player p)
+	{
+		if(needsBuilt)
+		{
+			p.sendMessage(ChatColor.RED + "Map needs built.");
+			return false;
+		}
+		
+		for(Region i : regions)
+		{
+			if(!i.check(p))
+			{
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	public GMap<Faction, Region> getSpawns()
+	{
+		return spawns;
+	}
+
+	public void setSpawns(GMap<Faction, Region> spawns)
+	{
+		this.spawns = spawns;
+	}
+
+	public Boolean getNeedsBuilt()
+	{
+		return needsBuilt;
+	}
+
+	public void setNeedsBuilt(Boolean needsBuilt)
+	{
+		this.needsBuilt = needsBuilt;
+	}
+
+	public Boolean getLocked()
+	{
+		return locked;
+	}
+
+	public void setLocked(Boolean locked)
+	{
+		this.locked = locked;
+	}
+
 	public void accentEvenley()
 	{
 		neutralize();
@@ -249,8 +319,46 @@ public class Map
 			spawns.get(i).setFaction(i);
 			spawns.get(i).accent();
 		}
+				
+		while(hasNeutralRegions())
+		{
+			for(Faction i : spawns.keySet())
+			{
+				captureFromSpawn(i);
+			}
+		}
 		
-		//TODO Accent it bro
+		accent();
+	}
+	
+	public void captureFromSpawn(Faction faction)
+	{
+		if(!spawns.containsKey(faction) || !hasNeutralRegions())
+		{
+			return;
+		}
+		
+		Region region = null;
+		Double distance = Double.MAX_VALUE;
+		
+		for(Region i : regions)
+		{
+			if(i.isNeutral() && i.connectedTo(faction))
+			{
+				Double dm = i.distanceBlocks(spawns.get(faction));
+				
+				if(dm < distance)
+				{
+					region = i;
+					distance = dm;
+				}
+			}
+		}
+		
+		if(region != null)
+		{
+			region.setFaction(faction);
+		}
 	}
 	
 	public GList<Region> getRegions(Faction faction)
@@ -335,12 +443,46 @@ public class Map
 		});
 	}
 	
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	public void onModification(BlockPlaceEvent e)
+	{
+		if(locked)
+		{
+			e.setCancelled(true);
+		}
+		
+		if(!needsBuilt)
+		{
+			needsBuilt = true;
+			
+			e.getPlayer().sendMessage(ChatColor.RED + name + " Modified, needs built.");
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	public void onModification(BlockBreakEvent e)
+	{
+		if(locked)
+		{
+			e.setCancelled(true);
+		}
+		
+		if(!needsBuilt)
+		{
+			needsBuilt = true;
+			
+			e.getPlayer().sendMessage(ChatColor.RED + name + " Modified, needs built.");
+		}
+	}
+	
 	public void build()
 	{
 		for(Region i : regions)
 		{
 			i.build();
 		}
+		
+		needsBuilt = false;
 	}
 	
 	public void draw(Player p)
