@@ -80,6 +80,9 @@ public class Region extends Hunk
 		
 		for(Capture i : captures)
 		{
+			i.setSecured(getFaction());
+			i.setOffense(null);
+			i.setProgress(100);
 			i.accent();
 		}
 		
@@ -185,6 +188,13 @@ public class Region extends Hunk
 	public void setFaction(Faction faction)
 	{
 		this.faction = faction;
+		
+		for(Capture i : captures)
+		{
+			i.setSecured(faction);
+			i.setProgress(100);
+			i.setOffense(null);
+		}
 	}
 
 	public Map getMap()
