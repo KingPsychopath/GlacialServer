@@ -77,6 +77,8 @@ public class CommandController extends Controller implements CommandExecutor
 		{
 			tag = tag + ChatColor.DARK_GRAY + "]: " + ChatColor.WHITE + msg;
 		}
+		
+		sender.sendMessage(tag);
 	}
 	
 	public void f(CommandSender sender, String msg)
@@ -309,22 +311,22 @@ public class CommandController extends Controller implements CommandExecutor
 								{
 									if(args.length > 1)
 									{
-										if(f.getName().toLowerCase().contains(args[1]))
+										if(Faction.omni().getName().toLowerCase().contains(args[1].toLowerCase()))
 										{
 											f = Faction.omni();
 										}
 										
-										else if(f.getName().toLowerCase().contains(args[1]))
+										else if(Faction.cryptic().getName().toLowerCase().contains(args[1].toLowerCase()))
 										{
 											f = Faction.cryptic();
 										}
 										
-										else if(f.getName().toLowerCase().contains(args[1]))
+										else if(Faction.enigma().getName().toLowerCase().contains(args[1].toLowerCase()))
 										{
 											f = Faction.enigma();
 										}
 										
-										else if(f.getName().toLowerCase().contains(args[1]))
+										else if(Faction.neutral().getName().toLowerCase().contains(args[1].toLowerCase()))
 										{
 											f = Faction.neutral();
 										}
@@ -390,7 +392,7 @@ public class CommandController extends Controller implements CommandExecutor
 			
 			else
 			{
-				//TODO Help Page
+				n(sender, "Not a command");
 			}
 		}
 		
