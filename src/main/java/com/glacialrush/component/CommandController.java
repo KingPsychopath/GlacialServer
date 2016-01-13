@@ -157,6 +157,36 @@ public class CommandController extends Controller implements CommandExecutor
 							}
 						}
 						
+						else if(sub.equalsIgnoreCase("start") || sub.equalsIgnoreCase("sg"))
+						{
+							if(((GlacialServer)pl).getGameController().isRunning())
+							{
+								f(p, "Cannot start game. Already Running.");
+								return true;
+							}
+							
+							if(!((GlacialServer)pl).getGameController().getMaps().isEmpty())
+							{
+								((GlacialServer)pl).getGameController().start();
+							}
+							
+							else
+							{
+								f(p, "Cannot start game. No Maps.");
+							}
+						}
+						
+						else if(sub.equalsIgnoreCase("stop") || sub.equalsIgnoreCase("stg"))
+						{
+							if(!((GlacialServer)pl).getGameController().isRunning())
+							{
+								f(p, "Cannot stop game. Not Running.");
+								return true;
+							}
+							
+							((GlacialServer)pl).getGameController().stop();
+						}
+						
 						else if(sub.equalsIgnoreCase("select") || sub.equalsIgnoreCase("sel"))
 						{
 							if(args.length > 1)
@@ -204,6 +234,58 @@ public class CommandController extends Controller implements CommandExecutor
 							if(has(p))
 							{
 								get(p).addRegion(p);
+							}
+							
+							else
+							{
+								f(p, "No Map Selected.");
+							}
+						}
+						
+						else if(sub.equalsIgnoreCase("lock") || sub.equalsIgnoreCase("l"))
+						{
+							if(has(p))
+							{
+								if(get(p).getLocked())
+								{
+									f("That map is already locked retard.");
+									return true;
+								}
+								
+								if(get(p).check(p))
+								{
+									get(p).setLocked(true);
+									s(p, "Map Locked");
+								}
+								
+								else
+								{
+									f(p, "---------------------------");
+									w(p, "Please Fix the Orange ones");
+									f(p, "JESUS FUCK FIX THE RED ONES");
+								}
+							}
+							
+							else
+							{
+								f(p, "No Map Selected.");
+							}
+						}
+						
+						else if(sub.equalsIgnoreCase("unlock") || sub.equalsIgnoreCase("u"))
+						{
+							if(has(p))
+							{
+								if(get(p).getLocked())
+								{
+									get(p).setLocked(false);
+									s(p, "Map Unlocked");
+								}
+								
+								else
+								{
+									f(p, "That map isn't locked dumbass...");
+								}
 							}
 							
 							else
