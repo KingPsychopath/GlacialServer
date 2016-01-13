@@ -34,33 +34,6 @@ public class GameController extends Controller
 		handlers = new GList<GameHandler>();
 		cycleTime = 0;
 		cycles = 0;
-		
-		mapHandler = new MapHandler(pl);
-		marketHandler = new MarketHandler(pl);
-		playerHandler = new PlayerHandler(pl);
-		
-		pl.newThread(new GlacialTask()
-		{
-			@Override
-			public void run()
-			{
-				if(isRunning())
-				{
-					long msa = System.currentTimeMillis();
-					
-					for(GameHandler i : handlers)
-					{
-						long msx = System.currentTimeMillis();
-						i.start();
-						i.setCycleTime(i.getCycleTime() + (System.currentTimeMillis() - msx));
-						i.setCycles(i.getCycles() + 1);
-					}
-					
-					cycleTime += (System.currentTimeMillis() - msa);
-					cycles++;
-				}
-			}
-		});
 	}
 	
 	public void add(GameHandler handler)
@@ -155,6 +128,33 @@ public class GameController extends Controller
 	public void postEnable()
 	{
 		super.postEnable();
+		
+		mapHandler = new MapHandler((GlacialServer) pl);
+		marketHandler = new MarketHandler((GlacialServer) pl);
+		playerHandler = new PlayerHandler((GlacialServer) pl);
+		
+		pl.newThread(new GlacialTask()
+		{
+			@Override
+			public void run()
+			{
+				if(isRunning())
+				{
+					long msa = System.currentTimeMillis();
+					
+					for(GameHandler i : handlers)
+					{
+						long msx = System.currentTimeMillis();
+						i.start();
+						i.setCycleTime(i.getCycleTime() + (System.currentTimeMillis() - msx));
+						i.setCycles(i.getCycles() + 1);
+					}
+					
+					cycleTime += (System.currentTimeMillis() - msa);
+					cycles++;
+				}
+			}
+		});
 	}
 	
 	public void preDisable()
