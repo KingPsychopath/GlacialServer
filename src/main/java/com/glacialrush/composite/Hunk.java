@@ -8,6 +8,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import com.glacialrush.api.object.GList;
 import com.glacialrush.xapi.Cuboid;
+import com.glacialrush.xapi.FastMath;
 
 public class Hunk implements Cloneable
 {
@@ -39,16 +40,26 @@ public class Hunk implements Cloneable
 		this.cuboid = new Cuboid(world, x * div, 0, z * div, ((x + 1) * div) - 1, 128, ((z + 1) * div) - 1);
 	}
 	
+	public double distanceBlocks(Hunk hunk)
+	{
+		return FastMath.distance2D(this.getCenter(0), hunk.getCenter(0));
+	}
+	
+	public double distanceHunks(Hunk hunk)
+	{
+		return distanceBlocks(hunk) / (double) div;
+	}
+	
 	public Cuboid getCuboid()
 	{
 		return cuboid;
 	}
-
+	
 	public void setCuboid(Cuboid cuboid)
 	{
 		this.cuboid = cuboid;
 	}
-
+	
 	public Location getCenter(int level)
 	{
 		return new Location(world, (x * div) - (div / 2), level, (z * div) - (div / 2));
@@ -131,32 +142,32 @@ public class Hunk implements Cloneable
 		
 		return false;
 	}
-
+	
 	public Integer getX()
 	{
 		return x;
 	}
-
+	
 	public void setX(Integer x)
 	{
 		this.x = x;
 	}
-
+	
 	public Integer getZ()
 	{
 		return z;
 	}
-
+	
 	public void setZ(Integer z)
 	{
 		this.z = z;
 	}
-
+	
 	public World getWorld()
 	{
 		return world;
 	}
-
+	
 	public void setWorld(World world)
 	{
 		this.world = world;
