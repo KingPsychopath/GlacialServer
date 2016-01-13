@@ -43,6 +43,11 @@ public class GameController extends Controller
 	
 	public void start()
 	{
+		if(maps.isEmpty())
+		{
+			pl.f("Game Start: Failed: No maps!");
+		}
+		
 		Collections.shuffle(maps);
 		map = maps.get(0);
 		
