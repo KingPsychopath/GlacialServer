@@ -35,6 +35,8 @@ public class GlacialServer extends GlacialPlugin
 		commandController = new CommandController(this);
 		
 		super.startComponents();
+		
+		getCommand(Info.CMD_GLACIALRUSH).setExecutor(commandController);
 	}
 	
 	public void onDisable()
