@@ -619,6 +619,21 @@ public class Map implements Listener
 		return false;
 	}
 	
+	public GList<Player> getPlayers()
+	{
+		GList<Player> players = new GList<Player>();
+		
+		for(Player i : pl.onlinePlayers())
+		{
+			if(contains(i))
+			{
+				players.add(i);
+			}
+		}
+		
+		return players;
+	}
+	
 	public World getWorld()
 	{
 		return world;
