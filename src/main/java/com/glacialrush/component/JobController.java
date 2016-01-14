@@ -1,11 +1,13 @@
 package com.glacialrush.component;
 
+import java.util.Iterator;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.api.component.Controller;
 import com.glacialrush.api.object.GList;
 import com.glacialrush.api.thread.GlacialTask;
 import com.glacialrush.composite.Job;
 import com.glacialrush.composite.Job.JobStatus;
+import net.md_5.bungee.api.ChatColor;
 
 public class JobController extends Controller
 {
@@ -26,29 +28,36 @@ public class JobController extends Controller
 	{
 		super.preEnable();
 		
+		o("Starting Job Thread");
+		
 		pl.newThread(new GlacialTask()
 		{
 			public void run()
 			{
 				if(!jobs.isEmpty())
 				{
-					Job j = jobs.get(0);
+					Iterator<Job> it = jobs.iterator();
 					
-					if(j.getStatus().equals(JobStatus.NEW))
+					while(it.hasNext())
 					{
-						j.execute((GlacialServer) pl);
-						o("Started Job: " + j.getName());
-					}
-					
-					else if(j.getStatus().equals(JobStatus.WAITING))
-					{
-						j.execute((GlacialServer) pl);
-					}
-					
-					else if(j.getStatus().equals(JobStatus.FINISHED))
-					{
-						jobs.remove(0);
-						o("Finished Job: " + j.getName() + " " + j.getRunTime() + "ms");
+						Job j = it.next();
+						
+						if(j.getStatus().equals(JobStatus.NEW))
+						{
+							j.execute((GlacialServer) pl);
+							o("Started Job: " + ChatColor.LIGHT_PURPLE +  j.getName());
+						}
+						
+						else if(j.getStatus().equals(JobStatus.WAITING))
+						{
+							j.execute((GlacialServer) pl);
+						}
+						
+						else if(j.getStatus().equals(JobStatus.FINISHED))
+						{
+							it.remove();
+							o("Finished Job: " + ChatColor.GREEN + j.getName() + " " + j.getRunTime() + "ms");
+						}
 					}
 				}
 			}
@@ -70,9 +79,9 @@ public class JobController extends Controller
 		super.postDisable();
 	}
 	
-	public int jobLoad()
+	public double jobLoad()
 	{
-		return tickLimit;
+		return tickLimit / (double)((double)jobs.size() / (double)4);
 	}
 	
 	public void addJob(Job j)
