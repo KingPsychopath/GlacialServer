@@ -201,6 +201,18 @@ public class GameController extends Controller
 		}
 		
 		s("GAME IS RUNNING");
+		
+		pl.newThread(new GlacialTask()
+		{
+			@Override
+			public void run()
+			{
+				for(GameHandler i : handlers)
+				{
+					i.tick();
+				}
+			}
+		});
 	}
 	
 	public void finish()
