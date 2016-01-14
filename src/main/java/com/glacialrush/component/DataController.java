@@ -46,6 +46,7 @@ public class DataController extends Controller
 	
 	public void postDisable()
 	{
+		saveMaps();
 		super.postDisable();
 	}
 	
