@@ -53,7 +53,7 @@ public class MapHandler extends GlacialHandler
 	
 	@Override
 	public void tick()
-	{		
+	{
 		captureDelay++;
 		
 		if(captureDelay == 19)
@@ -200,7 +200,7 @@ public class MapHandler extends GlacialHandler
 					cc = i.getSecured().getColor() + "[" + Info.abc[cz] + "]  ";
 				}
 				
-				String s = ChatColor.AQUA + region.getName() + " in " + ChatColor.GREEN +  t + " " + cc;
+				String s = ChatColor.AQUA + region.getName() + " in " + ChatColor.GREEN + t + " " + cc;
 				
 				n.setSubSubTitle(s);
 				
