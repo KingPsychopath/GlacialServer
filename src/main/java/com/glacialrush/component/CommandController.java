@@ -187,6 +187,18 @@ public class CommandController extends Controller implements CommandExecutor
 							((GlacialServer)pl).getGameController().stop();
 						}
 						
+						else if(sub.equalsIgnoreCase("restart") || sub.equalsIgnoreCase("rsg"))
+						{
+							if(!((GlacialServer)pl).getGameController().isRunning())
+							{
+								s(p, "Starting Game");
+								((GlacialServer)pl).getGameController().stop();
+							}
+							
+							s(p, "Restarting Game");
+							((GlacialServer)pl).getGameController().restart();
+						}
+						
 						else if(sub.equalsIgnoreCase("select") || sub.equalsIgnoreCase("sel"))
 						{
 							if(args.length > 1)
@@ -311,6 +323,63 @@ public class CommandController extends Controller implements CommandExecutor
 									s(p, "  ACC: " + r.getAccents().size() + " CAP: " + r.getCaptures().size());
 									s(p, "  FAC: " + r.getFaction().getColor() + r.getFaction().getName());
 									n(p, "  STA: " + (r.isBuilding() ? ChatColor.RED + "Building " : ChatColor.GREEN + "Built ") + (r.isAccenting() ? ChatColor.RED + "Accenting" : ChatColor.GREEN + "Accented"));
+								}
+							}
+							
+							else
+							{
+								f(p, "No Map Selected.");
+							}
+						}
+						
+						else if(sub.equalsIgnoreCase("setspawn") || sub.equalsIgnoreCase("ss"))
+						{
+							if(has(p))
+							{
+								Region r = get(p).getRegion(p);
+								
+								if(r != null)
+								{
+									r.setSpawn(p.getLocation());
+									r.setHasSpawn(true);
+									s("Set Spawn");
+								}
+								
+								else
+								{
+									f(p, "Not inside of a region.");
+								}
+							}
+							
+							else
+							{
+								f(p, "No Map Selected.");
+							}
+						}
+						
+						else if(sub.equalsIgnoreCase("setname") || sub.equalsIgnoreCase("sn"))
+						{
+							if(has(p))
+							{
+								Region r = get(p).getRegion(p);
+								
+								if(r != null)
+								{
+									if(args.length > 1)
+									{
+										r.setName(subWord(args, 1));
+										s("Set Region Name to: " + subWord(args, 1));
+									}
+									
+									else
+									{
+										f(p, "/g sn <multi space name>");
+									}
+								}
+								
+								else
+								{
+									f(p, "Not inside of a region.");
 								}
 							}
 							
