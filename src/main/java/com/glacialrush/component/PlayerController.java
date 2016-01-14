@@ -5,12 +5,14 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.api.component.Controller;
+import com.glacialrush.api.dispatch.notification.Notification;
+import com.glacialrush.api.dispatch.notification.NotificationPriority;
 import com.glacialrush.api.object.GList;
+import com.glacialrush.game.event.PlayerControlEvent;
 
 public class PlayerController extends Controller
 {
@@ -78,6 +80,16 @@ public class PlayerController extends Controller
 		if(disabled.contains((Player)e.getEntity()))
 		{
 			e.setCancelled(true);
+		}
+	}
+	
+	@EventHandler
+	public void onPlayerControl(PlayerControlEvent e)
+	{
+		if(!e.getRegion().connected(e.getFaction()))
+		{
+			e.setCancelled(true);
+			((GlacialServer)pl).getNotificationController().dispatch(new Notification().setSubTitle(e.getRegion().getFaction().getColor() + e.getRegion().getFaction().getName() + " Secured").setSubSubTitle(e.getFaction().getColor() + "You're Faction, " + e.getFaction().getName() + " does not own a connected region").setDelay(false).setPriority(NotificationPriority.VERYHIGH), e.getPlayer());
 		}
 	}
 }
