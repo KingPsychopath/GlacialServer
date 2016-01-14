@@ -55,6 +55,90 @@ public class PlayerHandler extends GlacialHandler
 		
 	}
 	
+	public boolean contested(GMap<Faction, GList<Player>> map)
+	{
+		if(map.size() == 1)
+		{
+			return false;
+		}
+		
+		if(map.size() == 2)
+		{
+			return map.get(map.ukeys().get(0)).size() == map.get(map.ukeys().get(1)).size();
+		}
+		
+		if(map.size() == 3)
+		{
+			if(map.get(map.ukeys().get(2)).size() == map.get(map.ukeys().get(0)).size() && map.get(map.ukeys().get(0)).size() > map.get(map.ukeys().get(1)).size())
+			{
+				return true;
+			}
+				
+			if(map.get(map.ukeys().get(1)).size() == map.get(map.ukeys().get(2)).size() && map.get(map.ukeys().get(2)).size() > map.get(map.ukeys().get(0)).size())
+			{
+				return true;
+			}
+			
+			if(map.get(map.ukeys().get(1)).size() == map.get(map.ukeys().get(0)).size() && map.get(map.ukeys().get(0)).size() > map.get(map.ukeys().get(2)).size())
+			{
+				return true;
+			}
+			
+			if(map.get(map.ukeys().get(0)).size() == map.get(map.ukeys().get(2)).size() && map.get(map.ukeys().get(2)).size() == map.get(map.ukeys().get(1)).size())
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public Faction strongest(GMap<Faction, GList<Player>> map)
+	{
+		int max = Integer.MIN_VALUE;
+		Faction s = null;
+		
+		for(Faction i : map.keySet())
+		{
+			if(map.get(i).size() > max)
+			{
+				max = map.get(i).size();
+				s = i;
+			}
+		}
+		
+		return s;
+	}
+	
+	public Faction weakest(GMap<Faction, GList<Player>> map)
+	{
+		int min = Integer.MAX_VALUE;
+		Faction s = null;
+		
+		for(Faction i : map.keySet())
+		{
+			if(map.get(i).size() < min)
+			{
+				min = map.get(i).size();
+				s = i;
+			}
+		}
+		
+		return s;
+	}
+	
+	public GMap<Player, Faction> getFaction(GList<Player> players)
+	{
+		GMap<Player, Faction> fx = new GMap<Player, Faction>();
+		
+		for(Player i : players)
+		{
+			fx.put(i, getFaction(i));
+		}
+		
+		return fx;
+	}
+	
 	public void respawn()
 	{
 		for(Player i : pl.onlinePlayers())
@@ -80,6 +164,11 @@ public class PlayerHandler extends GlacialHandler
 	
 	public Faction getFaction(Player p)
 	{
+		if(!factions.containsKey(p))
+		{
+			insert(p);
+		}
+		
 		return factions.get(p);
 	}
 	
@@ -112,12 +201,9 @@ public class PlayerHandler extends GlacialHandler
 	
 	public void insert(Player p)
 	{
-		if(factions.containsKey(p))
-		{
-			return;
-		}
+		Faction f = smallest();
 		
-		factions.put(p, smallest());
+		factions.put(p, f);
 		
 		pl.getNotificationController().dispatch(new Notification().setSubTitle(getFaction(p).getColor() + "You Fight with " + getFaction(p).getName()).setPriority(NotificationPriority.HIGH).setSound(new GSound(Sound.AMBIENCE_THUNDER, 1f, 1.7f)), p);
 	}
