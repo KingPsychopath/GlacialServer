@@ -29,6 +29,7 @@ public class Region extends Hunk
 	protected Job accentJob;
 	protected Boolean hasSpawn;
 	protected Boolean building;
+	protected Integer timer;
 	
 	public Region(Location spawn, Map map)
 	{
@@ -45,6 +46,32 @@ public class Region extends Hunk
 		this.accentJob = new Job("Region [" + x + ", " + z + "]: " + getName() + " Accent[" + Faction.neutral().getName() + "]", pl.getJobController());
 		this.hasSpawn = false;
 		this.building = false;
+		this.timer = -1;
+	}
+	
+	public boolean isTimer()
+	{
+		return timer != -1;
+	}
+	
+	public void resetTimer()
+	{
+		timer = -1;
+	}
+	
+	public void startTimer(int t)
+	{
+		timer = (t * 20) * 25;
+	}
+	
+	public void decTimer()
+	{
+		timer -= 25;
+		
+		if(timer < 0)
+		{
+			timer = 0;
+		}
 	}
 	
 	public RegionData getData()
@@ -57,6 +84,24 @@ public class Region extends Hunk
 		}
 		
 		return new RegionData(name, new ULocation(spawn), caps, x, z);
+	}
+	
+	public boolean connected(Faction f)
+	{
+		if(getFaction().equals(f))
+		{
+			return true;
+		}
+		
+		for(Region i : connectedRegions())
+		{
+			if(i.getFaction().equals(f))
+			{
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	public boolean check(Player p)
@@ -135,12 +180,12 @@ public class Region extends Hunk
 	{
 		return hasSpawn;
 	}
-
+	
 	public void setHasSpawn(Boolean hasSpawn)
 	{
 		this.hasSpawn = hasSpawn;
 	}
-
+	
 	public boolean isNeutral()
 	{
 		return getFaction().equals(Faction.neutral());
@@ -173,15 +218,30 @@ public class Region extends Hunk
 		pl.getJobController().addJob(accentJob);
 	}
 	
+	public GList<Player> getPlayers()
+	{
+		GList<Player> players = new GList<Player>();
+		
+		for(Player i : pl.onlinePlayers())
+		{
+			if(contains(i))
+			{
+				players.add(i);
+			}
+		}
+		
+		return players;
+	}
+	
 	@SuppressWarnings("deprecation")
 	public void draw(Player p)
 	{
 		Job drawJob = new Job("Region [" + x + ", " + z + "]: " + getName() + " Draw[" + p.getName() + "]", pl.getJobController());
 		
-		Iterator<Block> n = new Cuboid(cuboid).flatten(p.getTargetBlock((HashSet<Byte>)null, 256).getLocation().getBlockY()).getFace(CuboidDirection.North).iterator();
-		Iterator<Block> s = new Cuboid(cuboid).flatten(p.getTargetBlock((HashSet<Byte>)null, 256).getLocation().getBlockY()).getFace(CuboidDirection.South).iterator();
-		Iterator<Block> e = new Cuboid(cuboid).flatten(p.getTargetBlock((HashSet<Byte>)null, 256).getLocation().getBlockY()).getFace(CuboidDirection.East).iterator();
-		Iterator<Block> w = new Cuboid(cuboid).flatten(p.getTargetBlock((HashSet<Byte>)null, 256).getLocation().getBlockY()).getFace(CuboidDirection.West).iterator();
+		Iterator<Block> n = new Cuboid(cuboid).flatten(p.getTargetBlock((HashSet<Byte>) null, 256).getLocation().getBlockY()).getFace(CuboidDirection.North).iterator();
+		Iterator<Block> s = new Cuboid(cuboid).flatten(p.getTargetBlock((HashSet<Byte>) null, 256).getLocation().getBlockY()).getFace(CuboidDirection.South).iterator();
+		Iterator<Block> e = new Cuboid(cuboid).flatten(p.getTargetBlock((HashSet<Byte>) null, 256).getLocation().getBlockY()).getFace(CuboidDirection.East).iterator();
+		Iterator<Block> w = new Cuboid(cuboid).flatten(p.getTargetBlock((HashSet<Byte>) null, 256).getLocation().getBlockY()).getFace(CuboidDirection.West).iterator();
 		
 		while(n.hasNext())
 		{
@@ -221,8 +281,6 @@ public class Region extends Hunk
 		accents.clear();
 		captures.clear();
 		
-		long cycleTime = 0;
-		
 		pl.o("Started Job: " + ChatColor.LIGHT_PURPLE + "Region[" + x + ", " + z + "]: " + getName() + " Build[ACCSC]");
 		
 		pl.newThread(new GlacialTask()
@@ -232,7 +290,7 @@ public class Region extends Hunk
 			{
 				long ms = System.currentTimeMillis();
 				
-				while(it.hasNext() && System.currentTimeMillis() - ms < 1)
+				while(it.hasNext() && System.currentTimeMillis() - ms < 30)
 				{
 					Block block = it.next();
 					
@@ -260,97 +318,107 @@ public class Region extends Hunk
 					building = false;
 					stop();
 					pl.getJobController().addJob(buildJob);
+					cycleTime += System.currentTimeMillis() - ms;
+					return;
 				}
 				
 				cycleTime += System.currentTimeMillis() - ms;
 			}
 		});
 	}
-
+	
 	public String getName()
 	{
 		return name;
 	}
-
+	
 	public void setName(String name)
 	{
 		this.name = name;
 	}
-
+	
 	public Location getSpawn()
 	{
 		return spawn;
 	}
-
+	
 	public void setSpawn(Location spawn)
 	{
 		this.spawn = spawn;
 	}
-
+	
 	public Faction getFaction()
 	{
 		return faction;
 	}
-
+	
 	public void setFaction(Faction faction)
 	{
 		this.faction = faction;
 		
 		for(Capture i : captures)
 		{
-			i.setSecured(faction);
-			i.setProgress(100);
-			i.setOffense(null);
+			i.reset();
 		}
 	}
-
+	
 	public Map getMap()
 	{
 		return map;
 	}
-
+	
 	public void setMap(Map map)
 	{
 		this.map = map;
 	}
-
+	
 	public GList<Capture> getCaptures()
 	{
 		return captures;
 	}
-
+	
 	public void setCaptures(GList<Capture> captures)
 	{
 		this.captures = captures;
 	}
-
+	
 	public GList<Location> getAccents()
 	{
 		return accents;
 	}
-
+	
 	public void setAccents(GList<Location> accents)
 	{
 		this.accents = accents;
 	}
-
+	
 	public Job getBuildJob()
 	{
 		return buildJob;
 	}
-
+	
 	public void setBuildJob(Job buildJob)
 	{
 		this.buildJob = buildJob;
 	}
-
+	
 	public Job getAccentJob()
 	{
 		return accentJob;
 	}
-
+	
 	public void setAccentJob(Job accentJob)
 	{
 		this.accentJob = accentJob;
+	}
+	
+	public Boolean getBuilding()
+	{
+		return building;
+	}
+	
+	public Integer getTimer()
+	{
+		return timer;
 	}
 }
