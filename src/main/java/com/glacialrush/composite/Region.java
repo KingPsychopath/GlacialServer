@@ -28,6 +28,7 @@ public class Region extends Hunk
 	protected Job buildJob;
 	protected Job accentJob;
 	protected Boolean hasSpawn;
+	protected Boolean building;
 	
 	public Region(Location spawn, Map map)
 	{
@@ -43,6 +44,7 @@ public class Region extends Hunk
 		this.buildJob = new Job("Region [" + x + ", " + z + "]: " + getName() + " Build", pl.getJobController());
 		this.accentJob = new Job("Region [" + x + ", " + z + "]: " + getName() + " Accent[" + Faction.neutral().getName() + "]", pl.getJobController());
 		this.hasSpawn = false;
+		this.building = false;
 	}
 	
 	public RegionData getData()
@@ -75,7 +77,7 @@ public class Region extends Hunk
 	
 	public boolean isBuilding()
 	{
-		return buildJob.getStatus().equals(JobStatus.RUNNING) || buildJob.getStatus().equals(JobStatus.WAITING);
+		return buildJob.getStatus().equals(JobStatus.RUNNING) || buildJob.getStatus().equals(JobStatus.WAITING) || building;
 	}
 	
 	public boolean isAccenting()
@@ -211,6 +213,8 @@ public class Region extends Hunk
 			return;
 		}
 		
+		building = true;
+		
 		buildJob = new Job("Region [" + x + ", " + z + "]: " + getName() + " Build", pl.getJobController());
 		
 		Iterator<Block> it = iterator();
@@ -219,7 +223,7 @@ public class Region extends Hunk
 		
 		long cycleTime = 0;
 		
-		pl.o("Started Job: Region[" + x + ", " + z + "]: " + getName() + " Build[ACCSC]");
+		pl.o("Started Job: " + ChatColor.LIGHT_PURPLE + "Region[" + x + ", " + z + "]: " + getName() + " Build[ACCSC]");
 		
 		pl.newThread(new GlacialTask()
 		{
@@ -250,12 +254,17 @@ public class Region extends Hunk
 					}
 				}
 				
+				if(!it.hasNext())
+				{
+					pl.o("Finished Job: " + ChatColor.GREEN + "Region[" + x + ", " + z + "]: " + getName() + " Build[ACCSC] " + cycleTime + "ms");
+					building = false;
+					stop();
+					pl.getJobController().addJob(buildJob);
+				}
+				
 				cycleTime += System.currentTimeMillis() - ms;
 			}
 		});
-		
-		pl.o("Finished Job: Region[" + x + ", " + z + "]: " + getName() + " Build[ACCSC] " + cycleTime + "ms");
-		pl.getJobController().addJob(buildJob);
 	}
 
 	public String getName()
