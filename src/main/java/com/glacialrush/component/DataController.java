@@ -13,6 +13,7 @@ import com.glacialrush.GlacialServer;
 import com.glacialrush.api.component.Controller;
 import com.glacialrush.composite.Map;
 import com.glacialrush.composite.data.MapData;
+import net.md_5.bungee.api.ChatColor;
 
 public class DataController extends Controller
 {
@@ -92,7 +93,7 @@ public class DataController extends Controller
 			
 			oos.writeObject(mapData);
 			oos.close();
-			pl.s("Saved Map: " + mapData.getName());
+			s("Saved Map: " + mapData.getName());
 		}
 		
 		catch(FileNotFoundException e)
@@ -124,7 +125,7 @@ public class DataController extends Controller
 				
 				if(map != null)
 				{
-					pl.s("Loaded Map: " + map.getName());
+					s("Loaded Map: " + map.getName());
 					map.setLocked(true);
 					map.build();
 					return map;
@@ -147,6 +148,10 @@ public class DataController extends Controller
 			e.printStackTrace();
 		}
 		
+		pl.f("Failed to load Map " + file.getName());
+		pl.f("Map is incompatible, deleted. heh.");
+		file.delete();
+		
 		return null;
 	}
 	
@@ -156,6 +161,8 @@ public class DataController extends Controller
 		{
 			file.mkdirs();
 		}
+		
+		o("Verifying Directory: " + ChatColor.RED + file.getPath());
 	}
 	
 	public void verifyFile(File file)
@@ -167,6 +174,7 @@ public class DataController extends Controller
 			try
 			{
 				file.createNewFile();
+				o("Created File: " + ChatColor.RED + file.getPath());
 			}
 			
 			catch(IOException e)
