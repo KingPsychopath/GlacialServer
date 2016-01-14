@@ -217,7 +217,7 @@ public class Region extends Hunk
 		
 		buildJob = new Job("Region [" + x + ", " + z + "]: " + getName() + " Build", pl.getJobController());
 		
-		Iterator<Block> it = iterator();
+		final Iterator<Block> it = iterator();
 		accents.clear();
 		captures.clear();
 		
