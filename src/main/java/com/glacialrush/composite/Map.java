@@ -524,6 +524,7 @@ public class Map implements Listener
 		if(locked)
 		{
 			e.setCancelled(true);
+			return;
 		}
 		
 		if(!needsBuilt)
@@ -540,6 +541,7 @@ public class Map implements Listener
 		if(locked)
 		{
 			e.setCancelled(true);
+			return;
 		}
 		
 		if(!needsBuilt)
