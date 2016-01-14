@@ -103,6 +103,66 @@ public class Map implements Listener
 		regions.add(region);
 	}
 	
+	public int buildProgress()
+	{
+		int b = 0;
+		
+		for(Region i : regions)
+		{
+			if(!i.isBuilding())
+			{
+				b++;
+			}
+		}
+		
+		if(b == 0)
+		{
+			return 0;
+		}
+		
+		return (int) (100 * ((double) b / (double) (regions.size() - 1)));
+	}
+	
+	public int accentProgress()
+	{
+		int b = 0;
+		
+		for(Region i : regions)
+		{
+			if(!i.isAccenting())
+			{
+				b++;
+			}
+		}
+		
+		if(b == 0)
+		{
+			return 100;
+		}
+		
+		return (int) (100 * ((double) b / (double) (regions.size() - 1)));
+	}
+	
+	public int buildAccentProgress()
+	{
+		int b = 0;
+		
+		for(Region i : regions)
+		{
+			if(!i.isAccenting() && !i.isBuilding())
+			{
+				b++;
+			}
+		}
+		
+		if(b == 0)
+		{
+			return 0;
+		}
+		
+		return (int) (100 * ((double) b / (double) regions.size()));
+	}
+	
 	public Region getRegion(Player p)
 	{
 		for(Region i : regions)
@@ -131,6 +191,11 @@ public class Map implements Listener
 	
 	public void accent()
 	{
+		if(isBuilding() || isAccenting())
+		{
+			return;
+		}
+		
 		for(Region i : regions)
 		{
 			i.accent();
@@ -139,6 +204,11 @@ public class Map implements Listener
 	
 	public void accent(Faction faction)
 	{
+		if(isBuilding() || isAccenting())
+		{
+			return;
+		}
+		
 		for(Region i : regions)
 		{
 			i.setFaction(faction);
@@ -283,34 +353,39 @@ public class Map implements Listener
 	{
 		return spawns;
 	}
-
+	
 	public void setSpawns(GMap<Faction, Region> spawns)
 	{
 		this.spawns = spawns;
 	}
-
+	
 	public Boolean getNeedsBuilt()
 	{
 		return needsBuilt;
 	}
-
+	
 	public void setNeedsBuilt(Boolean needsBuilt)
 	{
 		this.needsBuilt = needsBuilt;
 	}
-
+	
 	public Boolean getLocked()
 	{
 		return locked;
 	}
-
+	
 	public void setLocked(Boolean locked)
 	{
 		this.locked = locked;
 	}
-
+	
 	public void accentEvenley()
 	{
+		if(isBuilding() || isAccenting())
+		{
+			return;
+		}
+		
 		neutralize();
 		randomizeSpawns();
 		
@@ -319,7 +394,7 @@ public class Map implements Listener
 			spawns.get(i).setFaction(i);
 			spawns.get(i).accent();
 		}
-				
+		
 		while(hasNeutralRegions())
 		{
 			for(Faction i : spawns.keySet())
@@ -477,6 +552,11 @@ public class Map implements Listener
 	
 	public void build()
 	{
+		if(isBuilding())
+		{
+			return;
+		}
+		
 		for(Region i : regions)
 		{
 			i.build();
