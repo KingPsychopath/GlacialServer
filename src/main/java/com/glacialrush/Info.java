@@ -9,4 +9,6 @@ public class Info
 	public static final String CMD_GLACIALRUSH = "glacialrush";
 	
 	public static final String PERM_ADMIN = "glacialrush.admin";
+	
+	public static final char[] abc = ("ABCDEFGHIJKLMNOPQRSTUVWXYZ").toCharArray();
 }
