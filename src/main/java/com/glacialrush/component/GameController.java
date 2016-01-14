@@ -2,6 +2,7 @@ package com.glacialrush.component;
 
 import java.util.Collections;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.api.component.Controller;
 import com.glacialrush.api.dispatch.notification.Notification;
@@ -11,6 +12,7 @@ import com.glacialrush.api.thread.GlacialTask;
 import com.glacialrush.composite.Faction;
 import com.glacialrush.composite.Map;
 import com.glacialrush.game.GameHandler;
+import com.glacialrush.game.GlacialHandler;
 import com.glacialrush.game.MapHandler;
 import com.glacialrush.game.MarketHandler;
 import com.glacialrush.game.PlayerHandler;
@@ -24,6 +26,9 @@ public class GameController extends Controller
 	protected GList<GameHandler> handlers;
 	protected long cycleTime;
 	protected long cycles;
+	protected boolean stopping;
+	protected boolean starting;
+	protected boolean restarting;
 	
 	protected MapHandler mapHandler;
 	protected MarketHandler marketHandler;
@@ -37,15 +42,89 @@ public class GameController extends Controller
 		handlers = new GList<GameHandler>();
 		cycleTime = 0;
 		cycles = 0;
+		starting = false;
+		stopping = false;
+		restarting = false;
 	}
 	
-	public void add(GameHandler handler)
+	public void add(GlacialHandler handler)
 	{
 		handlers.add(handler);
+		pl.register(handler);
+		o("Registered Listener for Handler: " + handler.getName());
+	}
+	
+	public void restart()
+	{
+		restarting = true;
+		stop();
+		
+		if(!stopping)
+		{
+			start();
+			
+			if(!starting)
+			{
+				return;
+			}
+			
+			pl.newThread(new GlacialTask()
+			{
+				@Override
+				public void run()
+				{
+					if(!starting)
+					{
+						restarting = false;
+					}
+				}
+			});
+			
+			return;
+		}
+		
+		pl.newThread(new GlacialTask()
+		{
+			@Override
+			public void run()
+			{
+				if(!stopping)
+				{
+					GameController.this.start();
+					stop();
+					
+					pl.newThread(new GlacialTask()
+					{
+						@Override
+						public void run()
+						{
+							if(!starting)
+							{
+								restarting = false;
+								stop();
+								return;
+							}
+						}
+					});
+				}
+			}
+		});
 	}
 	
 	public void start()
 	{
+		if(starting || running || stopping)
+		{
+			return;
+		}
+		
+		for(Player i : pl.onlinePlayers())
+		{
+			((GlacialServer)pl).getPlayerController().disable(i);
+		}
+		
+		starting = true;
+		
 		s("Starting Game");
 		
 		if(maps.isEmpty())
@@ -58,6 +137,8 @@ public class GameController extends Controller
 		o("Picking Map");
 		map = maps.get(0);
 		s("Selected Map: " + map.getName());
+		
+		((GlacialServer)pl).getNotificationController().dispatch(new Notification().setTitle(ChatColor.AQUA + "Starting Game").setSubTitle(ChatColor.AQUA + "Map: " + ChatColor.GREEN + map.getName()));
 		
 		for(GameHandler i : handlers)
 		{
@@ -74,7 +155,6 @@ public class GameController extends Controller
 			{
 				if(map.isAccenting() || map.isBuilding())
 				{
-					o("Waiting for Map to finish Setting up...");
 					setDelay(20);
 				}
 				
@@ -88,6 +168,21 @@ public class GameController extends Controller
 		});
 	}
 	
+	public boolean isStopping()
+	{
+		return stopping;
+	}
+
+	public boolean isStarting()
+	{
+		return starting;
+	}
+
+	public boolean isRestarting()
+	{
+		return restarting;
+	}
+
 	public void begin()
 	{
 		for(GameHandler i : handlers)
@@ -97,6 +192,15 @@ public class GameController extends Controller
 		}
 		
 		running = true;
+		starting = false;
+		restarting = false;
+		
+		for(Player i : pl.onlinePlayers())
+		{
+			((GlacialServer)pl).getPlayerController().enable(i);
+		}
+		
+		s("GAME IS RUNNING");
 	}
 	
 	public void finish()
@@ -106,11 +210,19 @@ public class GameController extends Controller
 			i.finish();
 			v("Finish Handler: " + ChatColor.RED + i.getClass().getSimpleName());
 		}
+		
+		stopping = false;
 	}
 	
 	public void stop()
 	{
+		if(starting || stopping)
+		{
+			return;
+		}
+		
 		running = false;
+		stopping = true;
 		
 		for(GameHandler i : handlers)
 		{
@@ -128,7 +240,6 @@ public class GameController extends Controller
 				if(map.isAccenting())
 				{
 					setDelay(20);
-					o("Waiting for map to finish accenting...");
 				}
 				
 				else
@@ -152,7 +263,7 @@ public class GameController extends Controller
 			@Override
 			public void run()
 			{
-				if(isRunning())
+				if(isRunning() || isStarting() || isStopping() || isRestarting())
 				{
 					setDelay(100);
 					return;
