@@ -1,90 +1,56 @@
 package com.glacialrush.component;
 
-import java.util.Iterator;
 import org.bukkit.entity.Player;
-import com.glacialrush.GlacialServer;
-import com.glacialrush.api.component.Controller;
+import com.glacialrush.api.GlacialPlugin;
 import com.glacialrush.api.dispatch.notification.Notification;
+import com.glacialrush.api.dispatch.notification.NotificationChannel;
 import com.glacialrush.api.dispatch.notification.NotificationPriority;
-import com.glacialrush.api.object.GList;
-import com.glacialrush.api.object.GMap;
-import com.glacialrush.api.thread.GlacialTask;
+import com.glacialrush.api.dispatch.notification.NotificationSystem;
 
-public class NotificationController extends Controller
+public class NotificationController extends NotificationSystem
 {
-	private GMap<Player, GList<Notification>> pending;
-	private GMap<Player, Integer> cooldown;
+	protected NotificationChannel mapChannel;
+	protected NotificationChannel capChannel;
+	protected NotificationChannel devChannel;
+	protected NotificationChannel gameChannel;
+	protected NotificationChannel broadChannel;
 	
-	public NotificationController(GlacialServer pl)
+	public NotificationController(GlacialPlugin pl)
 	{
 		super(pl);
 		
-		pending = new GMap<Player, GList<Notification>>();
-		cooldown = new GMap<Player, Integer>();
-	}
-	
-	public void preEnable()
-	{
-		super.preEnable();
-	}
-	
-	public void postEnable()
-	{
-		super.postEnable();
+		this.capChannel = new NotificationChannel("cap", NotificationPriority.MEDIUM);
+		this.mapChannel = new NotificationChannel("map", NotificationPriority.LOW);
+		this.devChannel = new NotificationChannel("dev", NotificationPriority.VERYLOW);
+		this.gameChannel = new NotificationChannel("game", NotificationPriority.HIGH);
+		this.broadChannel = new NotificationChannel("broad", NotificationPriority.VERYHIGH);
 		
-		pl.newThread(new GlacialTask()
+		channels.add(capChannel);
+		channels.add(mapChannel);
+		channels.add(devChannel);
+		channels.add(gameChannel);
+		channels.add(broadChannel);
+	}
+	
+	public void dispatch(Notification n, Player p)
+	{
+		defaultChannel.dispatch(n, p);
+	}
+	
+	public void dispatch(Notification n, NotificationChannel c, Player p)
+	{
+		if(n.getOngoing())
 		{
-			@Override
-			public void run()
+			if(cChannel.containsKey(p))
 			{
-				for(Player i : pl.onlinePlayers())
+				if(cChannel.get(p).getLevel() > c.getPriority().getLevel())
 				{
-					if(!pending.containsKey(i))
-					{
-						pending.put(i, new GList<Notification>());
-						cooldown.put(i, 100);
-					}
-					
-					if(cooldown.get(i) > 0)
-					{
-						cooldown.put(i, cooldown.get(i) - 1);
-						continue;
-					}
-					
-					for(NotificationPriority j : NotificationPriority.topDown())
-					{
-						boolean sh = false;
-						
-						Iterator<Notification> it = pending.get(i).iterator();
-						
-						while(it.hasNext())
-						{
-							Notification n = it.next();
-							
-							if(n.getPriority().equals(j))
-							{
-								n.show(i);
-								sh = true;
-								
-								if(n.isDelay())
-								{
-									cooldown.put(i, 50);
-								}
-								
-								it.remove();
-								
-								break;
-							}
-						}
-						
-						if(sh)
-						{
-							break;
-						}
-					}
+					return;
 				}
 			}
-		});
+		}
+		
+		c.dispatch(n, p);
 	}
 	
 	public void dispatch(Notification n)
@@ -95,24 +61,36 @@ public class NotificationController extends Controller
 		}
 	}
 	
-	public void dispatch(Notification n, Player p)
+	public void dispatch(Notification n, NotificationChannel c)
 	{
-		if(!pending.containsKey(p))
+		for(Player i : pl.onlinePlayers())
 		{
-			pending.put(p, new GList<Notification>());
-			cooldown.put(p, 100);
+			dispatch(n, c, i);
 		}
-		
-		pending.get(p).add(n);
 	}
-	
-	public void preDisable()
+
+	public NotificationChannel getMapChannel()
 	{
-		super.preDisable();
+		return mapChannel;
 	}
-	
-	public void postDisable()
+
+	public NotificationChannel getCapChannel()
 	{
-		super.postDisable();
+		return capChannel;
+	}
+
+	public NotificationChannel getDevChannel()
+	{
+		return devChannel;
+	}
+
+	public NotificationChannel getGameChannel()
+	{
+		return gameChannel;
+	}
+
+	public NotificationChannel getBroadChannel()
+	{
+		return broadChannel;
 	}
 }
