@@ -62,7 +62,24 @@ public class GameController extends Controller
 	
 	public void restart()
 	{
-		GlacialAPI.instance().reloadGrush();
+		final int[] c = new int[] {0};
+		
+		t.addTask(new GlacialTask("Restart Monitor")
+		{
+			@Override
+			public void run()
+			{
+				c[0]++;
+				setDelay(20);
+				
+				if(c[0] == 5)
+				{
+					GlacialAPI.instance().reloadGrush();
+					stop();
+					return;
+				}
+			}
+		});
 	}
 	
 	public void start()
@@ -77,7 +94,7 @@ public class GameController extends Controller
 		
 		for(Player i : pl.onlinePlayers())
 		{
-			((GlacialServer)pl).getPlayerController().disable(i);
+			((GlacialServer) pl).getPlayerController().disable(i);
 		}
 		
 		starting = true;
@@ -95,7 +112,7 @@ public class GameController extends Controller
 		map = maps.get(0);
 		s("Selected Map: " + map.getName());
 		
-		((GlacialServer)pl).getNotificationController().dispatch(new Notification().setTitle(ChatColor.AQUA + "Starting Game").setSubTitle(ChatColor.AQUA + "Map: " + ChatColor.GREEN + map.getName()));
+		((GlacialServer) pl).getNotificationController().dispatch(new Notification().setTitle(ChatColor.AQUA + "Starting Game").setSubTitle(ChatColor.AQUA + "Map: " + ChatColor.GREEN + map.getName()));
 		
 		for(GameHandler i : handlers)
 		{
@@ -106,7 +123,7 @@ public class GameController extends Controller
 		v("Setting up map...");
 		map.setup();
 		
-		t.addTask(new GlacialTask()
+		t.addTask(new GlacialTask("Game Start Callback")
 		{
 			public void run()
 			{
@@ -129,17 +146,17 @@ public class GameController extends Controller
 	{
 		return stopping;
 	}
-
+	
 	public boolean isStarting()
 	{
 		return starting;
 	}
-
+	
 	public boolean isRestarting()
 	{
 		return restarting;
 	}
-
+	
 	public void begin()
 	{
 		for(GameHandler i : handlers)
@@ -154,7 +171,7 @@ public class GameController extends Controller
 		
 		for(Player i : pl.onlinePlayers())
 		{
-			((GlacialServer)pl).getPlayerController().enable(i);
+			((GlacialServer) pl).getPlayerController().enable(i);
 		}
 		
 		s("GAME IS RUNNING");
@@ -164,7 +181,7 @@ public class GameController extends Controller
 		o("Respawning Players");
 		playerHandler.respawn();
 		
-		t.addTask(new GlacialTask()
+		t.addTask(new GlacialTask("GameHandle Controller")
 		{
 			@Override
 			public void run()
@@ -219,7 +236,7 @@ public class GameController extends Controller
 		
 		o("Post Accenting Map: " + map.getName());
 		
-		t.addTask(new GlacialTask()
+		t.addTask(new GlacialTask("Game Stop Callback")
 		{
 			public void run()
 			{
@@ -244,16 +261,16 @@ public class GameController extends Controller
 		
 		o("Starting Progress Thread");
 		
-		((GlacialServer)pl).getNotificationController().start();
+		((GlacialServer) pl).getNotificationController().start();
 		
-		t.addTask(new GlacialTask()
+		t.addTask(new GlacialTask("Region Monitor")
 		{
 			@Override
 			public void run()
 			{
 				if(isRunning() || isStarting() || isStopping() || isRestarting())
 				{
-					setDelay(100);
+					setDelay(20);
 					return;
 				}
 				
