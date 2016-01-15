@@ -138,8 +138,8 @@ public class CommandController extends Controller implements CommandExecutor
 					{
 						if(sub.equalsIgnoreCase("threads") || sub.equalsIgnoreCase("t"))
 						{
-							Gui gui = new Gui(p, pl);
-							Pane pane = gui.new Pane("Threads");
+							final Gui gui = new Gui(p, pl);
+							final Pane pane = gui.new Pane("Threads");
 							
 							int c = 1;
 							
