@@ -45,6 +45,22 @@ public class PlayerController extends Controller
 		super.postDisable();
 	}
 	
+	public void disableAll()
+	{
+		for(Player i : pl.onlinePlayers())
+		{
+			disable(i);
+		}
+	}
+	
+	public void enableAll()
+	{
+		for(Player i : pl.onlinePlayers())
+		{
+			enable(i);
+		}
+	}
+	
 	public void disable(Player p)
 	{
 		if(disabled.contains(p))
@@ -89,7 +105,7 @@ public class PlayerController extends Controller
 		if(!e.getRegion().connected(e.getFaction()))
 		{
 			e.setCancelled(true);
-			((GlacialServer)pl).getNotificationController().dispatch(new Notification().setSubTitle(e.getRegion().getFaction().getColor() + e.getRegion().getFaction().getName() + " Secured").setSubSubTitle(e.getFaction().getColor() + "You're Faction, " + e.getFaction().getName() + " does not own a connected region").setDelay(false).setPriority(NotificationPriority.VERYHIGH), e.getPlayer());
+			((GlacialServer)pl).getNotificationController().dispatch(new Notification().setSubTitle(e.getRegion().getFaction().getColor() + e.getRegion().getFaction().getName() + " Secured").setSubSubTitle(e.getFaction().getColor() + "You're Faction, " + e.getFaction().getName() + " does not own a connected region").setPriority(NotificationPriority.VERYHIGH).setFadeIn(0).setFadeOut(10).setStayTime(20).setOngoing(true), ((GlacialServer)pl).getNotificationController().getCapChannel(), e.getPlayer());
 		}
 	}
 }
