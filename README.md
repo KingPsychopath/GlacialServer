@@ -4,6 +4,7 @@ Glacial Rush PVP! A Minecraft pvp server in which you start out in a map. You ar
 # Build Status
 [![Circle CI](https://circleci.com/gh/GlacialRush/GlacialServer/tree/master.svg?style=shield)](https://circleci.com/gh/GlacialRush/GlacialServer/tree/master)
 [![Travis CI](https://travis-ci.org/GlacialRush/GlacialServer.svg)](https://travis-ci.org/GlacialRush/GlacialServer)
+[![Wercker status](https://app.wercker.com/status/48bf8d464f1493ce0d4a595bd4de4c51/s "wercker status")](https://app.wercker.com/project/bykey/48bf8d464f1493ce0d4a595bd4de4c51)
 
 [![Stories in Ready](https://badge.waffle.io/GlacialRush/GlacialServer.svg?label=ready&title=Ready)](http://waffle.io/GlacialRush/GlacialServer)
 
