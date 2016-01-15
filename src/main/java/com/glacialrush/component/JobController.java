@@ -30,7 +30,7 @@ public class JobController extends Controller
 		
 		o("Starting Job Thread");
 		
-		pl.newThread(new GlacialTask()
+		pl.newThread(new GlacialTask("Job Executor")
 		{
 			public void run()
 			{
