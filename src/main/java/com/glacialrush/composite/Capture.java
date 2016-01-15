@@ -177,6 +177,7 @@ public class Capture
 		setSecured(f);
 		setOffense(null);
 		setProgress(100);
+		accent();
 	}
 	
 	public GList<Player> getPlayers()
