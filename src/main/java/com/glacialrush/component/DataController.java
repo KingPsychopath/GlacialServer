@@ -87,7 +87,13 @@ public class DataController extends Controller
 				return;
 			}
 			
-			catch(IOException | InvalidConfigurationException e)
+			catch(IOException e)
+			{
+				e.printStackTrace();
+				pl.f("ERROR LOADING PLAYER DATA: " + p.getUniqueId());
+			}
+			
+			catch(InvalidConfigurationException e)
 			{
 				e.printStackTrace();
 				pl.f("ERROR LOADING PLAYER DATA: " + p.getUniqueId());
@@ -144,7 +150,7 @@ public class DataController extends Controller
 	
 	public void saveMaps()
 	{
-		for(Map i : ((GlacialServer)pl).getGameController().getMaps())
+		for(Map i : ((GlacialServer) pl).getGameController().getMaps())
 		{
 			saveMap(i.getData());
 		}
@@ -165,7 +171,7 @@ public class DataController extends Controller
 				
 				if(map != null)
 				{
-					((GlacialServer)pl).getGameController().getMaps().add(map);
+					((GlacialServer) pl).getGameController().getMaps().add(map);
 				}
 				
 				else
