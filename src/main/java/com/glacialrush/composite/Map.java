@@ -486,7 +486,7 @@ public class Map implements Listener
 	{
 		build();
 		
-		pl.newThread(new GlacialTask()
+		pl.newThread(new GlacialTask("Map Reset Monitor")
 		{
 			public void run()
 			{
@@ -499,7 +499,7 @@ public class Map implements Listener
 				{
 					accentEvenley();
 					
-					pl.newThread(new GlacialTask()
+					pl.newThread(new GlacialTask("Region Reset Monitor")
 					{
 						public void run()
 						{
