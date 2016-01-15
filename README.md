@@ -7,4 +7,6 @@ Glacial Rush PVP! A Minecraft pvp server in which you start out in a map. You ar
 
 [![Stories in Ready](https://badge.waffle.io/GlacialRush/GlacialServer.svg?label=ready&title=Ready)](http://waffle.io/GlacialRush/GlacialServer)
 
+[![Throughput Graph](https://graphs.waffle.io/GlacialRush/GlacialServer/throughput.svg)](https://waffle.io/GlacialRush/GlacialServer/metrics)
+
 # [View the Wiki] (https://github.com/danielmills/GlacialRush/wiki)
