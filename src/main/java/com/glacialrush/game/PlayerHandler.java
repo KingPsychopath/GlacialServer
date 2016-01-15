@@ -27,29 +27,34 @@ public class PlayerHandler extends GlacialHandler
 	{
 		factions = new GMap<Player, Faction>();
 	}
-
+	
 	@Override
 	public void begin()
 	{
-		
+	
 	}
-
+	
 	@Override
 	public void finish()
 	{
-		
+	
 	}
-
+	
 	@Override
 	public void stop()
 	{
-		
+	
 	}
-
+	
 	@Override
 	public void tick()
 	{
-		
+	
+	}
+	
+	public GMap<Player, Faction> getFactions()
+	{
+		return factions;
 	}
 	
 	public boolean contested(GMap<Faction, GList<Player>> map)
@@ -70,7 +75,7 @@ public class PlayerHandler extends GlacialHandler
 			{
 				return true;
 			}
-				
+			
 			if(map.get(map.ukeys().get(1)).size() == map.get(map.ukeys().get(2)).size() && map.get(map.ukeys().get(2)).size() > map.get(map.ukeys().get(0)).size())
 			{
 				return true;
@@ -196,7 +201,7 @@ public class PlayerHandler extends GlacialHandler
 		Faction f = smallest();
 		
 		factions.put(p, f);
-				
+		
 		pl.getNotificationController().dispatch(new Notification().setSubTitle(getFaction(p).getColor() + "You Fight with " + getFaction(p).getName()).setPriority(NotificationPriority.HIGH).setFadeIn(5).setStayTime(20).setFadeOut(30).setSound(new GSound(Sound.AMBIENCE_THUNDER, 1f, 1.7f)), pl.getNotificationController().getGameChannel(), p);
 	}
 	
