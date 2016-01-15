@@ -1,5 +1,6 @@
 package com.glacialrush.component;
 
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -9,9 +10,14 @@ import com.glacialrush.GlacialServer;
 import com.glacialrush.Info;
 import com.glacialrush.api.component.Controller;
 import com.glacialrush.api.object.GMap;
+import com.glacialrush.api.thread.GlacialTask;
+import com.glacialrush.api.thread.ThreadState;
 import com.glacialrush.composite.Faction;
 import com.glacialrush.composite.Map;
 import com.glacialrush.composite.Region;
+import com.glacialrush.xapi.Gui;
+import com.glacialrush.xapi.Gui.Pane;
+import com.glacialrush.xapi.Gui.Pane.Element;
 import net.md_5.bungee.api.ChatColor;
 
 public class CommandController extends Controller implements CommandExecutor
@@ -115,13 +121,87 @@ public class CommandController extends Controller implements CommandExecutor
 
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
 	{
-		if(command.getName().equalsIgnoreCase(Info.CMD_GLACIALRUSH))
+		Player p = (sender instanceof Player) ? (Player)sender : null;
+		Boolean isPlayer = p != null ? true : false;
+		Boolean isGod = sender.hasPermission(Info.PERM_ADMIN);
+		GameController g = ((GlacialServer)pl).getGameController();
+		
+		if(command.getName().equalsIgnoreCase(Info.CMD_DEBUGGER))
 		{
-			Player p = (sender instanceof Player) ? (Player)sender : null;
-			Boolean isPlayer = p != null ? true : false;
-			Boolean isGod = sender.hasPermission(Info.PERM_ADMIN);
-			GameController g = ((GlacialServer)pl).getGameController();
-			
+			if(args.length > 0)
+			{
+				String sub = args[0];
+				
+				if(isPlayer)
+				{
+					if(isGod)
+					{
+						if(sub.equalsIgnoreCase("threads") || sub.equalsIgnoreCase("t"))
+						{
+							Gui gui = new Gui(p, pl);
+							Pane pane = gui.new Pane("Threads");
+							
+							int c = 1;
+							
+							for(GlacialTask j : pl.getThreadComponent().getTasks())
+							{
+								Material m = null;
+								String s = "#" + j.getPid();
+								
+								if(j.getState().equals(ThreadState.RUNNING))
+								{
+									m = Material.SLIME_BALL;
+									s = s + ChatColor.GREEN + " RUNNING";
+								}
+								
+								else if(j.getState().equals(ThreadState.IDLE))
+								{
+									m = Material.MAGMA_CREAM;
+									s = s + ChatColor.YELLOW + " IDLE";
+								}
+								
+								else if(j.getState().equals(ThreadState.NEW))
+								{
+									m = Material.NETHER_STAR;
+									s = s + ChatColor.WHITE + " NEW";
+								}
+								
+								else if(j.getState().equals(ThreadState.FINISHED))
+								{
+									m = Material.REDSTONE;
+									s = s + ChatColor.RED + " FINISHED";
+								}
+								
+								Element e = pane.new Element(s, m, c);
+								e.addInfo("Cycles: " + j.getCycles());
+								e.addBullet("Milliseconds: " + j.getCycleTime());
+								e.addBullet("MPC: " + (j.getCycleTime() / j.getCycles() == 0 ? 1 : j.getCycles()));
+								
+								c++;
+							}
+							
+							pane.new Element("Close", Material.BARRIER, 0).setQuickRunnable(new Runnable()
+							{
+								@Override
+								public void run()
+								{
+									gui.close();
+								}
+							});
+							
+							pane.setTitle("Threads: " + (c - 1));
+							pane.setDefault();
+							pane.build();
+														
+							gui.show();
+						}
+					}
+				}
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_GLACIALRUSH))
+		{
 			if(args.length > 0)
 			{
 				String sub = args[0];
@@ -246,6 +326,19 @@ public class CommandController extends Controller implements CommandExecutor
 							if(has(p))
 							{
 								get(p).addRegion(p);
+							}
+							
+							else
+							{
+								f(p, "No Map Selected.");
+							}
+						}
+						
+						else if(sub.equalsIgnoreCase("draw") || sub.equalsIgnoreCase("drw"))
+						{
+							if(has(p))
+							{
+								get(p).draw(p);
 							}
 							
 							else
