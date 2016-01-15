@@ -9,26 +9,42 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.api.component.Controller;
+import com.glacialrush.api.object.GMap;
 import com.glacialrush.composite.Map;
 import com.glacialrush.composite.data.MapData;
+import com.glacialrush.composite.data.PlayerData;
 import net.md_5.bungee.api.ChatColor;
 
 public class DataController extends Controller
 {
 	private File maps;
+	private File players;
+	
+	private GMap<Player, PlayerData> cache;
 	
 	public DataController(GlacialServer pl)
 	{
 		super(pl);
 		
+		cache = new GMap<Player, PlayerData>();
+		
 		maps = new File(pl.getDataFolder(), "maps");
+		players = new File(pl.getDataFolder(), "players");
 	}
 	
 	public void preEnable()
 	{
 		verify(maps);
+		verify(players);
 		loadMaps();
 		
 		super.preEnable();
@@ -48,6 +64,82 @@ public class DataController extends Controller
 	{
 		saveMaps();
 		super.postDisable();
+	}
+	
+	public void loadPlayer(Player p)
+	{
+		if(cache.containsKey(p))
+		{
+			return;
+		}
+		
+		File f = new File(players, p.getUniqueId().toString() + ".gp");
+		
+		if(f.exists())
+		{
+			FileConfiguration fc = new YamlConfiguration();
+			
+			try
+			{
+				fc.load(f);
+				cache.put(p, new PlayerData(fc));
+				o("Loaded Player: " + p.getName() + " :: " + p.getUniqueId().toString());
+				return;
+			}
+			
+			catch(IOException | InvalidConfigurationException e)
+			{
+				e.printStackTrace();
+				pl.f("ERROR LOADING PLAYER DATA: " + p.getUniqueId());
+			}
+		}
+		
+		else
+		{
+			cache.put(p, new PlayerData(p));
+			o("New Player: " + p.getName() + " :: " + p.getUniqueId().toString());
+		}
+	}
+	
+	public void savePlayer(Player p)
+	{
+		if(!cache.containsKey(p))
+		{
+			return;
+		}
+		
+		File f = new File(players, p.getUniqueId().toString() + ".gp");
+		
+		verifyFile(f);
+		
+		try
+		{
+			cache.get(p).toFileConfiguration().save(f);
+			o("Saved Player: " + p.getName() + " :: " + p.getUniqueId().toString());
+			cache.remove(p);
+		}
+		
+		catch(IOException e)
+		{
+			e.printStackTrace();
+			pl.f("ERROR SAVING PLAYER DATA: " + p.getUniqueId());
+		}
+	}
+	
+	public void loadPlayers()
+	{
+		for(Player i : pl.onlinePlayers())
+		{
+			loadPlayer(i);
+		}
+	}
+	
+	public void savePlayers()
+	{
+		for(Player i : cache.keySet())
+		{
+			savePlayer(i);
+		}
 	}
 	
 	public void saveMaps()
@@ -156,6 +248,11 @@ public class DataController extends Controller
 		return null;
 	}
 	
+	public PlayerData getPlayer(Player p)
+	{
+		return cache.get(p);
+	}
+	
 	public void verify(File file)
 	{
 		if(!file.exists())
@@ -183,5 +280,17 @@ public class DataController extends Controller
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	@EventHandler
+	public void onPlayer(PlayerJoinEvent e)
+	{
+		loadPlayer(e.getPlayer());
+	}
+	
+	@EventHandler
+	public void onPlayer(PlayerQuitEvent e)
+	{
+		savePlayer(e.getPlayer());
 	}
 }
