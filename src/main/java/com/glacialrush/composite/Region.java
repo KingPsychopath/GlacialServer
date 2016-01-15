@@ -298,7 +298,7 @@ public class Region extends Hunk
 		
 		pl.o("Started Job: " + ChatColor.LIGHT_PURPLE + "Region[" + x + ", " + z + "]: " + getName() + " Build[ACCSC]");
 		
-		pl.newThread(new GlacialTask()
+		pl.newThread(new GlacialTask("Region Build Task " + "Region[" + x + ", " + z + "]: " + getName())
 		{
 			@Override
 			public void run()
