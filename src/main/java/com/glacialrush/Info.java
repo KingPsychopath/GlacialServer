@@ -7,6 +7,7 @@ public class Info
 	public static final String[] AUTHORS = new String[] {"Daniel Mills (cyberpwn)"};
 	
 	public static final String CMD_GLACIALRUSH = "glacialrush";
+	public static final String CMD_DEBUGGER = "debugger";
 	
 	public static final String PERM_ADMIN = "glacialrush.admin";
 	
