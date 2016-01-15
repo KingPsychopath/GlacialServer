@@ -5,3 +5,5 @@ depend: [GlacialAPI]
 commands:
   glacialrush: 
     aliases: [g, grush, rush, gr]
+  debugger: 
+    aliases: [d, deb, db, dev]
