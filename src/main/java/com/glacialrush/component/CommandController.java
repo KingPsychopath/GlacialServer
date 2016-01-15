@@ -146,7 +146,7 @@ public class CommandController extends Controller implements CommandExecutor
 							for(GlacialTask j : pl.getThreadComponent().getTasks())
 							{
 								Material m = null;
-								String s = "#" + j.getPid();
+								String s = j.getName();
 								
 								if(j.getState().equals(ThreadState.RUNNING))
 								{
@@ -176,6 +176,7 @@ public class CommandController extends Controller implements CommandExecutor
 								e.addInfo("Cycles: " + j.getCycles());
 								e.addBullet("Milliseconds: " + j.getCycleTime());
 								e.addBullet("MPC: " + (j.getCycleTime() / j.getCycles() == 0 ? 1 : j.getCycles()));
+								e.addBullet("PID: " + j.getPid());
 								
 								c++;
 							}
@@ -319,6 +320,37 @@ public class CommandController extends Controller implements CommandExecutor
 						{
 							clear(p);
 							s(p, "Unselected Map");
+						}
+						
+						else if(sub.equalsIgnoreCase("changefaction") || sub.equalsIgnoreCase("cf"))
+						{
+							Faction f = null;
+							
+							if(args.length > 1)
+							{
+								if(Faction.omni().getName().toLowerCase().contains(args[1].toLowerCase()))
+								{
+									f = Faction.omni();
+								}
+								
+								else if(Faction.cryptic().getName().toLowerCase().contains(args[1].toLowerCase()))
+								{
+									f = Faction.cryptic();
+								}
+								
+								else if(Faction.enigma().getName().toLowerCase().contains(args[1].toLowerCase()))
+								{
+									f = Faction.enigma();
+								}
+								
+								else
+								{
+									f(p, "Unknown Faction: " + args[1]);
+									return true;
+								}
+							}
+							
+							g.getPlayerHandler().getFactions().put(p, f);
 						}
 						
 						else if(sub.equalsIgnoreCase("add") || sub.equalsIgnoreCase("+"))
