@@ -20,7 +20,6 @@ public class MapHandler extends GlacialHandler
 {
 	private int captureDelay;
 	private GList<Player> inCap;
-	private long mapTime;
 	
 	public MapHandler(GlacialServer pl)
 	{
@@ -28,19 +27,18 @@ public class MapHandler extends GlacialHandler
 		
 		captureDelay = 0;
 		inCap = new GList<Player>();
-		mapTime = 0;
 	}
 	
 	@Override
 	public void start()
 	{
-	
+		inCap.clear();
 	}
 	
 	@Override
 	public void begin()
 	{
-		mapTime = 0;
+		
 	}
 	
 	@Override
@@ -58,8 +56,6 @@ public class MapHandler extends GlacialHandler
 	@Override
 	public void tick()
 	{
-		mapTime += 1;
-		
 		captureDelay++;
 		inCap.clear();
 		
@@ -215,12 +211,9 @@ public class MapHandler extends GlacialHandler
 					n.setFadeOut(20);
 					region.accent();
 					
-					if((mapTime / 20) > 20)
+					for(Player i : region.getPlayers())
 					{
-						for(Player i : region.getPlayers())
-						{
-							pl.getNotificationController().dispatch(n, i);
-						}
+						pl.getNotificationController().dispatch(n, i);
 					}
 				}
 			}
@@ -229,7 +222,6 @@ public class MapHandler extends GlacialHandler
 			{
 				Notification n = new Notification();
 				n.setPriority(NotificationPriority.HIGH);
-				//n.setDelay(false);
 				
 				String t = "";
 				String cc = "";
@@ -513,7 +505,6 @@ public class MapHandler extends GlacialHandler
 					
 					else
 					{
-						n.setSubSubTitle(g.getPlayerHandler().strongest(map).getColor() + "Enemy Secured");
 						continue;
 					}
 				}
@@ -535,14 +526,17 @@ public class MapHandler extends GlacialHandler
 			n.setOngoing(true);
 			n.setPriority(NotificationPriority.HIGH);
 						
-			for(Player j : capture.getPlayers())
+			for(Player j : g.getPlayerHandler().getFaction(capture.getPlayers()).keySet())
 			{
-				if(!inCap.contains(j))
+				if(g.getPlayerHandler().getFaction(j).equals(i))
 				{
-					inCap.add(j);
+					pl.getNotificationController().dispatch(n, pl.getNotificationController().getCapChannel(), j);
+					
+					if(!inCap.contains(j))
+					{
+						inCap.add(j);
+					}
 				}
-				
-				pl.getNotificationController().dispatch(n, pl.getNotificationController().getCapChannel(), j);
 			}
 		}
 	}
