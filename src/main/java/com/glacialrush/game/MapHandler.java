@@ -19,12 +19,16 @@ import net.md_5.bungee.api.ChatColor;
 public class MapHandler extends GlacialHandler
 {
 	private int captureDelay;
+	private GList<Player> inCap;
+	private long mapTime;
 	
 	public MapHandler(GlacialServer pl)
 	{
 		super(pl);
 		
 		captureDelay = 0;
+		inCap = new GList<Player>();
+		mapTime = 0;
 	}
 	
 	@Override
@@ -36,7 +40,7 @@ public class MapHandler extends GlacialHandler
 	@Override
 	public void begin()
 	{
-	
+		mapTime = 0;
 	}
 	
 	@Override
@@ -54,9 +58,12 @@ public class MapHandler extends GlacialHandler
 	@Override
 	public void tick()
 	{
-		captureDelay++;
+		mapTime += 1;
 		
-		if(captureDelay == 19)
+		captureDelay++;
+		inCap.clear();
+		
+		if(captureDelay == 10)
 		{
 			captureDelay = 0;
 			
@@ -74,6 +81,7 @@ public class MapHandler extends GlacialHandler
 				}
 				
 				handleRegion(i);
+				handleMap();
 			}
 		}
 	}
@@ -128,6 +136,35 @@ public class MapHandler extends GlacialHandler
 		return strongest;
 	}
 	
+	public void handleMap()
+	{
+		Faction cap = null;
+		
+		for(Region i : g.getMap().getRegions())
+		{
+			if(cap == null)
+			{
+				cap = i.getFaction();
+			}
+			
+			else if(!cap.equals(i.getFaction()))
+			{
+				return;
+			}
+		}
+		
+		if(cap.equals(Faction.neutral()))
+		{
+			return;
+		}
+		
+		pl.getPlayerController().disableAll();
+		
+		pl.getNotificationController().dispatch(new Notification().setTitle(cap.getColor() + "Map Controlled").setSubTitle(cap.getColor() + cap.getName() + " has taken " + g.getMap().getName()).setFadeIn(30).setFadeOut(30).setStayTime(30).setPriority(NotificationPriority.HIGHEST), pl.getNotificationController().getGameChannel());
+		
+		g.restart();
+	}
+	
 	public void handleRegion(Region region)
 	{
 		GList<Capture> captures = region.getCaptures();
@@ -154,7 +191,7 @@ public class MapHandler extends GlacialHandler
 				region.startTimer(120);
 			}
 			
-			region.decTimer();
+			region.decTimer(System.currentTimeMillis());
 			
 			if(region.getTimer() == 0)
 			{
@@ -170,13 +207,20 @@ public class MapHandler extends GlacialHandler
 					region.setFaction(strongest(controlCount));
 					
 					Notification n = new Notification().setPriority(NotificationPriority.HIGHEST);
-					n.setTitle(region.getFaction().getColor() + "Territory Defended");
-					n.setSubSubTitle(region.getFaction().getColor() + region.getFaction().getName() + " defended " + region.getName());
+					n.setTitle(region.getFaction().getColor() + "Territory Captured");
+					n.setSubTitle(region.getFaction().getColor() + region.getFaction().getName() + " <> " + region.getName());
 					n.setSound(new GSound(Sound.AMBIENCE_THUNDER, 1f, 0.5f));
+					n.setFadeIn(5);
+					n.setStayTime(30);
+					n.setFadeOut(20);
+					region.accent();
 					
-					for(Player i : region.getPlayers())
+					if((mapTime / 20) > 20)
 					{
-						pl.getNotificationController().dispatch(n, i);
+						for(Player i : region.getPlayers())
+						{
+							pl.getNotificationController().dispatch(n, i);
+						}
 					}
 				}
 			}
@@ -184,20 +228,20 @@ public class MapHandler extends GlacialHandler
 			else
 			{
 				Notification n = new Notification();
-				n.setPriority(NotificationPriority.VERYHIGH);
-				n.setDelay(false);
+				n.setPriority(NotificationPriority.HIGH);
+				//n.setDelay(false);
 				
 				String t = "";
 				String cc = "";
 				Duration d = new Duration(region.getTimer());
 				
 				t = d.getMinutes() + ":" + d.getSeconds();
-				int cz = 0;
+				int cz = -1;
 				
 				for(Capture i : captures)
 				{
 					cz++;
-					cc = i.getSecured().getColor() + "[" + Info.abc[cz] + "]  ";
+					cc = cc + i.getSecured().getColor() + "[" + Info.abc[cz] + "]  ";
 				}
 				
 				String s = ChatColor.AQUA + region.getName() + " in " + ChatColor.GREEN + t + " " + cc;
@@ -206,7 +250,12 @@ public class MapHandler extends GlacialHandler
 				
 				for(Player i : region.getPlayers())
 				{
-					pl.getNotificationController().dispatch(n, i);
+					if(inCap.contains(i))
+					{
+						continue;
+					}
+					
+					pl.getNotificationController().dispatch(n, pl.getNotificationController().getMapChannel(), i);
 				}
 			}
 		}
@@ -219,7 +268,7 @@ public class MapHandler extends GlacialHandler
 		for(Player i : capture.getPlayers())
 		{
 			PlayerControlEvent e = new PlayerControlEvent(g, capture, i);
-			
+						
 			pl.callEvent(e);
 			
 			if(e.isCancelled())
@@ -285,7 +334,7 @@ public class MapHandler extends GlacialHandler
 		{
 			if(g.getPlayerHandler().contested(map))
 			{
-				// TODO Contested
+				
 			}
 			
 			else
@@ -383,7 +432,7 @@ public class MapHandler extends GlacialHandler
 		{
 			if(g.getPlayerHandler().contested(map))
 			{
-				// TODO Contested
+				
 			}
 			
 			else
@@ -436,6 +485,8 @@ public class MapHandler extends GlacialHandler
 				}
 			}
 		}
+		
+		captureNotify(capture);
 	}
 	
 	public void captureNotify(Capture capture)
@@ -463,26 +514,35 @@ public class MapHandler extends GlacialHandler
 					else
 					{
 						n.setSubSubTitle(g.getPlayerHandler().strongest(map).getColor() + "Enemy Secured");
+						continue;
 					}
 				}
 				
 				else if(g.getPlayerHandler().strongest(map).equals(i))
 				{
-					n.setSubSubTitle(i.getColor() + "Capturing...");
+					n.setSubSubTitle(i.getColor() + "Capturing");
 				}
 				
 				else
 				{
-					n.setSubSubTitle(g.getPlayerHandler().strongest(map).getColor() + "Losing Control...");
+					n.setSubSubTitle(g.getPlayerHandler().strongest(map).getColor() + "Losing Control");
 				}
 			}
 			
-			n.setPriority(NotificationPriority.VERYHIGH);
-			n.setDelay(false);
-			
-			for(Player j : map.get(i))
+			n.setFadeIn(0);
+			n.setFadeOut(10);
+			n.setStayTime(20);
+			n.setOngoing(true);
+			n.setPriority(NotificationPriority.HIGH);
+						
+			for(Player j : capture.getPlayers())
 			{
-				pl.getNotificationController().dispatch(n, j);
+				if(!inCap.contains(j))
+				{
+					inCap.add(j);
+				}
+				
+				pl.getNotificationController().dispatch(n, pl.getNotificationController().getCapChannel(), j);
 			}
 		}
 	}
@@ -497,7 +557,7 @@ public class MapHandler extends GlacialHandler
 			
 			for(int i = 0; i < 20; i++)
 			{
-				s = s + "-";
+				s = s + " ";
 			}
 		}
 		
@@ -507,14 +567,14 @@ public class MapHandler extends GlacialHandler
 			
 			for(int i = 0; i < 20 - (c.getProgress() / 5); i++)
 			{
-				s = s + "-";
+				s = s + " ";
 			}
 			
 			s = s + c.getSecured().getColor() + ChatColor.STRIKETHROUGH;
 			
 			for(int i = 0; i < (c.getProgress() / 5); i++)
 			{
-				s = s + "-";
+				s = s + " ";
 			}
 		}
 		
