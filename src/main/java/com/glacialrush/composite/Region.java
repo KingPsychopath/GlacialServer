@@ -30,6 +30,7 @@ public class Region extends Hunk
 	protected Boolean hasSpawn;
 	protected Boolean building;
 	protected Integer timer;
+	protected Long lastTimer;
 	
 	public Region(Location spawn, Map map)
 	{
@@ -46,6 +47,7 @@ public class Region extends Hunk
 		this.accentJob = new Job("Region [" + x + ", " + z + "]: " + getName() + " Accent[" + Faction.neutral().getName() + "]", pl.getJobController());
 		this.hasSpawn = false;
 		this.building = false;
+		this.lastTimer = (long) -1;
 		this.timer = -1;
 	}
 	
@@ -64,9 +66,22 @@ public class Region extends Hunk
 		timer = (t * 20) * 25;
 	}
 	
-	public void decTimer()
+	public void decTimer(long last)
 	{
-		timer -= 25;
+		long dif = 125;
+		
+		if(lastTimer == -1)
+		{
+			lastTimer = last - 125;
+		}
+		
+		else
+		{
+			dif = last - lastTimer;
+			lastTimer = last;
+		}
+		
+		timer -= (int)dif;
 		
 		if(timer < 0)
 		{
