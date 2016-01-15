@@ -31,10 +31,7 @@ public class PlayerHandler extends GlacialHandler
 	@Override
 	public void begin()
 	{
-		o("Balancing Players");
-		rebalance();
-		o("Respawning Players");
-		respawn();
+		
 	}
 
 	@Override
@@ -164,11 +161,6 @@ public class PlayerHandler extends GlacialHandler
 	
 	public Faction getFaction(Player p)
 	{
-		if(!factions.containsKey(p))
-		{
-			insert(p);
-		}
-		
 		return factions.get(p);
 	}
 	
@@ -204,8 +196,8 @@ public class PlayerHandler extends GlacialHandler
 		Faction f = smallest();
 		
 		factions.put(p, f);
-		
-		pl.getNotificationController().dispatch(new Notification().setSubTitle(getFaction(p).getColor() + "You Fight with " + getFaction(p).getName()).setPriority(NotificationPriority.HIGH).setSound(new GSound(Sound.AMBIENCE_THUNDER, 1f, 1.7f)), p);
+				
+		pl.getNotificationController().dispatch(new Notification().setSubTitle(getFaction(p).getColor() + "You Fight with " + getFaction(p).getName()).setPriority(NotificationPriority.HIGH).setFadeIn(5).setStayTime(20).setFadeOut(30).setSound(new GSound(Sound.AMBIENCE_THUNDER, 1f, 1.7f)), pl.getNotificationController().getGameChannel(), p);
 	}
 	
 	public void remove(Player p)
