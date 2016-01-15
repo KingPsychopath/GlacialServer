@@ -3,14 +3,18 @@ package com.glacialrush.component;
 import java.util.Collections;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import com.glacialrush.GlacialAPI;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.api.component.Controller;
+import com.glacialrush.api.component.ThreadComponent;
 import com.glacialrush.api.dispatch.notification.Notification;
 import com.glacialrush.api.dispatch.notification.NotificationPriority;
 import com.glacialrush.api.object.GList;
 import com.glacialrush.api.thread.GlacialTask;
+import com.glacialrush.composite.Capture;
 import com.glacialrush.composite.Faction;
 import com.glacialrush.composite.Map;
+import com.glacialrush.composite.Region;
 import com.glacialrush.game.GameHandler;
 import com.glacialrush.game.GlacialHandler;
 import com.glacialrush.game.MapHandler;
@@ -24,6 +28,7 @@ public class GameController extends Controller
 	protected Map map;
 	protected GList<Map> maps;
 	protected GList<GameHandler> handlers;
+	protected ThreadComponent t;
 	protected long cycleTime;
 	protected long cycles;
 	protected boolean stopping;
@@ -45,6 +50,7 @@ public class GameController extends Controller
 		starting = false;
 		stopping = false;
 		restarting = false;
+		t = new ThreadComponent(pl);
 	}
 	
 	public void add(GlacialHandler handler)
@@ -56,59 +62,7 @@ public class GameController extends Controller
 	
 	public void restart()
 	{
-		restarting = true;
-		stop();
-		
-		if(!stopping)
-		{
-			start();
-			
-			if(!starting)
-			{
-				return;
-			}
-			
-			pl.newThread(new GlacialTask()
-			{
-				@Override
-				public void run()
-				{
-					if(!starting)
-					{
-						restarting = false;
-					}
-				}
-			});
-			
-			return;
-		}
-		
-		pl.newThread(new GlacialTask()
-		{
-			@Override
-			public void run()
-			{
-				if(!stopping)
-				{
-					GameController.this.start();
-					stop();
-					
-					pl.newThread(new GlacialTask()
-					{
-						@Override
-						public void run()
-						{
-							if(!starting)
-							{
-								restarting = false;
-								stop();
-								return;
-							}
-						}
-					});
-				}
-			}
-		});
+		GlacialAPI.instance().reloadGrush();
 	}
 	
 	public void start()
@@ -117,6 +71,9 @@ public class GameController extends Controller
 		{
 			return;
 		}
+		
+		t.preEnable();
+		t.postEnable();
 		
 		for(Player i : pl.onlinePlayers())
 		{
@@ -149,7 +106,7 @@ public class GameController extends Controller
 		v("Setting up map...");
 		map.setup();
 		
-		pl.newThread(new GlacialTask()
+		t.addTask(new GlacialTask()
 		{
 			public void run()
 			{
@@ -202,7 +159,12 @@ public class GameController extends Controller
 		
 		s("GAME IS RUNNING");
 		
-		pl.newThread(new GlacialTask()
+		o("Balancing Players");
+		playerHandler.rebalance();
+		o("Respawning Players");
+		playerHandler.respawn();
+		
+		t.addTask(new GlacialTask()
 		{
 			@Override
 			public void run()
@@ -243,9 +205,21 @@ public class GameController extends Controller
 		}
 		
 		map.accent(Faction.neutral());
+		
+		for(Region i : map.getRegions())
+		{
+			i.resetTimer();
+			i.setFaction(Faction.neutral());
+			
+			for(Capture j : i.getCaptures())
+			{
+				j.reset();
+			}
+		}
+		
 		o("Post Accenting Map: " + map.getName());
 		
-		pl.newThread(new GlacialTask()
+		t.addTask(new GlacialTask()
 		{
 			public void run()
 			{
@@ -270,7 +244,9 @@ public class GameController extends Controller
 		
 		o("Starting Progress Thread");
 		
-		pl.newThread(new GlacialTask()
+		((GlacialServer)pl).getNotificationController().start();
+		
+		t.addTask(new GlacialTask()
 		{
 			@Override
 			public void run()
@@ -300,9 +276,9 @@ public class GameController extends Controller
 				
 				if(!prog.equals(""))
 				{
-					Notification n = new Notification().setSubSubTitle(prog).setDelay(false).setPriority(NotificationPriority.LOWEST);
+					Notification n = new Notification().setSubSubTitle(prog).setPriority(NotificationPriority.HIGH);
 					
-					((GlacialServer) pl).getNotificationController().dispatch(n);
+					((GlacialServer) pl).getNotificationController().dispatch(n, ((GlacialServer) pl).getNotificationController().getDevChannel());
 				}
 			}
 		});
@@ -317,29 +293,6 @@ public class GameController extends Controller
 		mapHandler = new MapHandler((GlacialServer) pl);
 		marketHandler = new MarketHandler((GlacialServer) pl);
 		playerHandler = new PlayerHandler((GlacialServer) pl);
-		
-		pl.newThread(new GlacialTask()
-		{
-			@Override
-			public void run()
-			{
-				if(isRunning())
-				{
-					long msa = System.currentTimeMillis();
-					
-					for(GameHandler i : handlers)
-					{
-						long msx = System.currentTimeMillis();
-						i.start();
-						i.setCycleTime(i.getCycleTime() + (System.currentTimeMillis() - msx));
-						i.setCycles(i.getCycles() + 1);
-					}
-					
-					cycleTime += (System.currentTimeMillis() - msa);
-					cycles++;
-				}
-			}
-		});
 		
 		start();
 	}
