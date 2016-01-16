@@ -3,6 +3,8 @@ package com.glacialrush.component;
 import org.bukkit.entity.Player;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.api.component.Controller;
+import com.glacialrush.game.event.ExperienceEvent;
+import com.glacialrush.game.event.ExperienceType;
 
 public class ExperienceController extends Controller
 {
@@ -86,8 +88,24 @@ public class ExperienceController extends Controller
 		((GlacialServer)pl).gpd(p).setNextSkill(nextSkill);
 	}
 	
-	public void giveExperience(Player p, long experience)
+	public void giveExperience(Player p, long experience, ExperienceType type)
 	{
+		if(((GlacialServer)pl).getGameController().isRunning())
+		{
+			ExperienceEvent e = new ExperienceEvent(((GlacialServer)pl).getGameController(), p, experience, type);
+			pl.callEvent(e);
+			
+			if(e.isCancelled())
+			{
+				return;
+			}
+			
+			else
+			{
+				experience = e.getAmount();
+			}
+		}
+		
 		if(experience < 0)
 		{
 			return;
