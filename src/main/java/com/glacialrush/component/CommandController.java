@@ -1,7 +1,10 @@
 package com.glacialrush.component;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -13,8 +16,12 @@ import com.glacialrush.api.object.GMap;
 import com.glacialrush.api.thread.GlacialTask;
 import com.glacialrush.api.thread.ThreadState;
 import com.glacialrush.composite.Faction;
+import com.glacialrush.composite.Hunk;
+import com.glacialrush.composite.Job;
 import com.glacialrush.composite.Map;
 import com.glacialrush.composite.Region;
+import com.glacialrush.xapi.Cuboid;
+import com.glacialrush.xapi.Cuboid.CuboidDirection;
 import com.glacialrush.xapi.Gui;
 import com.glacialrush.xapi.Gui.Pane;
 import com.glacialrush.xapi.Gui.Pane.Element;
@@ -119,6 +126,7 @@ public class CommandController extends Controller implements CommandExecutor
 		return n.substring(1);
 	}
 
+	@SuppressWarnings("deprecation")
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
 	{
 		Player p = (sender instanceof Player) ? (Player)sender : null;
@@ -364,6 +372,53 @@ public class CommandController extends Controller implements CommandExecutor
 							{
 								f(p, "No Map Selected.");
 							}
+						}
+						
+						else if(sub.equalsIgnoreCase("delete") || sub.equalsIgnoreCase("deletemap"))
+						{
+							if(has(p))
+							{
+								g.getMaps().remove(get(p));
+								s(p, "Map Deleted, remove it fron the filesystem to prevent it from restoring");
+							}
+							
+							else
+							{
+								f(p, "No Map Selected.");
+							}
+						}
+						
+						else if(sub.equalsIgnoreCase("draw-here") || sub.equalsIgnoreCase("dh"))
+						{
+							Hunk h = new Hunk(pl.target(p));
+							Job drawJob = new Job("Hunk [" + h.getX() + ", " + h.getZ() + "]: " + " Draw[" + p.getName() + "]", ((GlacialServer) pl).getJobController());
+							
+							Iterator<Block> n = new Cuboid(h.getCuboid()).flatten(p.getTargetBlock((HashSet<Byte>) null, 256).getLocation().getBlockY()).getFace(CuboidDirection.North).iterator();
+							Iterator<Block> s = new Cuboid(h.getCuboid()).flatten(p.getTargetBlock((HashSet<Byte>) null, 256).getLocation().getBlockY()).getFace(CuboidDirection.South).iterator();
+							Iterator<Block> e = new Cuboid(h.getCuboid()).flatten(p.getTargetBlock((HashSet<Byte>) null, 256).getLocation().getBlockY()).getFace(CuboidDirection.East).iterator();
+							Iterator<Block> w = new Cuboid(h.getCuboid()).flatten(p.getTargetBlock((HashSet<Byte>) null, 256).getLocation().getBlockY()).getFace(CuboidDirection.West).iterator();
+							
+							while(n.hasNext())
+							{
+								drawJob.add(n.next().getLocation(), Material.SEA_LANTERN, p);
+							}
+							
+							while(s.hasNext())
+							{
+								drawJob.add(s.next().getLocation(), Material.SEA_LANTERN, p);
+							}
+							
+							while(e.hasNext())
+							{
+								drawJob.add(e.next().getLocation(), Material.SEA_LANTERN, p);
+							}
+							
+							while(w.hasNext())
+							{
+								drawJob.add(w.next().getLocation(), Material.SEA_LANTERN, p);
+							}
+							
+							((GlacialServer) pl).getJobController().addJob(drawJob);
 						}
 						
 						else if(sub.equalsIgnoreCase("draw") || sub.equalsIgnoreCase("drw"))
