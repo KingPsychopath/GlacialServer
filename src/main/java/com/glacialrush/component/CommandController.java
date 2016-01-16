@@ -20,6 +20,7 @@ import com.glacialrush.composite.Hunk;
 import com.glacialrush.composite.Job;
 import com.glacialrush.composite.Map;
 import com.glacialrush.composite.Region;
+import com.glacialrush.composite.WarpgateArray;
 import com.glacialrush.xapi.Cuboid;
 import com.glacialrush.xapi.Cuboid.CuboidDirection;
 import com.glacialrush.xapi.Gui;
@@ -125,16 +126,27 @@ public class CommandController extends Controller implements CommandExecutor
 		
 		return n.substring(1);
 	}
-
+	
 	@SuppressWarnings("deprecation")
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
 	{
-		Player p = (sender instanceof Player) ? (Player)sender : null;
+		Player p = (sender instanceof Player) ? (Player) sender : null;
 		Boolean isPlayer = p != null ? true : false;
 		Boolean isGod = sender.hasPermission(Info.PERM_ADMIN);
-		GameController g = ((GlacialServer)pl).getGameController();
+		GameController g = ((GlacialServer) pl).getGameController();
 		
 		if(command.getName().equalsIgnoreCase(Info.CMD_DEBUGGER))
+		{
+			if(args.length == 0)
+			{
+				if(isPlayer)
+				{
+					s(p, "Skill Points: " + ((GlacialServer) pl).getExperienceController().getSkill(p));
+				}
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_DEBUGGER))
 		{
 			if(args.length > 0)
 			{
@@ -201,7 +213,7 @@ public class CommandController extends Controller implements CommandExecutor
 							pane.setTitle("Threads: " + (c - 1));
 							pane.setDefault();
 							pane.build();
-														
+							
 							gui.show();
 						}
 					}
@@ -246,17 +258,24 @@ public class CommandController extends Controller implements CommandExecutor
 							}
 						}
 						
+						if(sub.equalsIgnoreCase("newgate"))
+						{
+							WarpgateArray wa = new WarpgateArray((GlacialServer) pl, p.getLocation());
+							g.setWarpgateArray(wa);
+							s(p, "Created Gates, BUILD DAMMIT!");
+						}
+						
 						else if(sub.equalsIgnoreCase("start") || sub.equalsIgnoreCase("sg"))
 						{
-							if(((GlacialServer)pl).getGameController().isRunning())
+							if(((GlacialServer) pl).getGameController().isRunning())
 							{
 								f(p, "Cannot start game. Already Running.");
 								return true;
 							}
 							
-							if(!((GlacialServer)pl).getGameController().getMaps().isEmpty())
+							if(!((GlacialServer) pl).getGameController().getMaps().isEmpty())
 							{
-								((GlacialServer)pl).getGameController().start();
+								((GlacialServer) pl).getGameController().start();
 							}
 							
 							else
@@ -267,25 +286,25 @@ public class CommandController extends Controller implements CommandExecutor
 						
 						else if(sub.equalsIgnoreCase("stop") || sub.equalsIgnoreCase("stg"))
 						{
-							if(!((GlacialServer)pl).getGameController().isRunning())
+							if(!((GlacialServer) pl).getGameController().isRunning())
 							{
 								f(p, "Cannot stop game. Not Running.");
 								return true;
 							}
 							
-							((GlacialServer)pl).getGameController().stop();
+							((GlacialServer) pl).getGameController().stop();
 						}
 						
 						else if(sub.equalsIgnoreCase("restart") || sub.equalsIgnoreCase("rsg"))
 						{
-							if(!((GlacialServer)pl).getGameController().isRunning())
+							if(!((GlacialServer) pl).getGameController().isRunning())
 							{
 								s(p, "Starting Game");
-								((GlacialServer)pl).getGameController().stop();
+								((GlacialServer) pl).getGameController().stop();
 							}
 							
 							s(p, "Restarting Game");
-							((GlacialServer)pl).getGameController().restart();
+							((GlacialServer) pl).getGameController().restart();
 						}
 						
 						else if(sub.equalsIgnoreCase("select") || sub.equalsIgnoreCase("sel"))
@@ -697,7 +716,7 @@ public class CommandController extends Controller implements CommandExecutor
 								
 								else
 								{
-									s(p, "Started Accent[" + ChatColor.BLUE + "Even"+ ChatColor.GREEN + "] Task for " + m.getName());
+									s(p, "Started Accent[" + ChatColor.BLUE + "Even" + ChatColor.GREEN + "] Task for " + m.getName());
 									m.accentEvenley();
 								}
 							}
