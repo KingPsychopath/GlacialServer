@@ -11,5 +11,8 @@ public class Info
 	
 	public static final String PERM_ADMIN = "glacialrush.admin";
 	
+	public static final long EXPERIENCE_FACTION_CAPTURE = 20;
+	public static final long EXPERIENCE_REGION_CAPTURE = 200;
+	
 	public static final char[] abc = ("ABCDEFGHIJKLMNOPQRSTUVWXYZ").toCharArray();
 }
