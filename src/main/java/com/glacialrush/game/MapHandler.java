@@ -12,6 +12,8 @@ import com.glacialrush.api.object.GSound;
 import com.glacialrush.composite.Capture;
 import com.glacialrush.composite.Faction;
 import com.glacialrush.composite.Region;
+import com.glacialrush.game.event.ExperienceType;
+import com.glacialrush.game.event.FactionRegionCaptureEvent;
 import com.glacialrush.game.event.PlayerControlEvent;
 import com.glacialrush.xapi.Duration;
 import net.md_5.bungee.api.ChatColor;
@@ -200,12 +202,15 @@ public class MapHandler extends GlacialHandler
 				
 				else
 				{
+					
 					region.setFaction(strongest(controlCount));
+					
+					pl.callEvent(new FactionRegionCaptureEvent(g, region, region.getFaction()));
 					
 					Notification n = new Notification().setPriority(NotificationPriority.HIGHEST);
 					n.setTitle(region.getFaction().getColor() + "Territory Captured");
 					n.setSubTitle(region.getFaction().getColor() + region.getFaction().getName() + " <> " + region.getName());
-					n.setSound(new GSound(Sound.AMBIENCE_THUNDER, 1f, 0.5f));
+					n.setSound(new GSound(Sound.AMBIENCE_THUNDER, 1f, 1.9f));
 					n.setFadeIn(5);
 					n.setStayTime(30);
 					n.setFadeOut(20);
@@ -213,7 +218,7 @@ public class MapHandler extends GlacialHandler
 					
 					for(Player i : region.getPlayers())
 					{
-						pl.getNotificationController().dispatch(n, i);
+						pl.getNotificationController().dispatch(n, pl.getNotificationController().getMapChannel(), i);
 					}
 				}
 			}
