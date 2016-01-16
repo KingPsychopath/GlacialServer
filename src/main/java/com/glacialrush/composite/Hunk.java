@@ -26,8 +26,9 @@ public class Hunk implements Cloneable
 	
 	public Hunk(Location location)
 	{
-		this.x = Math.round(location.getBlockX() / div);
-		this.z = Math.round(location.getBlockZ() / div);
+		this.x = location.getBlockX() / div;
+		this.z = location.getBlockZ() / div;
+		
 		this.world = location.getWorld();
 		this.cuboid = new Cuboid(world, x * div, 0, z * div, ((x + 1) * div) - 1, 128, ((z + 1) * div) - 1);
 	}
