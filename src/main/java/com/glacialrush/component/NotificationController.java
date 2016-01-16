@@ -1,11 +1,14 @@
 package com.glacialrush.component;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerJoinEvent;
 import com.glacialrush.api.GlacialPlugin;
 import com.glacialrush.api.dispatch.notification.Notification;
 import com.glacialrush.api.dispatch.notification.NotificationChannel;
 import com.glacialrush.api.dispatch.notification.NotificationPriority;
 import com.glacialrush.api.dispatch.notification.NotificationSystem;
+import com.glacialrush.api.object.GList;
 
 public class NotificationController extends NotificationSystem
 {
@@ -92,5 +95,26 @@ public class NotificationController extends NotificationSystem
 	public NotificationChannel getBroadChannel()
 	{
 		return broadChannel;
+	}
+	
+	public void fix(Player p)
+	{
+		for(NotificationChannel i : channels)
+		{
+			if(!i.getPending().contains(p))
+			{
+				i.getPending().put(p, new GList<Notification>());
+			}
+		}
+		
+		delays.put(p, 0);
+		
+		dispatch(new Notification(), p);
+	}
+	
+	@EventHandler
+	public void onEvent(PlayerJoinEvent e)
+	{
+		fix(e.getPlayer());
 	}
 }
