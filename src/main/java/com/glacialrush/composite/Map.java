@@ -51,7 +51,7 @@ public class Map implements Listener
 			rgs.add(i.getData());
 		}
 		
-		return new MapData(name, world.getName(), rgs);
+		return new MapData(name, world.getName(), rgs, locked);
 	}
 	
 	public void addRegion(Player p)
@@ -521,6 +521,11 @@ public class Map implements Listener
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onModification(BlockPlaceEvent e)
 	{
+		if(!contains(e.getBlock().getLocation()))
+		{
+			return;
+		}
+		
 		if(locked)
 		{
 			e.setCancelled(true);
@@ -538,6 +543,11 @@ public class Map implements Listener
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onModification(BlockBreakEvent e)
 	{
+		if(!contains(e.getBlock().getLocation()))
+		{
+			return;
+		}
+		
 		if(locked)
 		{
 			e.setCancelled(true);
