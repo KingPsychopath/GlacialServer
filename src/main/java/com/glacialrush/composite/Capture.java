@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.api.object.GList;
 import com.glacialrush.composite.Job.JobStatus;
+import com.glacialrush.game.event.FactionCaptureEvent;
 import com.glacialrush.xapi.FastMath;
 
 public class Capture
@@ -174,6 +175,15 @@ public class Capture
 	
 	public void reset(Faction f)
 	{
+		if(getSecured().equals(f))
+		{
+			setOffense(null);
+			setProgress(100);
+			return;
+		}
+		
+		pl.callEvent(new FactionCaptureEvent(pl.getGameController(), this, f));
+		
 		setSecured(f);
 		setOffense(null);
 		setProgress(100);
