@@ -15,6 +15,7 @@ import com.glacialrush.composite.Capture;
 import com.glacialrush.composite.Faction;
 import com.glacialrush.composite.Map;
 import com.glacialrush.composite.Region;
+import com.glacialrush.game.ExperienceHandler;
 import com.glacialrush.game.GameHandler;
 import com.glacialrush.game.GlacialHandler;
 import com.glacialrush.game.MapHandler;
@@ -38,6 +39,7 @@ public class GameController extends Controller
 	protected MapHandler mapHandler;
 	protected MarketHandler marketHandler;
 	protected PlayerHandler playerHandler;
+	protected ExperienceHandler experienceHandler;
 	
 	public GameController(GlacialServer pl)
 	{
@@ -107,9 +109,25 @@ public class GameController extends Controller
 			return;
 		}
 		
-		Collections.shuffle(maps);
+		GList<Map> mps = new GList<Map>();
+		
+		for(Map i : maps)
+		{
+			if(i.getLocked())
+			{
+				mps.add(i);
+			}
+		}
+		
+		if(mps.isEmpty())
+		{
+			f("Game Start: Failed: No Locked maps!");
+			return;
+		}
+		
+		Collections.shuffle(mps);
 		o("Picking Map");
-		map = maps.get(0);
+		map = mps.get(0);
 		s("Selected Map: " + map.getName());
 		
 		((GlacialServer) pl).getNotificationController().dispatch(new Notification().setTitle(ChatColor.AQUA + "Starting Game").setSubTitle(ChatColor.AQUA + "Map: " + ChatColor.GREEN + map.getName()));
@@ -177,6 +195,12 @@ public class GameController extends Controller
 		s("GAME IS RUNNING");
 		
 		o("Balancing Players");
+		
+		for(Player i : pl.onlinePlayers())
+		{
+			((GlacialServer)pl).getNotificationController().fix(i);
+		}
+		
 		playerHandler.rebalance();
 		o("Respawning Players");
 		playerHandler.respawn();
@@ -305,13 +329,45 @@ public class GameController extends Controller
 	{
 		super.postEnable();
 		
-		o("Registering Handlers...");
+		if(((GlacialServer)pl).getDataController().getGameData().isEnabled())
+		{
+			if(maps.isEmpty())
+			{
+				f("No Maps");
+				return;
+			}
+			
+			boolean hasLocked = false;
+			
+			for(Map i : maps)
+			{
+				if(i.getLocked())
+				{
+					hasLocked = true;
+					break;
+				}
+			}
+			
+			if(!hasLocked)
+			{
+				f("No Locked Maps, Game will not start");
+				return;
+			}
+			
+			o("Registering Handlers...");
+			
+			mapHandler = new MapHandler((GlacialServer) pl);
+			marketHandler = new MarketHandler((GlacialServer) pl);
+			playerHandler = new PlayerHandler((GlacialServer) pl);
+			experienceHandler = new ExperienceHandler((GlacialServer) pl);
+			
+			start();
+		}
 		
-		mapHandler = new MapHandler((GlacialServer) pl);
-		marketHandler = new MarketHandler((GlacialServer) pl);
-		playerHandler = new PlayerHandler((GlacialServer) pl);
-		
-		start();
+		else
+		{
+			f("Game Not Running, Config prevents auto start");
+		}
 	}
 	
 	public void preDisable()
