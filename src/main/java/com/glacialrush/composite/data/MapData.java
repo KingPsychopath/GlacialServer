@@ -12,12 +12,14 @@ public class MapData implements Serializable
 	private String name;
 	private GList<RegionData> regions;
 	private String world;
+	private Boolean locked;
 	
-	public MapData(String name, String world, GList<RegionData> regions)
+	public MapData(String name, String world, GList<RegionData> regions, Boolean locked)
 	{
 		this.name = name;
 		this.regions = regions;
 		this.world = world;
+		this.locked = locked;
 	}
 	
 	public Map toMap(GlacialServer pl)
@@ -29,9 +31,34 @@ public class MapData implements Serializable
 			map.getRegions().add(i.toRegion(map));
 		}
 		
+		if(locked)
+		{
+			map.setLocked(true);
+		}
+		
 		return map;
 	}
 	
+	public String getWorld()
+	{
+		return world;
+	}
+
+	public void setWorld(String world)
+	{
+		this.world = world;
+	}
+
+	public Boolean getLocked()
+	{
+		return locked;
+	}
+
+	public void setLocked(Boolean locked)
+	{
+		this.locked = locked;
+	}
+
 	public String getName()
 	{
 		return name;
