@@ -20,6 +20,7 @@ import com.glacialrush.GlacialServer;
 import com.glacialrush.api.component.Controller;
 import com.glacialrush.api.object.GMap;
 import com.glacialrush.composite.Map;
+import com.glacialrush.composite.data.GameData;
 import com.glacialrush.composite.data.MapData;
 import com.glacialrush.composite.data.PlayerData;
 import net.md_5.bungee.api.ChatColor;
@@ -28,8 +29,10 @@ public class DataController extends Controller
 {
 	private File maps;
 	private File players;
+	private File config;
 	
 	private GMap<Player, PlayerData> cache;
+	private GameData gameData;
 	
 	public DataController(GlacialServer pl)
 	{
@@ -39,13 +42,19 @@ public class DataController extends Controller
 		
 		maps = new File(pl.getDataFolder(), "maps");
 		players = new File(pl.getDataFolder(), "players");
+		config = new File(pl.getDataFolder(), "config");
+		
+		gameData = new GameData();
 	}
 	
 	public void preEnable()
 	{
 		verify(maps);
 		verify(players);
+		verify(config);
 		loadMaps();
+		loadPlayers();
+		loadGameData();
 		
 		super.preEnable();
 	}
@@ -63,7 +72,87 @@ public class DataController extends Controller
 	public void postDisable()
 	{
 		saveMaps();
+		savePlayers();
+		saveGameData();
 		super.postDisable();
+	}
+	
+	public GameData getGameData()
+	{
+		return gameData;
+	}
+
+	public void setMaps(File maps)
+	{
+		this.maps = maps;
+	}
+
+	public void setPlayers(File players)
+	{
+		this.players = players;
+	}
+
+	public void setConfig(File config)
+	{
+		this.config = config;
+	}
+
+	public void setCache(GMap<Player, PlayerData> cache)
+	{
+		this.cache = cache;
+	}
+
+	public void setGameData(GameData gameData)
+	{
+		this.gameData = gameData;
+	}
+
+	public void loadGameData()
+	{
+		File f = new File(config, "game.yml");
+		
+		if(f.exists())
+		{
+			FileConfiguration fc = new YamlConfiguration();
+			
+			try
+			{
+				fc.load(f);
+				gameData = new GameData(fc);
+			}
+			
+			catch(FileNotFoundException e)
+			{
+				e.printStackTrace();
+			}
+			
+			catch(IOException e)
+			{
+				e.printStackTrace();
+			}
+			
+			catch(InvalidConfigurationException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public void saveGameData()
+	{
+		File f = new File(config, "game.yml");
+		
+		verifyFile(f);
+		
+		try
+		{
+			gameData.toFileConfiguration().save(f);
+		}
+		
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	public void loadPlayer(Player p)
@@ -225,7 +314,6 @@ public class DataController extends Controller
 				if(map != null)
 				{
 					s("Loaded Map: " + map.getName());
-					map.setLocked(true);
 					map.build();
 					return map;
 				}
