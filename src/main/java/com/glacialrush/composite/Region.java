@@ -81,7 +81,7 @@ public class Region extends Hunk
 			lastTimer = last;
 		}
 		
-		timer -= (int)dif;
+		timer -= (int) dif;
 		
 		if(timer < 0)
 		{
@@ -340,6 +340,26 @@ public class Region extends Hunk
 				cycleTime += System.currentTimeMillis() - ms;
 			}
 		});
+	}
+	
+	public Long getLastTimer()
+	{
+		return lastTimer;
+	}
+	
+	public void setLastTimer(Long lastTimer)
+	{
+		this.lastTimer = lastTimer;
+	}
+	
+	public void setBuilding(Boolean building)
+	{
+		this.building = building;
+	}
+	
+	public void setTimer(Integer timer)
+	{
+		this.timer = timer;
 	}
 	
 	public String getName()
