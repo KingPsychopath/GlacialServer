@@ -30,7 +30,6 @@ public class DataController extends Controller
 	private File maps;
 	private File players;
 	private File config;
-	private File warpgates;
 	
 	private GMap<Player, PlayerData> cache;
 	private GameData gameData;
@@ -44,7 +43,6 @@ public class DataController extends Controller
 		maps = new File(pl.getDataFolder(), "maps");
 		players = new File(pl.getDataFolder(), "players");
 		config = new File(pl.getDataFolder(), "config");
-		warpgates = new File(pl.getDataFolder(), "warpgates");
 		
 		gameData = new GameData();
 	}
@@ -54,7 +52,6 @@ public class DataController extends Controller
 		verify(maps);
 		verify(players);
 		verify(config);
-		verify(warpgates);
 		loadMaps();
 		loadPlayers();
 		loadGameData();
