@@ -43,6 +43,7 @@ public class GlacialServer extends GlacialPlugin
 		
 		getCommand(Info.CMD_GLACIALRUSH).setExecutor(commandController);
 		getCommand(Info.CMD_DEBUGGER).setExecutor(commandController);
+		getCommand(Info.CMD_SKILL).setExecutor(commandController);
 	}
 	
 	public PlayerData gpd(Player p)
