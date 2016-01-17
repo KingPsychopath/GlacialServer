@@ -70,7 +70,7 @@ public class ExperienceHandler extends GlacialHandler
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onEvent(FactionCaptureEvent e)
 	{
-		for(Player i : e.getCapture().getPlayers())
+		for(final Player i : e.getCapture().getPlayers())
 		{
 			if(g.getPlayerHandler().getFaction(i).equals(e.getFaction()))
 			{
