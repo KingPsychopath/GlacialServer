@@ -1,5 +1,6 @@
 package com.glacialrush.game;
 
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -7,7 +8,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import com.glacialrush.GlacialServer;
-import net.md_5.bungee.api.ChatColor;
 
 public class CombatHandler extends GlacialHandler
 {
@@ -62,9 +62,23 @@ public class CombatHandler extends GlacialHandler
 				
 				if(g.getPlayerHandler().getFaction(o).equals(g.getPlayerHandler().getFaction(d)))
 				{
-					e.setDamage(0);
 					e.setCancelled(true);
-					o.sendMessage(ChatColor.RED + "Do not strike upon allies.");
+				}
+			}
+			
+			else if(damager.getType().equals(EntityType.ARROW))
+			{
+				Arrow a = (Arrow) damager;
+				
+				if(a.getShooter() instanceof Player)
+				{
+					Player o = (Player) a.getShooter();
+					Player d = (Player) defense;
+					
+					if(g.getPlayerHandler().getFaction(o).equals(g.getPlayerHandler().getFaction(d)))
+					{
+						e.setCancelled(true);
+					}
 				}
 			}
 		}
