@@ -1,7 +1,12 @@
 package com.glacialrush.game;
 
 import org.bukkit.Sound;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityPortalEnterEvent;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.Info;
 import com.glacialrush.api.dispatch.notification.Notification;
@@ -12,7 +17,6 @@ import com.glacialrush.api.object.GSound;
 import com.glacialrush.composite.Capture;
 import com.glacialrush.composite.Faction;
 import com.glacialrush.composite.Region;
-import com.glacialrush.game.event.ExperienceType;
 import com.glacialrush.game.event.FactionRegionCaptureEvent;
 import com.glacialrush.game.event.PlayerControlEvent;
 import com.glacialrush.xapi.Duration;
@@ -202,7 +206,6 @@ public class MapHandler extends GlacialHandler
 				
 				else
 				{
-					
 					region.setFaction(strongest(controlCount));
 					
 					pl.callEvent(new FactionRegionCaptureEvent(g, region, region.getFaction()));
@@ -578,5 +581,34 @@ public class MapHandler extends GlacialHandler
 		}
 		
 		return s;
+	}
+	
+	@EventHandler
+	public void onPlayer(EntityPortalEnterEvent e)
+	{
+		if(e.getEntityType().equals(EntityType.ARROW))
+		{
+			Arrow a = (Arrow) e.getEntity();
+			Block b = a.getLocation().getBlock();
+			
+			for(Region i : g.getMap().getRegions())
+			{
+				if(i.contains(b))
+				{
+					if(a.getShooter() instanceof Player)
+					{
+						Player p = (Player) a.getShooter();
+						
+						if(!g.getPlayerHandler().getFaction(p).equals(i.getFaction()))
+						{
+							e.getLocation().getWorld().createExplosion(b.getLocation(), 0f);
+							a.remove();
+						}
+					}
+					
+					return;
+				}
+			}
+		}
 	}
 }
