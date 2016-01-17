@@ -15,7 +15,7 @@ import com.glacialrush.composite.Capture;
 import com.glacialrush.composite.Faction;
 import com.glacialrush.composite.Map;
 import com.glacialrush.composite.Region;
-import com.glacialrush.composite.WarpgateArray;
+import com.glacialrush.game.CombatHandler;
 import com.glacialrush.game.ExperienceHandler;
 import com.glacialrush.game.GameHandler;
 import com.glacialrush.game.GlacialHandler;
@@ -28,7 +28,6 @@ public class GameController extends Controller
 {
 	protected boolean running;
 	protected Map map;
-	protected WarpgateArray warpgateArray;
 	protected GList<Map> maps;
 	protected GList<GameHandler> handlers;
 	protected ThreadComponent t;
@@ -42,6 +41,7 @@ public class GameController extends Controller
 	protected MarketHandler marketHandler;
 	protected PlayerHandler playerHandler;
 	protected ExperienceHandler experienceHandler;
+	protected CombatHandler combatHandler;
 	
 	public GameController(GlacialServer pl)
 	{
@@ -55,7 +55,6 @@ public class GameController extends Controller
 		stopping = false;
 		restarting = false;
 		t = new ThreadComponent(pl);
-		warpgateArray = null;
 	}
 	
 	public void add(GlacialHandler handler)
@@ -126,13 +125,6 @@ public class GameController extends Controller
 		if(mps.isEmpty())
 		{
 			f("Game Start: Failed: No Locked maps!");
-			starting = false;
-			return;
-		}
-		
-		if(warpgateArray == null)
-		{
-			f("Game Start: Failed: No Warpgates!");
 			starting = false;
 			return;
 		}
@@ -372,6 +364,7 @@ public class GameController extends Controller
 			marketHandler = new MarketHandler((GlacialServer) pl);
 			playerHandler = new PlayerHandler((GlacialServer) pl);
 			experienceHandler = new ExperienceHandler((GlacialServer) pl);
+			combatHandler = new CombatHandler((GlacialServer) pl);
 			
 			start();
 		}
@@ -504,16 +497,6 @@ public class GameController extends Controller
 	public PlayerHandler getPlayerHandler()
 	{
 		return playerHandler;
-	}
-
-	public WarpgateArray getWarpgateArray()
-	{
-		return warpgateArray;
-	}
-
-	public void setWarpgateArray(WarpgateArray warpgateArray)
-	{
-		this.warpgateArray = warpgateArray;
 	}
 
 	public ThreadComponent getT()
