@@ -90,28 +90,28 @@ public class ExperienceController extends Controller
 	
 	public void giveExperience(Player p, long experience, ExperienceType type)
 	{
-		if(((GlacialServer)pl).getGameController().isRunning())
-		{
-			ExperienceEvent e = new ExperienceEvent(((GlacialServer)pl).getGameController(), p, experience, type);
-			pl.callEvent(e);
-			
-			if(e.isCancelled())
-			{
-				return;
-			}
-			
-			else
-			{
-				experience = e.getAmount();
-			}
-		}
-		
 		if(experience < 0)
 		{
 			return;
 		}
 		
 		experience += (experience * getExperienceBonus(p));
+		
+		if(((GlacialServer)pl).getGameController().isRunning())
+		{
+			ExperienceEvent e = new ExperienceEvent(((GlacialServer)pl).getGameController(), p, experience, type);
+			pl.callEvent(e);
+			
+			if(!e.isCancelled())
+			{
+				experience = e.getAmount();
+			}
+			
+			else
+			{
+				return;
+			}
+		}
 		
 		setExperience(p, getExperience(p) + experience);
 		setNextSkill(p, getNextSkill(p) + experience);
