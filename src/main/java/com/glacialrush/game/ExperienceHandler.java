@@ -59,7 +59,7 @@ public class ExperienceHandler extends GlacialHandler
 		n.setFadeIn(5);
 		n.setFadeOut(5);
 		n.setStayTime(30);
-		n.setSound(new GSound(Sound.ORB_PICKUP, 0.1f, 2f));
+		n.setSound(new GSound("g.event.experience.earn", 0.5f, 1f));
 		n.setSubTitle(ChatColor.AQUA + "+ " + e.getAmount() + " XP");
 		n.setSubSubTitle(ChatColor.AQUA + e.getType().toString().replace('_', ' ') + " " + ChatColor.GREEN + "[+ " + (int)(100 * pl.getExperienceController().getExperienceBonus(e.getPlayer())) + "%]");
 		n.setPriority(NotificationPriority.VERYHIGH);
@@ -74,7 +74,16 @@ public class ExperienceHandler extends GlacialHandler
 		{
 			if(g.getPlayerHandler().getFaction(i).equals(e.getFaction()))
 			{
-				pl.getExperienceController().giveExperience(i, Info.EXPERIENCE_FACTION_CAPTURE, ExperienceType.POINT_CONTROL);
+				new GSound("g.event.capture.capture", 0.5f, 1.5f).play(i);
+				
+				pl.scheduleSyncTask(20, new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						pl.getExperienceController().giveExperience(i, Info.EXPERIENCE_FACTION_CAPTURE, ExperienceType.POINT_CONTROL);
+					}
+				});
 			}
 		}
 	}
@@ -87,6 +96,7 @@ public class ExperienceHandler extends GlacialHandler
 			if(g.getPlayerHandler().getFaction(i).equals(e.getFaction()))
 			{
 				pl.getExperienceController().giveExperience(i, Info.EXPERIENCE_REGION_CAPTURE, ExperienceType.TERRITORY_CONTROL);
+				new GSound("g.event.region.capture", 1f, 1f).play(i);
 			}
 		}
 	}
