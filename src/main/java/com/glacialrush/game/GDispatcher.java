@@ -2,6 +2,7 @@ package com.glacialrush.game;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import com.glacialrush.GlacialServer;
 import com.glacialrush.api.GlacialPlugin;
 import com.glacialrush.api.dispatch.Dispatcher;
 
@@ -47,6 +48,7 @@ public class GDispatcher extends Dispatcher
 	public void failure(String... o)
 	{
 		log("" + ChatColor.RED, o);
+		((GlacialServer) pl).getLogController().log(c.getName(), o[0]);
 	}
 
 	public void warning(String... o)
