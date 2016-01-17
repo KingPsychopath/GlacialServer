@@ -14,6 +14,7 @@ public class PlayerData
 	private Long skill;
 	private Double experienceBonus;
 	private GList<String> unlocks;
+	private GList<String> equipped;
 	
 	public PlayerData(Player p)
 	{
@@ -24,6 +25,7 @@ public class PlayerData
 		nextSkill = (long) 0;
 		experienceBonus = 0.0;
 		unlocks = new GList<String>();
+		equipped = new GList<String>();
 	}
 	
 	public PlayerData(FileConfiguration fc)
@@ -35,6 +37,7 @@ public class PlayerData
 		skill = fc.getLong("economy.skill");
 		nextSkill = fc.getLong("economy.next-skill");
 		unlocks = new GList<String>(fc.getStringList("economy.unlocks"));
+		equipped = new GList<String>(fc.getStringList("economy.equipped"));
 	}
 	
 	public FileConfiguration toFileConfiguration()
@@ -48,6 +51,7 @@ public class PlayerData
 		fc.set("economy.skill", skill);
 		fc.set("economy.next-skill", nextSkill);
 		fc.set("economy.unlocks", unlocks);
+		fc.set("economy.equipped", equipped);
 		
 		return fc;
 	}
@@ -120,5 +124,15 @@ public class PlayerData
 	public void setUnlocks(GList<String> unlocks)
 	{
 		this.unlocks = unlocks;
+	}
+
+	public GList<String> getEquipped()
+	{
+		return equipped;
+	}
+
+	public void setEquipped(GList<String> equipped)
+	{
+		this.equipped = equipped;
 	}
 }
