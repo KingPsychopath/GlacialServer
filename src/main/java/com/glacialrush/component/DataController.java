@@ -23,7 +23,6 @@ import com.glacialrush.composite.Map;
 import com.glacialrush.composite.data.GameData;
 import com.glacialrush.composite.data.MapData;
 import com.glacialrush.composite.data.PlayerData;
-import com.glacialrush.composite.data.WarpgateArrayData;
 import net.md_5.bungee.api.ChatColor;
 
 public class DataController extends Controller
@@ -59,7 +58,6 @@ public class DataController extends Controller
 		loadMaps();
 		loadPlayers();
 		loadGameData();
-		loadWarpgates();
 		
 		super.preEnable();
 	}
@@ -110,74 +108,6 @@ public class DataController extends Controller
 	public void setGameData(GameData gameData)
 	{
 		this.gameData = gameData;
-	}
-	
-	public void saveWarpgates()
-	{
-		File f = new File(warpgates, "warpgates.gwg");
-		verifyFile(f);
-		
-		WarpgateArrayData wd = ((GlacialServer)pl).getGameController().getWarpgateArray().getData();
-		
-		try
-		{
-			FileOutputStream fos = new FileOutputStream(f);
-			GZIPOutputStream gzo = new GZIPOutputStream(fos);
-			ObjectOutputStream oos = new ObjectOutputStream(gzo);
-			
-			oos.writeObject(wd);
-			oos.close();
-			s("Saved Warpgates");
-		}
-		
-		catch(FileNotFoundException e)
-		{
-			e.printStackTrace();
-		}
-		
-		catch(IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
-	
-	public void loadWarpgates()
-	{
-		File f = new File(warpgates, "warpgates.gwg");
-		
-		if(f.exists())
-		{
-			try
-			{
-				FileInputStream fin = new FileInputStream(f);
-				GZIPInputStream gzi = new GZIPInputStream(fin);
-				ObjectInputStream ois = new ObjectInputStream(gzi);
-				
-				Object o = ois.readObject();
-				ois.close();
-				
-				if(o != null)
-				{
-					WarpgateArrayData wg = (WarpgateArrayData) o;
-					((GlacialServer)pl).getGameController().setWarpgateArray(wg.toWarpgateArray((GlacialServer) pl));
-				}
-			}
-			
-			catch(FileNotFoundException e)
-			{
-				e.printStackTrace();
-			}
-			
-			catch(IOException e)
-			{
-				e.printStackTrace();
-			}
-			
-			catch(ClassNotFoundException e)
-			{
-				e.printStackTrace();
-			}
-		}
 	}
 
 	public void loadGameData()
