@@ -20,7 +20,6 @@ import com.glacialrush.composite.Hunk;
 import com.glacialrush.composite.Job;
 import com.glacialrush.composite.Map;
 import com.glacialrush.composite.Region;
-import com.glacialrush.composite.WarpgateArray;
 import com.glacialrush.xapi.Cuboid;
 import com.glacialrush.xapi.Cuboid.CuboidDirection;
 import com.glacialrush.xapi.Gui;
@@ -135,7 +134,7 @@ public class CommandController extends Controller implements CommandExecutor
 		Boolean isGod = sender.hasPermission(Info.PERM_ADMIN);
 		GameController g = ((GlacialServer) pl).getGameController();
 		
-		if(command.getName().equalsIgnoreCase(Info.CMD_DEBUGGER))
+		if(command.getName().equalsIgnoreCase(Info.CMD_SKILL))
 		{
 			if(args.length == 0)
 			{
@@ -256,13 +255,6 @@ public class CommandController extends Controller implements CommandExecutor
 							{
 								f(sender, "/g new <multi word name>");
 							}
-						}
-						
-						if(sub.equalsIgnoreCase("newgate"))
-						{
-							WarpgateArray wa = new WarpgateArray((GlacialServer) pl, p.getLocation());
-							g.setWarpgateArray(wa);
-							s(p, "Created Gates, BUILD DAMMIT!");
 						}
 						
 						else if(sub.equalsIgnoreCase("start") || sub.equalsIgnoreCase("sg"))
