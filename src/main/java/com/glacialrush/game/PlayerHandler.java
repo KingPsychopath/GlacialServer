@@ -7,6 +7,7 @@ import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import com.glacialrush.GlacialServer;
+import com.glacialrush.api.dispatch.Title;
 import com.glacialrush.api.dispatch.notification.Notification;
 import com.glacialrush.api.dispatch.notification.NotificationPriority;
 import com.glacialrush.api.object.GList;
@@ -19,10 +20,12 @@ import net.md_5.bungee.api.ChatColor;
 public class PlayerHandler extends GlacialHandler
 {
 	protected GMap<Player, Faction> factions;
+	protected GList<Player> resourced;
 	
 	public PlayerHandler(GlacialServer pl)
 	{
 		super(pl);
+		resourced = new GList<Player>();
 	}
 	
 	@Override
@@ -53,6 +56,85 @@ public class PlayerHandler extends GlacialHandler
 	public void tick()
 	{
 	
+	}
+	
+	public void verifyResource(final Player p)
+	{
+		if(!resourced.contains(p))
+		{
+			pl.getPlayerController().disable(p);
+			
+			if(pl.gpd(p).getAcceptedResourcePack())
+			{
+				Notification n = new Notification();
+				n.setFadeIn(20);
+				n.setStayTime(20);
+				n.setFadeOut(40);
+				n.setTitle(ChatColor.AQUA + "Please Wait");
+				n.setSubTitle(ChatColor.GREEN + "Loading Resource Pack...");
+				n.setSound(new GSound(Sound.ANVIL_USE));
+				
+				pl.getNotificationController().dispatch(n, pl.getNotificationController().getBroadChannel(), p);
+				
+				pl.scheduleSyncTask(30, new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						pl.getPlayerController().sendPack(p);
+					}
+				});
+			}
+			
+			else
+			{
+				Notification n = new Notification();
+				n.setFadeIn(5);
+				n.setStayTime(30);
+				n.setFadeOut(40);
+				n.setTitle(ChatColor.AQUA + "Hey There!");
+				n.setSubTitle(ChatColor.GREEN + "Glacial Rush Requires a Resource Pack");
+				
+				Notification n2 = new Notification();
+				n2.setFadeIn(5);
+				n2.setStayTime(30);
+				n2.setFadeOut(40);
+				n2.setTitle(ChatColor.AQUA + "Dont Worry");
+				n2.setSubTitle(ChatColor.GREEN + "Your Texture Pack will still work.");
+				
+				final Title t = new Title();
+				t.setTitle(ChatColor.GREEN + "" + ChatColor.UNDERLINE + "Please Accept");
+				t.setFadeInTime(100);
+				t.setStayTime(1200);
+				t.setFadeOutTime(1200);
+				
+				pl.getNotificationController().dispatch(n, pl.getNotificationController().getBroadChannel(), p);
+				pl.getNotificationController().dispatch(n2, pl.getNotificationController().getBroadChannel(), p);
+				
+				pl.scheduleSyncTask(155, new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						t.send(p);
+					}
+				});
+				
+				pl.scheduleSyncTask(190, new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						pl.getPlayerController().sendPack(p);
+					}
+				});
+			}
+		}
+	}
+	
+	public void sendResourceInfo()
+	{
+		
 	}
 	
 	public GMap<Player, Faction> getFactions()
@@ -199,6 +281,16 @@ public class PlayerHandler extends GlacialHandler
 		}
 	}
 	
+	public void loadedRSP(Player p)
+	{
+		if(!resourced.contains(p))
+		{
+			resourced.add(p);
+		}
+		
+		pl.gpd(p).setAcceptedResourcePack(true);
+	}
+	
 	public void insert(Player p)
 	{
 		Faction f = smallest();
@@ -225,7 +317,7 @@ public class PlayerHandler extends GlacialHandler
 	}
 	
 	@EventHandler
-	public void onPlayer(PlayerJoinEvent e)
+	public void onPlayer(final PlayerJoinEvent e)
 	{
 		if(!g.isRunning())
 		{
@@ -233,6 +325,15 @@ public class PlayerHandler extends GlacialHandler
 		}
 		
 		insert(e.getPlayer());
+		
+		pl.scheduleSyncTask(50, new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				verifyResource(e.getPlayer());
+			}
+		});
 	}
 	
 	@EventHandler

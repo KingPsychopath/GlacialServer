@@ -13,6 +13,8 @@ import com.glacialrush.component.PlayerController;
 import com.glacialrush.component.SoundController;
 import com.glacialrush.component.TabController;
 import com.glacialrush.composite.data.PlayerData;
+import com.glacialrush.packet.resourcepack.ResourceController;
+import com.glacialrush.packet.resourcepack.ResourcePackDeclinedEvent;
 
 public class GlacialServer extends GlacialPlugin
 {
@@ -25,6 +27,7 @@ public class GlacialServer extends GlacialPlugin
 	private SoundController soundController;
 	private ExperienceController experienceController;
 	private TabController tabController;
+	private ResourceController resourceController;
 	private CommandController commandController;
 	
 	public void onEnable()
@@ -40,6 +43,7 @@ public class GlacialServer extends GlacialPlugin
 		soundController = new SoundController(this);
 		experienceController = new ExperienceController(this);
 		tabController = new TabController(this);
+		resourceController = new ResourceController(this);
 		commandController = new CommandController(this);
 		
 		super.startComponents();
@@ -47,6 +51,11 @@ public class GlacialServer extends GlacialPlugin
 		getCommand(Info.CMD_GLACIALRUSH).setExecutor(commandController);
 		getCommand(Info.CMD_DEBUGGER).setExecutor(commandController);
 		getCommand(Info.CMD_SKILL).setExecutor(commandController);
+	}
+	
+	public ResourceController getResourceController()
+	{
+		return resourceController;
 	}
 	
 	public PlayerData gpd(Player p)

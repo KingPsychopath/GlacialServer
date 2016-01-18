@@ -12,6 +12,7 @@ public class PlayerData
 	private Long experience;
 	private Long nextSkill;
 	private Long skill;
+	private Boolean acceptedResourcePack;
 	private Double experienceBonus;
 	private GList<String> unlocks;
 	private GList<String> equipped;
@@ -24,6 +25,7 @@ public class PlayerData
 		skill = (long) 0;
 		nextSkill = (long) 0;
 		experienceBonus = 0.0;
+		acceptedResourcePack = false;
 		unlocks = new GList<String>();
 		equipped = new GList<String>();
 	}
@@ -32,6 +34,7 @@ public class PlayerData
 	{
 		name = fc.getString("identity.name");
 		uuid = fc.getString("identity.uuid");
+		acceptedResourcePack = fc.getBoolean("meta.accepted-resource-pack");
 		experience = fc.getLong("economy.experience");
 		experienceBonus = fc.getDouble("economy.experience-bonus");
 		skill = fc.getLong("economy.skill");
@@ -46,6 +49,7 @@ public class PlayerData
 		
 		fc.set("identity.name", name);
 		fc.set("identity.uuid", uuid);
+		fc.set("meta.accepted-resource-pack", acceptedResourcePack);
 		fc.set("economy.experience", experience);
 		fc.set("economy.experience-bonus", experienceBonus);
 		fc.set("economy.skill", skill);
@@ -56,6 +60,16 @@ public class PlayerData
 		return fc;
 	}
 	
+	public Boolean getAcceptedResourcePack()
+	{
+		return acceptedResourcePack;
+	}
+
+	public void setAcceptedResourcePack(Boolean acceptedResourcePack)
+	{
+		this.acceptedResourcePack = acceptedResourcePack;
+	}
+
 	public String getName()
 	{
 		return name;
