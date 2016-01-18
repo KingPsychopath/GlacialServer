@@ -64,14 +64,14 @@
 		</repository>
 		<repository>
 			<id>grush-repo</id>
-			<url>https://raw.githubusercontent.com/GlacialRush/GlacialAPI/master/repository/</url>
+			<url>https://bitbucket.org/GlacialRush/glacialapi/raw/master/repository/</url>
 		</repository>
 	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>com.glacialrush</groupId>
 			<artifactId>glacial-api</artifactId>
-			<version>1.0.7</version>
+			<version>1.0.8</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>

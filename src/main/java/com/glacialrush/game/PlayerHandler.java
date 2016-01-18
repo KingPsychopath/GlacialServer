@@ -3,6 +3,7 @@ package com.glacialrush.game;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import com.glacialrush.GlacialServer;
@@ -12,7 +13,9 @@ import com.glacialrush.api.object.GList;
 import com.glacialrush.api.object.GMap;
 import com.glacialrush.api.object.GSound;
 import com.glacialrush.composite.Faction;
+import net.md_5.bungee.api.ChatColor;
 
+@SuppressWarnings("deprecation")
 public class PlayerHandler extends GlacialHandler
 {
 	protected GMap<Player, Faction> factions;
@@ -208,6 +211,17 @@ public class PlayerHandler extends GlacialHandler
 	public void remove(Player p)
 	{
 		factions.remove(p);
+	}
+	
+	@EventHandler
+	public void onPlayer(PlayerChatEvent e)
+	{
+		e.setCancelled(true);
+		
+		for(Player i : pl.onlinePlayers())
+		{
+			i.sendMessage(ChatColor.AQUA + "" + pl.getExperienceController().getBattleRank(e.getPlayer()) + " " + g.getPlayerHandler().getFaction(e.getPlayer()).getColor() + e.getPlayer().getName() + ChatColor.WHITE + ": " + e.getMessage());
+		}
 	}
 	
 	@EventHandler

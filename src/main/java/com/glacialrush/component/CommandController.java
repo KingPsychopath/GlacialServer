@@ -20,6 +20,7 @@ import com.glacialrush.composite.Hunk;
 import com.glacialrush.composite.Job;
 import com.glacialrush.composite.Map;
 import com.glacialrush.composite.Region;
+import com.glacialrush.game.event.ExperienceType;
 import com.glacialrush.xapi.Cuboid;
 import com.glacialrush.xapi.Cuboid.CuboidDirection;
 import com.glacialrush.xapi.Gui;
@@ -141,6 +142,41 @@ public class CommandController extends Controller implements CommandExecutor
 				if(isPlayer)
 				{
 					s(p, "Skill Points: " + ((GlacialServer) pl).getExperienceController().getSkill(p));
+				}
+			}
+			
+			else
+			{
+				if(args[0].equalsIgnoreCase("give"))
+				{
+					if(args.length == 3)
+					{
+						Player tg = pl.findPlayer(args[1]);
+						
+						if(tg != null)
+						{
+							try
+							{
+								int ix = Integer.parseInt(args[2]);
+								((GlacialServer)pl).getExperienceController().giveExperience(tg, ix, ExperienceType.UNKNOWN);
+							}
+							
+							catch(NumberFormatException e)
+							{
+								f(p, "Invalid number");
+							}
+						}
+						
+						else
+						{
+							f(p, "Unknown player");
+						}
+					}
+					
+					else
+					{
+						f(p, "/skill give <player> <exp>");
+					}
 				}
 			}
 		}

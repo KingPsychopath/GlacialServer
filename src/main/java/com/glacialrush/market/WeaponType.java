@@ -2,7 +2,7 @@ package com.glacialrush.market;
 
 public enum WeaponType
 {
-	PRIMARY(Bow.class),
+	PRIMARY(PrimaryWeapon.class),
 	SECONDARY(Bow.class),
 	MELEE(Knife.class);
 	
