@@ -11,6 +11,7 @@ import com.glacialrush.component.MarketController;
 import com.glacialrush.component.NotificationController;
 import com.glacialrush.component.PlayerController;
 import com.glacialrush.component.SoundController;
+import com.glacialrush.component.TabController;
 import com.glacialrush.composite.data.PlayerData;
 
 public class GlacialServer extends GlacialPlugin
@@ -23,6 +24,7 @@ public class GlacialServer extends GlacialPlugin
 	private NotificationController notificationController;
 	private SoundController soundController;
 	private ExperienceController experienceController;
+	private TabController tabController;
 	private CommandController commandController;
 	
 	public void onEnable()
@@ -37,6 +39,7 @@ public class GlacialServer extends GlacialPlugin
 		notificationController = new NotificationController(this);
 		soundController = new SoundController(this);
 		experienceController = new ExperienceController(this);
+		tabController = new TabController(this);
 		commandController = new CommandController(this);
 		
 		super.startComponents();
@@ -74,6 +77,11 @@ public class GlacialServer extends GlacialPlugin
 	public MarketController getMarketController()
 	{
 		return marketController;
+	}
+	
+	public TabController getTabController()
+	{
+		return tabController;
 	}
 	
 	public ExperienceController getExperienceController()
