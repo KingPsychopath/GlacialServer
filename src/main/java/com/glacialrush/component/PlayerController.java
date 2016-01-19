@@ -220,7 +220,7 @@ public class PlayerController extends Controller
 			@Override
 			public void run()
 			{
-				e.getPlayer().kickPlayer(ChatColor.RED + "Resource Pack Declined." + "\n" + ChatColor.YELLOW + "Please Rejoin to Try Again!");
+				e.getPlayer().kickPlayer(ChatColor.RED + "Resource Pack Declined." + "\n" + ChatColor.YELLOW + ChatColor.UNDERLINE + "Please Delete Glacial Rush then add it back and rejoin!");
 			}
 		});
 	}

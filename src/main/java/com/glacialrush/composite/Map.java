@@ -521,6 +521,12 @@ public class Map implements Listener
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onModification(BlockPlaceEvent e)
 	{
+		if(pl.getGameController().isRunning())
+		{
+			e.setCancelled(true);
+			return;
+		}
+		
 		if(!contains(e.getBlock().getLocation()))
 		{
 			return;
@@ -543,6 +549,12 @@ public class Map implements Listener
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onModification(BlockBreakEvent e)
 	{
+		if(pl.getGameController().isRunning())
+		{
+			e.setCancelled(true);
+			return;
+		}
+		
 		if(!contains(e.getBlock().getLocation()))
 		{
 			return;

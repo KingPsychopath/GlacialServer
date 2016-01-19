@@ -10,6 +10,7 @@ import com.glacialrush.api.component.ThreadComponent;
 import com.glacialrush.api.dispatch.notification.Notification;
 import com.glacialrush.api.dispatch.notification.NotificationPriority;
 import com.glacialrush.api.object.GList;
+import com.glacialrush.api.object.GSound;
 import com.glacialrush.api.thread.GlacialTask;
 import com.glacialrush.composite.Capture;
 import com.glacialrush.composite.Faction;
@@ -42,6 +43,7 @@ public class GameController extends Controller
 	protected PlayerHandler playerHandler;
 	protected ExperienceHandler experienceHandler;
 	protected CombatHandler combatHandler;
+	protected Boolean crediting;
 	
 	public GameController(GlacialServer pl)
 	{
@@ -53,6 +55,7 @@ public class GameController extends Controller
 		cycles = 0;
 		starting = false;
 		stopping = false;
+		crediting = false;
 		restarting = false;
 		t = new ThreadComponent(pl);
 	}
@@ -62,6 +65,175 @@ public class GameController extends Controller
 		handlers.add(handler);
 		pl.register(handler);
 		o("Registered Listener for Handler: " + handler.getName());
+	}
+	
+	public void dispatchn(Notification n)
+	{
+		n.setFadeIn(1);
+		n.setStayTime(25);
+		n.setFadeOut(5);
+		
+		for(Player i : pl.onlinePlayers())
+		{
+			((GlacialServer)pl).getNotificationController().dispatch(n, ((GlacialServer)pl).getNotificationController().getBroadChannel(), i);
+		}
+	}
+	
+	public void startCredits(final Faction f)
+	{
+		if(crediting)
+		{
+			return;
+		}
+		
+		crediting = true;
+		
+		final int[] i = new int[] {0};
+		
+		((GlacialServer)pl).getPlayerController().disableAll();
+		
+		pl.newThread(new GlacialTask("Map Restart Credits")
+		{
+			@Override
+			public void run()
+			{
+				if(i[0] == 0)
+				{
+					for(Player i : pl.onlinePlayers())
+					{
+						new GSound("g.music.victory", 1f, 1f).play(i);
+					}
+				}
+				
+				if(i[0] == 270)
+				{
+					Notification n = new Notification();
+					n.setTitle(f.getColor() + "Victory!");
+					n.setSubTitle(f.getColor() + f.getName() + " Was Victorious!");
+					dispatchn(n);
+				}
+				
+				if(i[0] == 300)
+				{
+					Notification n = new Notification();
+					n.setTitle(ChatColor.AQUA + "Most Influence");
+					n.setSubTitle(ChatColor.BLUE + "cyberpwn");
+					dispatchn(n);
+				}
+				
+				if(i[0] == 340)
+				{
+					Notification n = new Notification();
+					n.setTitle(ChatColor.RED + "Most Kills");
+					n.setSubTitle(ChatColor.DARK_RED + "cyberpwn");
+					dispatchn(n);
+				}
+				
+				if(i[0] == 380)
+				{
+					Notification n = new Notification();
+					n.setTitle(ChatColor.YELLOW + "Most Captures");
+					n.setSubTitle(ChatColor.GOLD + "cyberpwn");
+					dispatchn(n);
+				}
+				
+				if(i[0] == 410)
+				{
+					Notification n = new Notification();
+					n.setTitle(ChatColor.LIGHT_PURPLE + "Highest KDR");
+					n.setSubTitle(ChatColor.DARK_PURPLE + "cyberpwn");
+					dispatchn(n);
+				}
+				
+				if(i[0] == 450)
+				{
+					Notification n = new Notification();
+					n.setTitle(ChatColor.AQUA + "Highest Rank");
+					n.setSubTitle(ChatColor.BLUE + "cyberpwn");
+					dispatchn(n);
+				}
+				
+				if(i[0] == 490)
+				{
+					Notification n = new Notification();
+					n.setTitle(ChatColor.RED + "Most Agressive");
+					n.setSubTitle(ChatColor.DARK_RED + "cyberpwn");
+					dispatchn(n);
+				}
+				
+				if(i[0] == 520)
+				{
+					Notification n = new Notification();
+					n.setTitle(ChatColor.GREEN + "Most Devensive");
+					n.setSubTitle(ChatColor.DARK_GREEN + "cyberpwn");
+					dispatchn(n);
+				}
+				
+				if(i[0] == 560)
+				{
+					Notification n = new Notification();
+					n.setTitle(ChatColor.YELLOW + "Newest Player");
+					n.setSubTitle(ChatColor.GOLD + "not cyberpwn");
+					dispatchn(n);
+				}
+				
+				if(i[0] == 600)
+				{
+					Notification n = new Notification();
+					n.setTitle(ChatColor.RED + "Godlike");
+					n.setSubTitle(ChatColor.DARK_RED + "cyberpwn");
+					dispatchn(n);
+				}
+				
+				if(i[0] == 630)
+				{
+					Notification n = new Notification();
+					n.setTitle(ChatColor.GREEN + "Longest Shot");
+					n.setSubTitle(ChatColor.DARK_GREEN + "cyberpwn");
+					dispatchn(n);
+				}
+				
+				if(i[0] == 670)
+				{
+					Notification n = new Notification();
+					n.setTitle(ChatColor.LIGHT_PURPLE + "Highest Kill Streak");
+					n.setSubTitle(ChatColor.DARK_PURPLE + "cyberpwn");
+					dispatchn(n);
+				}
+				
+				if(i[0] == 710)
+				{
+					Notification n = new Notification();
+					n.setTitle(ChatColor.YELLOW + "The Hackusator");
+					n.setSubTitle(ChatColor.GOLD + "ballyworld");
+					dispatchn(n);
+				}
+				
+				if(i[0] == 740)
+				{
+					Notification n = new Notification();
+					n.setTitle(ChatColor.AQUA + "The Pottymouth");
+					n.setSubTitle(ChatColor.BLUE + "ballyworld");
+					dispatchn(n);
+				}
+				
+				if(i[0] == 780)
+				{
+					Notification n = new Notification();
+					n.setTitle(ChatColor.AQUA + "GG");
+					n.setSubTitle(ChatColor.AQUA + "GRUSH");
+					dispatchn(n);
+				}
+				
+				if(i[0] == 800)
+				{
+					stop();
+					restart();
+				}
+				
+				i[0]++;
+			}
+		});
 	}
 	
 	public void restart()
@@ -202,7 +374,7 @@ public class GameController extends Controller
 		
 		for(Player i : pl.onlinePlayers())
 		{
-			((GlacialServer)pl).getNotificationController().fix(i);
+			((GlacialServer) pl).getNotificationController().fix(i);
 		}
 		
 		playerHandler.rebalance();
@@ -333,7 +505,7 @@ public class GameController extends Controller
 	{
 		super.postEnable();
 		
-		if(((GlacialServer)pl).getDataController().getGameData().isEnabled())
+		if(((GlacialServer) pl).getDataController().getGameData().isEnabled())
 		{
 			if(maps.isEmpty())
 			{
@@ -498,52 +670,52 @@ public class GameController extends Controller
 	{
 		return playerHandler;
 	}
-
+	
 	public ThreadComponent getT()
 	{
 		return t;
 	}
-
+	
 	public void setT(ThreadComponent t)
 	{
 		this.t = t;
 	}
-
+	
 	public ExperienceHandler getExperienceHandler()
 	{
 		return experienceHandler;
 	}
-
+	
 	public void setExperienceHandler(ExperienceHandler experienceHandler)
 	{
 		this.experienceHandler = experienceHandler;
 	}
-
+	
 	public void setStopping(boolean stopping)
 	{
 		this.stopping = stopping;
 	}
-
+	
 	public void setStarting(boolean starting)
 	{
 		this.starting = starting;
 	}
-
+	
 	public void setRestarting(boolean restarting)
 	{
 		this.restarting = restarting;
 	}
-
+	
 	public void setMapHandler(MapHandler mapHandler)
 	{
 		this.mapHandler = mapHandler;
 	}
-
+	
 	public void setMarketHandler(MarketHandler marketHandler)
 	{
 		this.marketHandler = marketHandler;
 	}
-
+	
 	public void setPlayerHandler(PlayerHandler playerHandler)
 	{
 		this.playerHandler = playerHandler;

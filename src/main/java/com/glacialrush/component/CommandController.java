@@ -2,6 +2,7 @@ package com.glacialrush.component;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -9,9 +10,12 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.Info;
 import com.glacialrush.api.component.Controller;
+import com.glacialrush.api.object.GList;
 import com.glacialrush.api.object.GMap;
 import com.glacialrush.api.thread.GlacialTask;
 import com.glacialrush.api.thread.ThreadState;
@@ -30,12 +34,41 @@ import net.md_5.bungee.api.ChatColor;
 
 public class CommandController extends Controller implements CommandExecutor
 {
+	private GList<Player> gods;
 	private GMap<Player, Map> selections;
 	
-	public CommandController(GlacialServer pl)
+	public CommandController(final GlacialServer pl)
 	{
 		super(pl);
 		selections = new GMap<Player, Map>();
+		gods = new GList<Player>();
+		
+		pl.scheduleSyncRepeatingTask(0, 20, new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				for(Player i : gods)
+				{
+					i.setFlySpeed(1f);
+					i.setWalkSpeed(1f);
+					i.setAllowFlight(true);
+					i.setGameMode(GameMode.SURVIVAL);
+					i.setMaxHealth(80);
+					i.setFoodLevel(20);
+					i.setHealth(i.getMaxHealth());
+					i.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 5, 1));
+					i.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 2000, 100));
+					i.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 2000, 100));
+					i.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 2000, 100));
+					i.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 2000, 100));
+					i.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 2000, 100));
+					i.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 2000, 100));
+					i.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 2000, 100));
+					i.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 2000, 100));
+				}
+			}
+		});
 	}
 	
 	public void preEnable()
@@ -76,6 +109,21 @@ public class CommandController extends Controller implements CommandExecutor
 	public void clear(Player p)
 	{
 		selections.remove(p);
+	}
+	
+	public void god(Player p)
+	{
+		if(gods.contains(p))
+		{
+			s("God Disabled");
+			gods.remove(p);
+		}
+		
+		else
+		{
+			s("See in the godly eyes of cyberpwn");
+			gods.add(p);
+		}
 	}
 	
 	public void msg(CommandSender sender, String msg)
@@ -191,6 +239,11 @@ public class CommandController extends Controller implements CommandExecutor
 				{
 					if(isGod)
 					{
+						if(sub.equalsIgnoreCase("god") || sub.equalsIgnoreCase("gg"))
+						{
+							god(p);
+						}
+						
 						if(sub.equalsIgnoreCase("threads") || sub.equalsIgnoreCase("t"))
 						{
 							final Gui gui = new Gui(p, pl);
@@ -320,7 +373,7 @@ public class CommandController extends Controller implements CommandExecutor
 								return true;
 							}
 							
-							((GlacialServer) pl).getGameController().stop();
+							((GlacialServer) pl).getGameController().startCredits(Faction.random());
 						}
 						
 						else if(sub.equalsIgnoreCase("restart") || sub.equalsIgnoreCase("rsg"))
@@ -775,5 +828,25 @@ public class CommandController extends Controller implements CommandExecutor
 		}
 		
 		return false;
+	}
+
+	public GList<Player> getGods()
+	{
+		return gods;
+	}
+
+	public void setGods(GList<Player> gods)
+	{
+		this.gods = gods;
+	}
+
+	public GMap<Player, Map> getSelections()
+	{
+		return selections;
+	}
+
+	public void setSelections(GMap<Player, Map> selections)
+	{
+		this.selections = selections;
 	}
 }

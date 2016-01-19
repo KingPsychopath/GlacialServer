@@ -60,7 +60,7 @@ public class ExperienceController extends Controller
 		
 		long a = (xp / (100 + (xp / 200))) / 3;
 		
-		return (int) (a);
+		return (int) (a/4);
 	}
 	
 	public long getExperienceForRank(Player p)
@@ -68,7 +68,7 @@ public class ExperienceController extends Controller
 		double cbr = getBattleRank(p) + 1;
 		long cxp = getExperience(p);
 		long nbr = (long) ((1 / 3) * ((double) (cbr / (double) 100) + (double) (cbr / (double) 200)));
-		return (nbr - cxp);
+		return ((nbr - cxp) * 4);
 	}
 	
 	public void setExperience(Player p, long experience)

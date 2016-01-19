@@ -17,6 +17,7 @@ import com.glacialrush.api.object.GSound;
 import com.glacialrush.composite.Capture;
 import com.glacialrush.composite.Faction;
 import com.glacialrush.composite.Region;
+import com.glacialrush.game.event.ExperienceType;
 import com.glacialrush.game.event.FactionRegionCaptureEvent;
 import com.glacialrush.game.event.PlayerControlEvent;
 import com.glacialrush.xapi.Duration;
@@ -26,6 +27,8 @@ public class MapHandler extends GlacialHandler
 {
 	private int captureDelay;
 	private GList<Player> inCap;
+	private GMap<Region, GMap<Player, Integer>> involved;
+	private boolean check;
 	
 	public MapHandler(GlacialServer pl)
 	{
@@ -33,6 +36,8 @@ public class MapHandler extends GlacialHandler
 		
 		captureDelay = 0;
 		inCap = new GList<Player>();
+		involved = new GMap<Region, GMap<Player, Integer>>();
+		check = true;
 	}
 	
 	@Override
@@ -62,6 +67,11 @@ public class MapHandler extends GlacialHandler
 	@Override
 	public void tick()
 	{
+		if(!check)
+		{
+			return;
+		}
+		
 		captureDelay++;
 		inCap.clear();
 		
@@ -162,9 +172,8 @@ public class MapHandler extends GlacialHandler
 		
 		pl.getPlayerController().disableAll();
 		
-		pl.getNotificationController().dispatch(new Notification().setTitle(cap.getColor() + "Map Controlled").setSubTitle(cap.getColor() + cap.getName() + " has taken " + g.getMap().getName()).setFadeIn(30).setFadeOut(30).setStayTime(30).setPriority(NotificationPriority.HIGHEST), pl.getNotificationController().getGameChannel());
-		
-		g.restart();
+		g.startCredits(cap);
+		check = false;
 	}
 	
 	public void handleRegion(Region region)
@@ -190,7 +199,26 @@ public class MapHandler extends GlacialHandler
 		{
 			if(!region.isTimer())
 			{
-				region.startTimer(120);
+				boolean st = false;
+				
+				for(Player i : pl.onlinePlayers())
+				{
+					if(pl.getCommandController().getGods().contains(i))
+					{
+						st = true;
+						break;
+					}
+				}
+				
+				if(st)
+				{
+					region.startTimer(15);
+				}
+				
+				else
+				{
+					region.startTimer(120);
+				}
 			}
 			
 			region.decTimer(System.currentTimeMillis());
@@ -213,15 +241,50 @@ public class MapHandler extends GlacialHandler
 					Notification n = new Notification().setPriority(NotificationPriority.HIGHEST);
 					n.setTitle(region.getFaction().getColor() + "Territory Captured");
 					n.setSubTitle(region.getFaction().getColor() + region.getFaction().getName() + " <> " + region.getName());
-					n.setSound(new GSound(Sound.AMBIENCE_THUNDER, 1f, 1.9f));
 					n.setFadeIn(5);
 					n.setStayTime(30);
+					n.setSound(new GSound("g.event.region.capture"));
 					n.setFadeOut(20);
+					
+					Notification n2 = new Notification().setPriority(NotificationPriority.HIGHEST);
+					n2.setTitle(region.getFaction().getColor() + "Territory Lost");
+					n2.setSubTitle(region.getFaction().getColor() + region.getFaction().getName() + " <> " + region.getName());
+					n2.setFadeIn(5);
+					n2.setStayTime(30);
+					n2.setFadeOut(20);
+					n2.setSound(new GSound("g.event.region.lost"));
 					region.accent();
 					
-					for(Player i : region.getPlayers())
+					for(Player i : g.getPlayerHandler().getPlayers(region.getFaction()))
 					{
-						pl.getNotificationController().dispatch(n, pl.getNotificationController().getMapChannel(), i);
+						pl.getExperienceController().giveExperience(i, Info.EXPERIENCE_REGION_CAPTURE, ExperienceType.TERRITORY_CONTROL);
+					}
+					
+					if(involved.containsKey(region))
+					{
+						for(Player i : involved.get(region).keySet())
+						{
+							int inv = involved.get(region).get(i);
+							
+							if(g.getPlayerHandler().getFaction(i).equals(region.getFaction()))
+							{
+								pl.getNotificationController().dispatch(n, pl.getNotificationController().getMapChannel(), i);
+								inv *= 3;
+							}
+							
+							else
+							{
+								pl.getNotificationController().dispatch(n2, pl.getNotificationController().getMapChannel(), i);
+								inv *= 1;
+							}
+							
+							if(inv > 0)
+							{
+								pl.getExperienceController().giveExperience(i, inv, ExperienceType.TERRITORY_INFLUENCE);
+							}
+						}
+						
+						involved.remove(region);
 					}
 				}
 			}
@@ -244,7 +307,7 @@ public class MapHandler extends GlacialHandler
 					cc = cc + i.getSecured().getColor() + "[" + Info.abc[cz] + "]  ";
 				}
 				
-				String s = ChatColor.AQUA + region.getName() + " in " + ChatColor.GREEN + t + " " + cc;
+				String s = strongest(controlCount).getColor() + region.getName() + ChatColor.AQUA + " in " + ChatColor.GREEN + t + " " + cc;
 				
 				n.setSubSubTitle(s);
 				
@@ -277,8 +340,34 @@ public class MapHandler extends GlacialHandler
 			}
 		}
 		
+		for(Player i : p)
+		{
+			if(!involved.containsKey(capture.getRegion()))
+			{
+				involved.put(capture.getRegion(), new GMap<Player, Integer>());
+			}
+			
+			if(!involved.get(capture.getRegion()).containsKey(i))
+			{
+				involved.get(capture.getRegion()).put(i, 0);
+			}
+			
+			involved.get(capture.getRegion()).put(i, involved.get(capture.getRegion()).get(i) + 1);
+		}
+		
 		GMap<Faction, GList<Player>> map = g.getPlayerHandler().getFaction(p).flip();
 		Integer size = map.size();
+		
+		for(Faction i : map.keySet())
+		{
+			for(Player j : map.get(i))
+			{
+				if(pl.getCommandController().getGods().contains(j))
+				{
+					capture.reset(i);
+				}
+			}
+		}
 		
 		if(size == 1)
 		{
