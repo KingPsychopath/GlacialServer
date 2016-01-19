@@ -601,33 +601,9 @@ public class CommandController extends Controller implements CommandExecutor
 								{
 									s(p, "  Current Region: " + r.getName());
 									s(p, "  ACC: " + r.getAccents().size() + " CAP: " + r.getCaptures().size());
+									s(p, "  SPW: " + r.getSpawns().size() + " " + (r.isCaptureable() ? "Capturable" : "Scenery"));
 									s(p, "  FAC: " + r.getFaction().getColor() + r.getFaction().getName());
 									n(p, "  STA: " + (r.isBuilding() ? ChatColor.RED + "Building " : ChatColor.GREEN + "Built ") + (r.isAccenting() ? ChatColor.RED + "Accenting" : ChatColor.GREEN + "Accented"));
-								}
-							}
-							
-							else
-							{
-								f(p, "No Map Selected.");
-							}
-						}
-						
-						else if(sub.equalsIgnoreCase("setspawn") || sub.equalsIgnoreCase("ss"))
-						{
-							if(has(p))
-							{
-								Region r = get(p).getRegion(p);
-								
-								if(r != null)
-								{
-									r.setSpawn(p.getLocation());
-									r.setHasSpawn(true);
-									s("Set Spawn");
-								}
-								
-								else
-								{
-									f(p, "Not inside of a region.");
 								}
 							}
 							

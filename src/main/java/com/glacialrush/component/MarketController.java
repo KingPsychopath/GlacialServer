@@ -19,8 +19,8 @@ public class MarketController extends Controller
 	private GList<Product> products;
 	private Random random;
 	
-	private ItemColdBlade itemColdBlade;
-	private ItemIceBlade itemIceBlade;
+	public ItemColdBlade itemColdBlade;
+	public ItemIceBlade itemIceBlade;
 			
 	public MarketController(GlacialServer pl)
 	{

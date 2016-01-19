@@ -5,7 +5,9 @@ import java.util.Iterator;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.api.object.GList;
 import com.glacialrush.api.thread.GlacialTask;
@@ -13,13 +15,13 @@ import com.glacialrush.composite.Job.JobStatus;
 import com.glacialrush.composite.data.RegionData;
 import com.glacialrush.xapi.Cuboid;
 import com.glacialrush.xapi.Cuboid.CuboidDirection;
+import com.glacialrush.xapi.FastMath;
 import com.glacialrush.xapi.ULocation;
 import net.md_5.bungee.api.ChatColor;
 
 public class Region extends Hunk
 {
 	protected String name;
-	protected Location spawn;
 	protected Faction faction;
 	protected Map map;
 	protected GlacialServer pl;
@@ -27,17 +29,17 @@ public class Region extends Hunk
 	protected GList<Location> accents;
 	protected Job buildJob;
 	protected Job accentJob;
-	protected Boolean hasSpawn;
 	protected Boolean building;
 	protected Integer timer;
 	protected Long lastTimer;
-	
+	protected GList<Location> spawns;
+	protected Boolean captureable;
+		
 	public Region(Location spawn, Map map)
 	{
 		super(spawn);
 		
 		this.name = map.getName();
-		this.spawn = spawn;
 		this.map = map;
 		this.pl = map.pl;
 		this.faction = Faction.neutral();
@@ -45,10 +47,30 @@ public class Region extends Hunk
 		this.accents = new GList<Location>();
 		this.buildJob = new Job("Region [" + x + ", " + z + "]: " + getName() + " Build", pl.getJobController());
 		this.accentJob = new Job("Region [" + x + ", " + z + "]: " + getName() + " Accent[" + Faction.neutral().getName() + "]", pl.getJobController());
-		this.hasSpawn = false;
 		this.building = false;
+		this.spawns = new GList<Location>();
 		this.lastTimer = (long) -1;
 		this.timer = -1;
+		this.captureable = false;
+	}
+	
+	public Region(Hunk spawn, Map map)
+	{
+		super(spawn);
+		
+		this.name = map.getName();
+		this.map = map;
+		this.pl = map.pl;
+		this.faction = Faction.neutral();
+		this.captures = new GList<Capture>();
+		this.accents = new GList<Location>();
+		this.buildJob = new Job("Region [" + x + ", " + z + "]: " + getName() + " Build", pl.getJobController());
+		this.accentJob = new Job("Region [" + x + ", " + z + "]: " + getName() + " Accent[" + Faction.neutral().getName() + "]", pl.getJobController());
+		this.building = false;
+		this.spawns = new GList<Location>();
+		this.lastTimer = (long) -1;
+		this.timer = -1;
+		this.captureable = false;
 	}
 	
 	public boolean isTimer()
@@ -98,7 +120,7 @@ public class Region extends Hunk
 			caps.add(new ULocation(i.getLocation()));
 		}
 		
-		return new RegionData(name, new ULocation(spawn), caps, x, z);
+		return new RegionData(name, world, x, z);
 	}
 	
 	public boolean connected(Faction f)
@@ -123,10 +145,16 @@ public class Region extends Hunk
 	{
 		if(name.equals(map.getName()))
 		{
-			p.sendMessage(ChatColor.GOLD + "Region " + x + ", " + z + " name is the same as map.");
+			p.sendMessage(ChatColor.RED + "Region " + x + ", " + z + " name is the same as map.");
+			return false;
 		}
 		
-		if(!hasSpawn)
+		if(!isCaptureable())
+		{
+			return true;
+		}
+		
+		if(!hasSpawns())
 		{
 			p.sendMessage(ChatColor.RED + "Region " + x + ", " + z + " no accurate spawn.");
 			return false;
@@ -145,6 +173,11 @@ public class Region extends Hunk
 		return accentJob.getStatus().equals(JobStatus.RUNNING) || accentJob.getStatus().equals(JobStatus.WAITING) || isCapAccenting();
 	}
 	
+	public Boolean isCaptureable()
+	{
+		return captureable;
+	}
+
 	public boolean isCapAccenting()
 	{
 		for(Capture i : captures)
@@ -189,16 +222,6 @@ public class Region extends Hunk
 		}
 		
 		return false;
-	}
-	
-	public Boolean getHasSpawn()
-	{
-		return hasSpawn;
-	}
-	
-	public void setHasSpawn(Boolean hasSpawn)
-	{
-		this.hasSpawn = hasSpawn;
 	}
 	
 	public boolean isNeutral()
@@ -249,6 +272,39 @@ public class Region extends Hunk
 	}
 	
 	@SuppressWarnings("deprecation")
+	public void drawReal(Player p, Material m)
+	{
+		Job drawJob = new Job("Region [" + x + ", " + z + "]: " + getName() + " RealDraw", pl.getJobController());
+		
+		Iterator<Block> n = new Cuboid(cuboid).flatten(p.getTargetBlock((HashSet<Byte>) null, 256).getLocation().getBlockY()).getFace(CuboidDirection.North).iterator();
+		Iterator<Block> s = new Cuboid(cuboid).flatten(p.getTargetBlock((HashSet<Byte>) null, 256).getLocation().getBlockY()).getFace(CuboidDirection.South).iterator();
+		Iterator<Block> e = new Cuboid(cuboid).flatten(p.getTargetBlock((HashSet<Byte>) null, 256).getLocation().getBlockY()).getFace(CuboidDirection.East).iterator();
+		Iterator<Block> w = new Cuboid(cuboid).flatten(p.getTargetBlock((HashSet<Byte>) null, 256).getLocation().getBlockY()).getFace(CuboidDirection.West).iterator();
+		
+		while(n.hasNext())
+		{
+			drawJob.add(n.next().getLocation(), m);
+		}
+		
+		while(s.hasNext())
+		{
+			drawJob.add(s.next().getLocation(), m);
+		}
+		
+		while(e.hasNext())
+		{
+			drawJob.add(e.next().getLocation(), m);
+		}
+		
+		while(w.hasNext())
+		{
+			drawJob.add(w.next().getLocation(), m);
+		}
+		
+		pl.getJobController().addJob(drawJob);
+	}
+	
+	@SuppressWarnings("deprecation")
 	public void draw(Player p)
 	{
 		Job drawJob = new Job("Region [" + x + ", " + z + "]: " + getName() + " Draw[" + p.getName() + "]", pl.getJobController());
@@ -281,6 +337,24 @@ public class Region extends Hunk
 		pl.getJobController().addJob(drawJob);
 	}
 	
+	public boolean hasSpawns()
+	{
+		return !spawns.isEmpty();
+	}
+	
+	public boolean closeToEnemySpawn(Player p)
+	{
+		for(Location i : spawns)
+		{
+			if(FastMath.isInRadius(p.getLocation(), i, 9))
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 	public void build()
 	{
 		if(isBuilding() || isAccenting())
@@ -295,6 +369,7 @@ public class Region extends Hunk
 		final Iterator<Block> it = iterator();
 		accents.clear();
 		captures.clear();
+		spawns.clear();
 		
 		pl.o("Started Job: " + ChatColor.LIGHT_PURPLE + "Region[" + x + ", " + z + "]: " + getName() + " Build[ACCSC]");
 		
@@ -309,9 +384,32 @@ public class Region extends Hunk
 				{
 					Block block = it.next();
 					
+					if(block.getType().equals(Material.WALL_SIGN) || block.getType().equals(Material.SIGN_POST))
+					{
+						Sign sign = (Sign) block.getState();
+						
+						if(sign.getLine(0).equalsIgnoreCase("name"))
+						{
+							String s = sign.getLine(1) + sign.getLine(2) + sign.getLine(3);
+							
+							if(s != null && !s.equals(""))
+							{
+								Region.this.setName(s);
+								s("Set Region name: " + s);
+								buildJob.add(new Manipulation(block.getLocation(), Material.AIR));
+							}
+						}
+					}
+					
+					if(block.getType().equals(Material.COAL_BLOCK))
+					{
+						spawns.add(block.getLocation());
+					}
+					
 					if(block.getType().equals(Material.WOOL) || block.getType().equals(Material.STAINED_GLASS) || block.getType().equals(Material.STAINED_GLASS_PANE) || block.getType().equals(Material.STAINED_CLAY) || block.getType().equals(Material.BANNER) || block.getType().equals(Material.STANDING_BANNER) || block.getType().equals(Material.WALL_BANNER) || block.getType().equals(Material.CARPET))
 					{
 						accents.add(block.getLocation());
+						buildJob.add(new Manipulation(block.getLocation(), getFaction().getDyeColor()));
 					}
 					
 					if(block.getType().equals(Material.BEACON))
@@ -331,6 +429,7 @@ public class Region extends Hunk
 				{
 					pl.o("Finished Job: " + ChatColor.GREEN + "Region[" + x + ", " + z + "]: " + getName() + " Build[ACCSC] " + cycleTime + "ms");
 					building = false;
+					captureable = !captures.isEmpty();
 					stop();
 					pl.getJobController().addJob(buildJob);
 					cycleTime += System.currentTimeMillis() - ms;
@@ -374,12 +473,7 @@ public class Region extends Hunk
 	
 	public Location getSpawn()
 	{
-		return spawn;
-	}
-	
-	public void setSpawn(Location spawn)
-	{
-		this.spawn = spawn;
+		return spawns.pickRandom().clone().add(new Vector(0, 1 ,0));
 	}
 	
 	public Faction getFaction()
@@ -455,5 +549,15 @@ public class Region extends Hunk
 	public Integer getTimer()
 	{
 		return timer;
+	}
+
+	public GList<Location> getSpawns()
+	{
+		return spawns;
+	}
+
+	public void setSpawns(GList<Location> spawns)
+	{
+		this.spawns = spawns;
 	}
 }

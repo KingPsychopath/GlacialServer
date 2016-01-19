@@ -14,7 +14,6 @@ import com.glacialrush.component.SoundController;
 import com.glacialrush.component.TabController;
 import com.glacialrush.composite.data.PlayerData;
 import com.glacialrush.packet.resourcepack.ResourceController;
-import com.glacialrush.packet.resourcepack.ResourcePackDeclinedEvent;
 
 public class GlacialServer extends GlacialPlugin
 {

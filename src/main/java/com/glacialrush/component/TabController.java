@@ -3,15 +3,7 @@ package com.glacialrush.component;
 import org.bukkit.entity.Player;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.api.component.Controller;
-import com.glacialrush.api.tab.TabAPI;
-import com.glacialrush.api.tab.TabItem;
 import com.glacialrush.api.thread.GlacialTask;
-import com.glacialrush.api.thread.TPS;
-import com.glacialrush.composite.Faction;
-import com.glacialrush.composite.Map;
-import com.glacialrush.composite.Region;
-import com.glacialrush.xapi.NF;
-import net.md_5.bungee.api.ChatColor;
 
 public class TabController extends Controller
 {

@@ -1,6 +1,5 @@
 package com.glacialrush.game;
 
-import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EntityType;
@@ -178,6 +177,32 @@ public class MapHandler extends GlacialHandler
 	
 	public void handleRegion(Region region)
 	{
+		if(!region.isCaptureable())
+		{
+			Notification n = new Notification();
+			n.setPriority(NotificationPriority.HIGH);
+			
+			String s = region.getFaction().getColor() + region.getName() + ":: " + ChatColor.DARK_GRAY + " <> ";
+			
+			for(Region i : region.connectedRegions())
+			{
+				if(i.isCaptureable())
+				{
+					s = s + i.getFaction().getColor() + i.getName() + ChatColor.DARK_GRAY + " <> ";
+				}
+			}
+			
+			n.setOngoing(true);
+			n.setSubSubTitle(s);
+			
+			for(Player i : region.getPlayers())
+			{
+				pl.getNotificationController().dispatch(n, pl.getNotificationController().getMapChannel(), i);
+			}
+			
+			return;
+		}
+		
 		GList<Capture> captures = region.getCaptures();
 		GMap<Capture, Faction> control = new GMap<Capture, Faction>();
 		GMap<Faction, GList<Capture>> controlCount = new GMap<Faction, GList<Capture>>();
@@ -230,6 +255,7 @@ public class MapHandler extends GlacialHandler
 				if(contested(region.getFaction(), controlCount))
 				{
 					region.setFaction(region.getFaction());
+					region.getMap().handleUncapturableRegions();
 				}
 				
 				else
@@ -287,6 +313,8 @@ public class MapHandler extends GlacialHandler
 						involved.remove(region);
 					}
 				}
+				
+				g.getMap().handleUncapturableRegions();
 			}
 			
 			else
@@ -294,31 +322,34 @@ public class MapHandler extends GlacialHandler
 				Notification n = new Notification();
 				n.setPriority(NotificationPriority.HIGH);
 				
-				String t = "";
-				String cc = "";
-				Duration d = new Duration(region.getTimer());
-				
-				t = d.getMinutes() + ":" + d.getSeconds();
-				int cz = -1;
-				
-				for(Capture i : captures)
+				if(region.isCaptureable())
 				{
-					cz++;
-					cc = cc + i.getSecured().getColor() + "[" + Info.abc[cz] + "]  ";
-				}
-				
-				String s = strongest(controlCount).getColor() + region.getName() + ChatColor.AQUA + " in " + ChatColor.GREEN + t + " " + cc;
-				
-				n.setSubSubTitle(s);
-				
-				for(Player i : region.getPlayers())
-				{
-					if(inCap.contains(i))
+					String t = "";
+					String cc = "";
+					Duration d = new Duration(region.getTimer());
+					
+					t = d.getMinutes() + ":" + d.getSeconds();
+					int cz = -1;
+					
+					for(Capture i : captures)
 					{
-						continue;
+						cz++;
+						cc = cc + i.getSecured().getColor() + "[" + Info.abc[cz] + "]  ";
 					}
 					
-					pl.getNotificationController().dispatch(n, pl.getNotificationController().getMapChannel(), i);
+					String s = strongest(controlCount).getColor() + region.getName() + ChatColor.AQUA + " in " + ChatColor.GREEN + t + " " + cc;
+					
+					n.setSubSubTitle(s);
+					
+					for(Player i : region.getPlayers())
+					{
+						if(inCap.contains(i))
+						{
+							continue;
+						}
+						
+						pl.getNotificationController().dispatch(n, pl.getNotificationController().getMapChannel(), i);
+					}
 				}
 			}
 		}

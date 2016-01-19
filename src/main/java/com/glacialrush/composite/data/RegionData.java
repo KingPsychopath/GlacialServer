@@ -1,26 +1,25 @@
 package com.glacialrush.composite.data;
 
 import java.io.Serializable;
-import com.glacialrush.api.object.GList;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+import com.glacialrush.composite.Hunk;
 import com.glacialrush.composite.Map;
 import com.glacialrush.composite.Region;
-import com.glacialrush.xapi.ULocation;
 
 public class RegionData implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 	
 	private String name;
-	private ULocation spawn;
-	private GList<ULocation> captures;
+	private String world;
 	private int x;
 	private int z;
 	
-	public RegionData(String name, ULocation spawn, GList<ULocation> captures, int x, int z)
+	public RegionData(String name, World world, int x, int z)
 	{
 		this.name = name;
-		this.spawn = spawn;
-		this.captures = captures;
+		this.world = world.getName();
 		this.x = x;
 		this.z = z;
 	}
@@ -33,26 +32,6 @@ public class RegionData implements Serializable
 	public void setName(String name)
 	{
 		this.name = name;
-	}
-	
-	public ULocation getSpawn()
-	{
-		return spawn;
-	}
-	
-	public void setSpawn(ULocation spawn)
-	{
-		this.spawn = spawn;
-	}
-	
-	public GList<ULocation> getCaptures()
-	{
-		return captures;
-	}
-	
-	public void setCaptures(GList<ULocation> captures)
-	{
-		this.captures = captures;
 	}
 	
 	public int getX()
@@ -77,6 +56,9 @@ public class RegionData implements Serializable
 	
 	public Region toRegion(Map map)
 	{
-		return new Region(spawn.toLocation(), map);
+		Region r = new Region(new Hunk(x, z, Bukkit.getServer().getWorld(world)), map);
+		r.setName(name);
+		
+		return r;
 	}
 }

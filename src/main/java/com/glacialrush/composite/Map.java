@@ -10,8 +10,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import com.glacialrush.GlacialServer;
+import com.glacialrush.api.dispatch.notification.Notification;
+import com.glacialrush.api.dispatch.notification.NotificationPriority;
 import com.glacialrush.api.object.GList;
 import com.glacialrush.api.object.GMap;
+import com.glacialrush.api.object.GSound;
 import com.glacialrush.api.thread.GlacialTask;
 import com.glacialrush.component.CommandController;
 import com.glacialrush.composite.data.MapData;
@@ -52,6 +55,100 @@ public class Map implements Listener
 		}
 		
 		return new MapData(name, world.getName(), rgs, locked);
+	}
+	
+	public GList<Region> getCapturableRegions()
+	{
+		GList<Region> rgs = new GList<Region>();
+		
+		for(Region i : regions)
+		{
+			if(i.isCaptureable())
+			{
+				rgs.add(i);
+			}
+		}
+		
+		return rgs;
+	}
+	
+	public GList<Region> getUncapturableRegions()
+	{
+		GList<Region> rgs = new GList<Region>();
+		
+		for(Region i : regions)
+		{
+			if(!i.isCaptureable())
+			{
+				rgs.add(i);
+			}
+		}
+		
+		return rgs;
+	}
+	
+	public void handleUncapturableRegions()
+	{
+		for(Region i : getUncapturableRegions())
+		{
+			Faction f = null;
+			
+			for(Region j : i.connectedRegions())
+			{
+				if(j.isCaptureable())
+				{
+					if(f == null)
+					{
+						f = j.getFaction();
+					}
+					
+					else if(!f.equals(j.getFaction()))
+					{
+						return;
+					}
+				}
+			}
+			
+			if(f != null)
+			{
+				if(!i.getFaction().equals(f))
+				{
+					Faction lost = i.getFaction();
+					i.setFaction(f);
+					i.accent();
+					
+					Notification n = new Notification().setPriority(NotificationPriority.HIGHEST);
+					n.setTitle(i.getFaction().getColor() + "Village Captured");
+					n.setSubTitle(i.getFaction().getColor() + i.getFaction().getName() + " <> " + i.getName());
+					n.setFadeIn(5);
+					n.setStayTime(30);
+					n.setSound(new GSound("g.event.region.capture"));
+					n.setFadeOut(20);
+					
+					Notification n2 = new Notification().setPriority(NotificationPriority.HIGHEST);
+					n2.setTitle(i.getFaction().getColor() + "Village Lost");
+					n2.setSubTitle(i.getFaction().getColor() + i.getFaction().getName() + " <> " + i.getName());
+					n2.setFadeIn(5);
+					n2.setStayTime(30);
+					n2.setFadeOut(20);
+					n2.setSound(new GSound("g.event.region.lost"));
+					
+					for(Player j : i.getPlayers())
+					{
+						if(pl.getGameController().getPlayerHandler().getFaction(j).equals(i.getFaction()))
+						{
+							pl.getNotificationController().dispatch(n, pl.getNotificationController().getMapChannel(), j);
+						}
+						
+						if(pl.getGameController().getPlayerHandler().getFaction(j).equals(lost))
+						{
+							pl.getNotificationController().dispatch(n2, pl.getNotificationController().getMapChannel(), j);
+						}
+					}
+					
+				}
+			}
+		}
 	}
 	
 	public void addRegion(Player p)
@@ -224,7 +321,7 @@ public class Map implements Listener
 		{
 			Region r = getRegion(new Hunk(i.isX() ? maxX() : minX(), i.isZ() ? maxZ() : minZ(), getWorld()));
 			
-			if(r != null)
+			if(r != null && r.isCaptureable())
 			{
 				corners.put(i, r);
 			}
@@ -416,7 +513,7 @@ public class Map implements Listener
 		Region region = null;
 		Double distance = Double.MAX_VALUE;
 		
-		for(Region i : regions)
+		for(Region i : getCapturableRegions())
 		{
 			if(i.isNeutral() && i.connectedTo(faction))
 			{
@@ -453,7 +550,7 @@ public class Map implements Listener
 	
 	public boolean hasNeutralRegions()
 	{
-		for(Region i : regions)
+		for(Region i : getCapturableRegions())
 		{
 			if(i.getFaction().equals(Faction.neutral()))
 			{

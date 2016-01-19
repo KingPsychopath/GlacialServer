@@ -21,11 +21,13 @@ public class PlayerHandler extends GlacialHandler
 {
 	protected GMap<Player, Faction> factions;
 	protected GList<Player> resourced;
+	protected int positionCheckDelay;
 	
 	public PlayerHandler(GlacialServer pl)
 	{
 		super(pl);
 		resourced = new GList<Player>();
+		positionCheckDelay = 0;
 	}
 	
 	@Override
@@ -55,7 +57,29 @@ public class PlayerHandler extends GlacialHandler
 	@Override
 	public void tick()
 	{
-	
+		positionCheckDelay++;
+		
+		if(positionCheckDelay > 20)
+		{
+			positionCheckDelay = 0;
+			
+			for(Player p : pl.onlinePlayers())
+			{
+				if(!g.getMap().getRegion(p).getFaction().equals(g.getPlayerHandler().getFaction(p)))
+				{
+					if(g.getMap().getRegion(p).closeToEnemySpawn(p))
+					{
+						p.damage(5);
+						Notification n = new Notification();
+						n.setFadeIn(1);
+						n.setStayTime(30);
+						n.setFadeOut(10);
+						n.setTitle(ChatColor.RED + "Leave This Area!");
+						n.setSubSubTitle("This area is RESTRICTED");
+					}
+				}
+			}
+		}
 	}
 	
 	public void verifyResource(final Player p)

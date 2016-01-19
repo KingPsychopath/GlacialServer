@@ -33,6 +33,15 @@ public class Hunk implements Cloneable
 		this.cuboid = new Cuboid(world, x * div, 0, z * div, ((x + 1) * div) - 1, 128, ((z + 1) * div) - 1);
 	}
 	
+	public Hunk(Hunk hunk)
+	{
+		this.x = hunk.x;
+		this.z = hunk.z;
+		
+		this.world = hunk.getWorld();
+		this.cuboid = new Cuboid(world, x * div, 0, z * div, ((x + 1) * div) - 1, 128, ((z + 1) * div) - 1);
+	}
+	
 	public Hunk(int x, int z, World world)
 	{
 		this.x = x;

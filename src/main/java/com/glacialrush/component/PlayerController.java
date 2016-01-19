@@ -228,7 +228,7 @@ public class PlayerController extends Controller
 	@EventHandler
 	public void onPlayerResource(ResourcePackSentEvent e)
 	{
-		Player p = e.getPlayer();
+		
 	}
 	
 	@EventHandler
@@ -283,7 +283,7 @@ public class PlayerController extends Controller
 	@EventHandler
 	public void onPlayerResource(ResourcePackFailedEvent e)
 	{
-		Player p = e.getPlayer();
+		
 	}
 	
 	@EventHandler
