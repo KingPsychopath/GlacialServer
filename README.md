@@ -1,9 +1,19 @@
 # Glacial Rush
-Glacial Rush PVP! A Minecraft pvp server in which you start out in a map. You are put into a faction, in which you have one objective. Capture the entire map. Once done so, you will earn expirience, bonuses, and upgrades for weapons and abilities.
+Glacial Rush PVP! A Minecraft pvp server in which you start out in a map. You are put into a faction, in which you have one objective. Capture the entire map. Once done so, you will earn experience, bonuses, and upgrades for weapons and abilities.
 
-# Build Status
-[![Circle CI](https://circleci.com/gh/GlacialRush/GlacialServer/tree/master.svg?style=shield)](https://circleci.com/gh/GlacialRush/GlacialServer/tree/master)
-[![Travis CI](https://travis-ci.org/GlacialRush/GlacialServer.svg)](https://travis-ci.org/GlacialRush/GlacialServer)
-[![Wercker status](https://app.wercker.com/status/48bf8d464f1493ce0d4a595bd4de4c51/s "wercker status")](https://app.wercker.com/project/bykey/48bf8d464f1493ce0d4a595bd4de4c51)
+# Glacial Rush v2 Idea
+So I have an idea, and its fucking amazing but will postpone alpha mainly because the entire plugin will be recoded. 
 
-# [View the Wiki] (https://github.com/danielmills/GlacialRush/wiki)
+## The Region System
+The entire idea revolves around the region system. Making polygons did not work because blocks are too big. This means that you would either have too much calculations or holes in regions. This means you can build the map very fine tuned. Imagine building a base, than brushing over the region (drawing an outline of the border) like voxel (b over d1). This also requires you to define connected regions, a simple point tool will work fine. This also means you can have regions touching, but cannot be captured without owning some other region. This will put a dent in performance, but i doubt it would even make a visible difference, nor drop the tps or increase ram consumption.
+
+# Villages
+Villages are brushed regions like any other, however they cannot be captured with points. There are no capture points. Instead they consist of scenery, great places for sniping, some buildings, some terrain. However they also grant a bonus for the current faction owner. For example if Omni owns a village, and the village has an armor maker in, it would be logical to give people on omni a slight resistance to swords and such. As soon as it has been captured by another faction those buffs (slight but beneficial) are removed and given to the new faction. The only way to capture a village is to over-connect the enemy. Basically, if a village is connected to 2 regions, then the faction who owns BOTH of the 2 connected regions get the region. If there are three regions connected, the faction who owns 2 or 3 connected regions get the village. Villages start out neutral. So no one will get the buff unless it is over-connecting an enemy. Villages can also be inside of a region. Imagine a brushed out region, then put a hole in the center, then brush the hole with a village brush. That means that if the region is captured, the region owner will own that village.
+
+-----------------
+| Capture Points|
+-----------------
+Fuck beacons. They cause too much clutter in the sky, sometimes glitch hard with sharers or even optifine, they take time to update to the client AFTER the capture has changed color. Overall sure they are great but not the best way to do it, since they require sky view. Anyways, instead a custom block structure will be created. This way, it can still have fx, and look any way needed. This arises a problem however, it would be more difficult to find the capture points. Instead i will make a compass. When held, it will draw carpets in a pathway to the capture, but only when you are holding the compass. The compass will also obviously point to the capture point. Left clicking it will change the capture point you are navigating to. (a, b, c ...... etc)
+
+# Timers Guis and Progress
+To achieve notifications that where live and had priority's i had to make over 5 channels and 6 priorities per to make notifications work without glitching. Instead of doing that, i will be using the scoreboard for region countdowns, xp, capture point statuses. However i like the capture progress bars, so i will keep that. The bottom text bar will be for true notifications such as + 30 xp or someone captured a region. The gui for the player can be inside their inventory. Very simply.
