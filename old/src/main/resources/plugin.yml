@@ -1,0 +1,11 @@
+name: GlacialServer
+main: com.glacialrush.GlacialServer
+version: 1.0
+depend: [GlacialAPI]
+commands:
+  glacialrush: 
+    aliases: [g, grush, rush, gr]
+  debugger: 
+    aliases: [d, deb, db, dev]
+  skill:
+    aliases: [sk, xp, exp]
