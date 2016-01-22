@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import com.glacialrush.GlacialServer;
@@ -18,16 +19,16 @@ import com.glacialrush.api.GlacialPlugin;
 import com.glacialrush.api.component.Controller;
 import com.glacialrush.api.game.Game;
 import com.glacialrush.api.game.object.Faction;
-import com.glacialrush.api.game.object.Job;
 import com.glacialrush.api.map.Chunklet;
 import com.glacialrush.api.map.Map;
 import com.glacialrush.api.map.Region;
+import com.glacialrush.api.map.RegionType;
 import com.glacialrush.api.map.region.Edge;
+import com.glacialrush.api.map.region.LinkedRegion;
 import com.glacialrush.api.map.region.Scenery;
 import com.glacialrush.api.map.region.Territory;
 import com.glacialrush.api.map.region.Village;
 import com.glacialrush.api.object.GBiset;
-import com.glacialrush.api.object.GList;
 import com.glacialrush.api.object.GMap;
 import net.md_5.bungee.api.ChatColor;
 
@@ -36,6 +37,7 @@ public class CommandController extends Controller implements CommandExecutor
 	private GlacialServer gs;
 	private GMap<Player, GBiset<Map, Region>> selection;
 	private GMap<Player, Integer> brushers;
+	private GMap<Player, GBiset<Region, Region>> linkSelection;
 	
 	public CommandController(GlacialPlugin pl)
 	{
@@ -44,6 +46,7 @@ public class CommandController extends Controller implements CommandExecutor
 		gs = (GlacialServer) pl;
 		selection = new GMap<Player, GBiset<Map, Region>>();
 		brushers = new GMap<Player, Integer>();
+		linkSelection = new GMap<Player, GBiset<Region,Region>>();
 	}
 	
 	public void set(Player p, Map map)
@@ -73,6 +76,24 @@ public class CommandController extends Controller implements CommandExecutor
 			brushers.remove(p);
 			s(p, "Stopped Brushing " + ChatColor.AQUA + get(p).getB().getName());
 			p.getInventory().clear();
+			
+			if(hasMap(p))
+			{
+				for(Player i : brushers.keySet())
+				{
+					if(hasMap(i))
+					{
+						Map m = get(i).getA();
+						
+						if(m.equals(get(p).getA()))
+						{
+							return;
+						}
+					}
+				}
+				
+				get(p).getA().undraw();
+			}
 		}
 		
 		else
@@ -95,6 +116,11 @@ public class CommandController extends Controller implements CommandExecutor
 			
 			p.getInventory().setItem(0, add);
 			p.getInventory().setItem(1, sub);
+			
+			if(hasMap(p))
+			{
+				get(p).getA().draw(pl.target(p).getBlockY());
+			}
 		}
 	}
 	
@@ -253,6 +279,22 @@ public class CommandController extends Controller implements CommandExecutor
 						}
 					}
 					
+					if(sub.equalsIgnoreCase("check") || sub.equalsIgnoreCase("chk"))
+					{
+						if(!hasMap(p))
+						{
+							f(p, "No Map selected");
+						}
+						
+						else
+						{
+							Map map = get(p).getA();
+							
+							s(p, "Checking " + ChatColor.AQUA + map.getName() + " / ALL_REGIONS");
+							map.check(p);
+						}
+					}
+					
 					if(sub.equalsIgnoreCase("unselect") || sub.equalsIgnoreCase("unsel"))
 					{
 						if(hasMap(p))
@@ -264,6 +306,34 @@ public class CommandController extends Controller implements CommandExecutor
 							{
 								n(p, "Brushing Mode Disabled (ya had it selected)");
 							}
+						}
+						
+						else
+						{
+							f(p, "No Map Selection");
+						}
+					}
+					
+					if(sub.equalsIgnoreCase("draw") || sub.equalsIgnoreCase("dr"))
+					{
+						if(hasMap(p))
+						{
+							get(p).getA().draw(pl.target(p).getBlockY());
+							s(p, "Drawing " + get(p).getA().getName());
+						}
+						
+						else
+						{
+							f(p, "No Map Selection");
+						}
+					}
+					
+					if(sub.equalsIgnoreCase("undraw") || sub.equalsIgnoreCase("udr"))
+					{
+						if(hasMap(p))
+						{
+							get(p).getA().undraw();
+							s(p, "Un-Drawing " + get(p).getA().getName());
 						}
 						
 						else
@@ -296,16 +366,9 @@ public class CommandController extends Controller implements CommandExecutor
 						{
 							Map map = get(p).getA();
 							
-							if(!map.building())
-							{
-								map.build();
-								s(p, "Started Build Task for " + map.getName());
-							}
+							map.build();
 							
-							else
-							{
-								f(p, map.getName() + " Is already building (" + map.buildProgress() + ")");
-							}
+							s(p, "Started Build Task");
 						}
 						
 						else
@@ -332,16 +395,9 @@ public class CommandController extends Controller implements CommandExecutor
 								
 								Map map = get(p).getA();
 								
-								if(!map.building())
-								{
-									map.accent(f.getDyeColor());
-									s(p, "Started Accent Task for " + map.getName() + f.getColor() + f.getName());
-								}
+								map.accent(f.getDyeColor());
 								
-								else
-								{
-									f(p, map.getName() + " Is already accenting (" + map.accentProgress() + ")");
-								}
+								s(p, "Accenting to " + f.getName());
 							}
 							
 							else
@@ -575,7 +631,55 @@ public class CommandController extends Controller implements CommandExecutor
 							s(p, ChatColor.YELLOW + region.getName());
 							s(p, ChatColor.YELLOW + "Type: " + ChatColor.GOLD + region.getType().toString());
 							s(p, ChatColor.YELLOW + "Chunklets: " + ChatColor.GOLD + region.getChunklets().size());
+							s(p, ChatColor.YELLOW + "Accents: " + ChatColor.GOLD + region.getAccents().size());
+							
+							String borders = "";
+							
+							if(region.getBorders().isEmpty())
+							{
+								borders = "None";
+							}
+							
+							else
+							{
+								for(Region i : region.getBorders())
+								{
+									borders = borders + ", " + i.getName();
+								}
+								
+								borders = borders.substring(2);
+							}
+							
+							s(p, ChatColor.YELLOW + "Borders: " + ChatColor.GOLD + borders);
+							
+							if(region.getType().equals(RegionType.TERRITORY) || region.getType().equals(RegionType.VILLAGE))
+							{
+								s(p, ChatColor.YELLOW + "Spawns: " + ChatColor.GOLD + ((LinkedRegion)region).getSpawns().size());
+							}
+							
 							s(p, "--------------------------");
+						}
+						
+						else
+						{
+							f(p, "No Region Selection");
+						}
+					}
+					
+					if(sub.equalsIgnoreCase("check") || sub.equalsIgnoreCase("chk"))
+					{
+						if(!hasMap(p))
+						{
+							f(p, "No Map selected");
+						}
+						
+						if(hasRegion(p))
+						{
+							Map map = get(p).getA();
+							Region region = get(p).getB();
+							
+							s(p, "Checking " + ChatColor.AQUA + map.getName() + " / " + region.getName());
+							region.check(p);
 						}
 						
 						else
@@ -649,23 +753,23 @@ public class CommandController extends Controller implements CommandExecutor
 		}
 		
 		Player p = e.getPlayer();
-		Location l = e.getPlayer().getTargetBlock((HashSet<Byte>) null, 256).getLocation();
+		Location l = e.getPlayer().getTargetBlock((HashSet<Byte>) null, 512).getLocation();
 		Region r = get(p).getB();
-		GList<Location> last = null;
 		
-		e.getPlayer().sendMessage(e.getAction().toString());
-		
-		if(e.getAction().equals(Action.LEFT_CLICK_AIR))
+		if(e.getAction().equals(Action.RIGHT_CLICK_AIR))
 		{
+			if(e.getItem() == null)
+			{
+				return;
+			}
+			
 			if(e.getItem().getItemMeta().getDisplayName().equals(ChatColor.GREEN + "Add") && e.getItem().getType().equals(Material.SLIME_BALL))
 			{
-				last = r.getOutline(l.getBlockY());
 				r.addChunklets(new Chunklet(l).getCircle(brushers.get(p)));
 			}
 			
 			else if(e.getItem().getItemMeta().getDisplayName().equals(ChatColor.RED + "Subtract") && e.getItem().getType().equals(Material.MAGMA_CREAM))
 			{
-				last = r.getOutline(l.getBlockY());
 				r.delChunklets(new Chunklet(l).getCircle(brushers.get(p)));
 			}
 			
@@ -674,32 +778,13 @@ public class CommandController extends Controller implements CommandExecutor
 				return;
 			}
 			
-			Job j = new Job("Region Outline Task for " + r.getMap().getName() + " > " + r.getName(), gs.getGameController().getBuildGame());
-			GList<Location> ne = r.getOutline(l.getBlockY());
-			
-			for(Location k : last)
-			{
-				if(ne.contains(k))
-				{
-					continue;
-				}
-				
-				j.queue(k, k.getBlock().getType(), p);
-			}
-			
-			for(Location k : ne)
-			{
-				if(last.contains(k))
-				{
-					continue;
-				}
-				
-				j.queue(k, r.getType().material(), p);
-			}
-			
-			j.flush();
-			
-			r.getMap().draw(p, l.getBlockY());
+			r.getMap().draw(l.getBlockY());
 		}
+	}
+	
+	@EventHandler
+	public void onPing(ServerListPingEvent e)
+	{
+		o("PINGED: " + e.getAddress().getHostAddress().toString());
 	}
 }
