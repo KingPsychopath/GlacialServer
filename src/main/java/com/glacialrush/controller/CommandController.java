@@ -360,11 +360,40 @@ public class CommandController extends Controller implements CommandExecutor
 						}
 					}
 					
+					if(sub.equalsIgnoreCase("accent-e") || sub.equalsIgnoreCase("ae"))
+					{
+						if(hasMap(p))
+						{
+							Map map = get(p).getA();
+							
+							if(map.getMdm().getDrawn())
+							{
+								f(p, "Map is drawn. Please Undraw it to build");
+								return true;
+							}
+							
+							map.accentEvenley();
+							
+							s(p, "Started Accent-e Task");
+						}
+						
+						else
+						{
+							f(p, "No Map Selection");
+						}
+					}
+					
 					if(sub.equalsIgnoreCase("build") || sub.equalsIgnoreCase("b"))
 					{
 						if(hasMap(p))
 						{
 							Map map = get(p).getA();
+							
+							if(map.getMdm().getDrawn())
+							{
+								f(p, "Map is drawn. Please Undraw it to build");
+								return true;
+							}
 							
 							map.build();
 							
@@ -394,6 +423,12 @@ public class CommandController extends Controller implements CommandExecutor
 								}
 								
 								Map map = get(p).getA();
+								
+								if(map.getMdm().getDrawn())
+								{
+									f(p, "Map is drawn. Please Undraw it to accent");
+									return true;
+								}
 								
 								map.accent(f.getDyeColor());
 								
