@@ -22,6 +22,7 @@ public class GlacialServer extends GlacialPlugin
 		getCommand(Info.CMD_REGION).setExecutor(commandController);
 		getCommand(Info.CMD_MAP).setExecutor(commandController);
 		getCommand(Info.CMD_BRUSH).setExecutor(commandController);
+		getCommand(Info.CMD_LANGUAGE).setExecutor(commandController);
 	}
 
 	public GameController getGameController()

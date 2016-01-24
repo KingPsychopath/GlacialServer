@@ -16,7 +16,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import com.glacialrush.GlacialServer;
 import com.glacialrush.Info;
 import com.glacialrush.api.GlacialPlugin;
+import com.glacialrush.api.chat.Language;
+import com.glacialrush.api.chat.TranslatorListener;
 import com.glacialrush.api.component.Controller;
+import com.glacialrush.api.dispatch.Title;
 import com.glacialrush.api.game.Game;
 import com.glacialrush.api.game.object.Faction;
 import com.glacialrush.api.map.Chunklet;
@@ -38,6 +41,7 @@ public class CommandController extends Controller implements CommandExecutor
 	private GMap<Player, GBiset<Map, Region>> selection;
 	private GMap<Player, Integer> brushers;
 	private GMap<Player, GBiset<Region, Region>> linkSelection;
+	private TranslatorListener tlist;
 	
 	public CommandController(GlacialPlugin pl)
 	{
@@ -46,17 +50,33 @@ public class CommandController extends Controller implements CommandExecutor
 		gs = (GlacialServer) pl;
 		selection = new GMap<Player, GBiset<Map, Region>>();
 		brushers = new GMap<Player, Integer>();
-		linkSelection = new GMap<Player, GBiset<Region,Region>>();
+		linkSelection = new GMap<Player, GBiset<Region, Region>>();
+		tlist = new TranslatorListener(pl, Info.TRANSLATOR_API_KEY);
+		
+		pl.scheduleSyncRepeatingTask(0, 1, new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				for(Player i : selection.keySet())
+				{
+					gs.getGameController().join(gs.getGameController().getBuildGame(), i);
+					gs.getGameController().getBuildGame().updateSelection(i, get(i));
+				}
+			}
+		});
 	}
 	
 	public void set(Player p, Map map)
 	{
 		selection.put(p, new GBiset<Map, Region>(map, null));
+		gs.getGameController().join(gs.getGameController().getBuildGame(), p);
 	}
 	
 	public void set(Player p, Region region)
 	{
 		selection.put(p, new GBiset<Map, Region>(region.getMap(), region));
+		gs.getGameController().join(gs.getGameController().getBuildGame(), p);
 	}
 	
 	public GBiset<Map, Region> get(Player p)
@@ -152,6 +172,7 @@ public class CommandController extends Controller implements CommandExecutor
 	public void clear(Player p)
 	{
 		selection.remove(p);
+		gs.getGameController().leave(gs.getGameController().getBuildGame(), p);
 	}
 	
 	public void msg(CommandSender sender, String msg)
@@ -186,6 +207,31 @@ public class CommandController extends Controller implements CommandExecutor
 	public void s(CommandSender sender, String msg)
 	{
 		msg(sender, ChatColor.GREEN + msg);
+		Player p;
+		
+		if(sender instanceof Player)
+		{
+			p = (Player) sender;
+			
+			for(Player i : selection.keySet())
+			{
+				Title l = new Title();
+				String f = "";
+				
+				if(hasMap(p))
+				{
+					f = f + ChatColor.GREEN + get(p).getA().getName();
+				}
+				
+				if(hasRegion(p))
+				{
+					f = f + ChatColor.YELLOW + " > " + get(p).getB().getName();
+				}
+				
+				l.setSubSubTitle(ChatColor.YELLOW + i.getName() + ": " + f + " " + ChatColor.WHITE + msg);
+				l.send(i);
+			}
+		}
 	}
 	
 	public void w(CommandSender sender, String msg)
@@ -224,6 +270,56 @@ public class CommandController extends Controller implements CommandExecutor
 		{
 			isPlayer = true;
 			p = (Player) sender;
+		}
+		
+		if(command.getName().equalsIgnoreCase(Info.CMD_LANGUAGE))
+		{
+			if(isPlayer)
+			{
+				if(len > 0)
+				{
+					if(sub.equalsIgnoreCase("off") || sub.equalsIgnoreCase("stop"))
+					{
+						tlist.remove(p);
+						s(p, "Turned off the translator! (no more delays!)");
+					}
+					
+					else if(sub.equalsIgnoreCase("set") || sub.equalsIgnoreCase("s"))
+					{
+						if(len == 2)
+						{
+							Language lc = tlist.parse(args[1]);
+							
+							if(lc != null)
+							{
+								tlist.set(p, lc);
+								s(p, "Set Language to " + ChatColor.AQUA + lc.toString());
+							}
+							
+							else
+							{
+								f(p, "Invalid Language Code.");
+							}
+						}
+					}
+					
+					else
+					{
+						s(p, "In a multilangual world, we have translators!");
+						s(p, ChatColor.AQUA + "/lang set <LANGUAGE CODE>");
+						s(p, ChatColor.AQUA + "/lang off");
+						w(p, "The translator causes 1-2 second message delay!");
+					}
+				}
+				
+				else
+				{
+					s(p, "In a multilangual world, we have translators!");
+					s(p, ChatColor.AQUA + "/lang set <LANGUAGE CODE>");
+					s(p, ChatColor.AQUA + "/lang off");
+					w(p, "The translator causes 1-2 second message delay!");
+				}
+			}
 		}
 		
 		if(command.getName().equalsIgnoreCase(Info.CMD_MAP))
@@ -689,7 +785,7 @@ public class CommandController extends Controller implements CommandExecutor
 							
 							if(region.getType().equals(RegionType.TERRITORY) || region.getType().equals(RegionType.VILLAGE))
 							{
-								s(p, ChatColor.YELLOW + "Spawns: " + ChatColor.GOLD + ((LinkedRegion)region).getSpawns().size());
+								s(p, ChatColor.YELLOW + "Spawns: " + ChatColor.GOLD + ((LinkedRegion) region).getSpawns().size());
 							}
 							
 							s(p, "--------------------------");

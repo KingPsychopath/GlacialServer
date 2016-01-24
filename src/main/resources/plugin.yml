@@ -10,4 +10,6 @@ commands:
   game:
     aliases: [g, gme]
   brush:
-    aliases: [b, br]
+    aliases: [b, br, bruh]
+  language:
+    aliases: [lang, l, lng, la]
