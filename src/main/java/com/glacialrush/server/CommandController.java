@@ -1,4 +1,4 @@
-package com.glacialrush.controller;
+package com.glacialrush.server;
 
 import java.util.HashSet;
 import org.bukkit.Location;
@@ -13,11 +13,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import com.glacialrush.GlacialServer;
-import com.glacialrush.Info;
 import com.glacialrush.api.GlacialPlugin;
-import com.glacialrush.api.chat.Language;
-import com.glacialrush.api.chat.TranslatorListener;
 import com.glacialrush.api.component.Controller;
 import com.glacialrush.api.dispatch.Title;
 import com.glacialrush.api.game.Game;
@@ -41,7 +37,6 @@ public class CommandController extends Controller implements CommandExecutor
 	private GMap<Player, GBiset<Map, Region>> selection;
 	private GMap<Player, Integer> brushers;
 	private GMap<Player, GBiset<Region, Region>> linkSelection;
-	private TranslatorListener tlist;
 	
 	public CommandController(GlacialPlugin pl)
 	{
@@ -51,7 +46,6 @@ public class CommandController extends Controller implements CommandExecutor
 		selection = new GMap<Player, GBiset<Map, Region>>();
 		brushers = new GMap<Player, Integer>();
 		linkSelection = new GMap<Player, GBiset<Region, Region>>();
-		tlist = new TranslatorListener(pl, Info.TRANSLATOR_API_KEY);
 		
 		pl.scheduleSyncRepeatingTask(0, 1, new Runnable()
 		{
@@ -270,56 +264,6 @@ public class CommandController extends Controller implements CommandExecutor
 		{
 			isPlayer = true;
 			p = (Player) sender;
-		}
-		
-		if(command.getName().equalsIgnoreCase(Info.CMD_LANGUAGE))
-		{
-			if(isPlayer)
-			{
-				if(len > 0)
-				{
-					if(sub.equalsIgnoreCase("off") || sub.equalsIgnoreCase("stop"))
-					{
-						tlist.remove(p);
-						s(p, "Turned off the translator! (no more delays!)");
-					}
-					
-					else if(sub.equalsIgnoreCase("set") || sub.equalsIgnoreCase("s"))
-					{
-						if(len == 2)
-						{
-							Language lc = tlist.parse(args[1]);
-							
-							if(lc != null)
-							{
-								tlist.set(p, lc);
-								s(p, "Set Language to " + ChatColor.AQUA + lc.toString());
-							}
-							
-							else
-							{
-								f(p, "Invalid Language Code.");
-							}
-						}
-					}
-					
-					else
-					{
-						s(p, "In a multilangual world, we have translators!");
-						s(p, ChatColor.AQUA + "/lang set <LANGUAGE CODE>");
-						s(p, ChatColor.AQUA + "/lang off");
-						w(p, "The translator causes 1-2 second message delay!");
-					}
-				}
-				
-				else
-				{
-					s(p, "In a multilangual world, we have translators!");
-					s(p, ChatColor.AQUA + "/lang set <LANGUAGE CODE>");
-					s(p, ChatColor.AQUA + "/lang off");
-					w(p, "The translator causes 1-2 second message delay!");
-				}
-			}
 		}
 		
 		if(command.getName().equalsIgnoreCase(Info.CMD_MAP))

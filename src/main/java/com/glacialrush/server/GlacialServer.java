@@ -1,8 +1,7 @@
-package com.glacialrush;
+package com.glacialrush.server;
 
 import com.glacialrush.api.GlacialPlugin;
 import com.glacialrush.api.game.GameController;
-import com.glacialrush.controller.CommandController;
 
 public class GlacialServer extends GlacialPlugin
 {
@@ -22,7 +21,6 @@ public class GlacialServer extends GlacialPlugin
 		getCommand(Info.CMD_REGION).setExecutor(commandController);
 		getCommand(Info.CMD_MAP).setExecutor(commandController);
 		getCommand(Info.CMD_BRUSH).setExecutor(commandController);
-		getCommand(Info.CMD_LANGUAGE).setExecutor(commandController);
 	}
 
 	public GameController getGameController()
