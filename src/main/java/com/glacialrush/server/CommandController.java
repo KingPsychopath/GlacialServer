@@ -1,6 +1,7 @@
 package com.glacialrush.server;
 
 import java.util.HashSet;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -10,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -17,6 +19,8 @@ import com.glacialrush.api.GlacialPlugin;
 import com.glacialrush.api.component.Controller;
 import com.glacialrush.api.dispatch.Title;
 import com.glacialrush.api.game.Game;
+import com.glacialrush.api.game.GameType;
+import com.glacialrush.api.game.RegionedGame;
 import com.glacialrush.api.game.object.Faction;
 import com.glacialrush.api.map.Chunklet;
 import com.glacialrush.api.map.Map;
@@ -36,7 +40,7 @@ public class CommandController extends Controller implements CommandExecutor
 	private GlacialServer gs;
 	private GMap<Player, GBiset<Map, Region>> selection;
 	private GMap<Player, Integer> brushers;
-	private GMap<Player, GBiset<Region, Region>> linkSelection;
+	private GMap<Player, Player> conversations;
 	
 	public CommandController(GlacialPlugin pl)
 	{
@@ -45,7 +49,7 @@ public class CommandController extends Controller implements CommandExecutor
 		gs = (GlacialServer) pl;
 		selection = new GMap<Player, GBiset<Map, Region>>();
 		brushers = new GMap<Player, Integer>();
-		linkSelection = new GMap<Player, GBiset<Region, Region>>();
+		conversations = new GMap<Player, Player>();
 		
 		pl.scheduleSyncRepeatingTask(0, 1, new Runnable()
 		{
@@ -305,7 +309,7 @@ public class CommandController extends Controller implements CommandExecutor
 								}
 							}
 							
-							Map map = new Map(name, gs.getGameController().getBuildGame());
+							Map map = new Map(name, gs.getGameController().getBuildGame(), p.getWorld());
 							
 							gs.getGameController().getMaps().add(map);
 							set(p, map);
@@ -423,6 +427,86 @@ public class CommandController extends Controller implements CommandExecutor
 						}
 					}
 					
+					if(sub.equalsIgnoreCase("lock") || sub.equalsIgnoreCase("lk"))
+					{
+						if(hasMap(p))
+						{
+							Map map = get(p).getA();
+							
+							if(map.isLocked())
+							{
+								f(p, "Map is already locked");
+								return true;
+							}
+							
+							map.safeLock(p);
+							
+							s(p, "Locking...");
+						}
+						
+						else
+						{
+							f(p, "No Map Selection");
+						}
+					}
+					
+					if(sub.equalsIgnoreCase("delete"))
+					{
+						if(hasMap(p))
+						{
+							Map map = get(p).getA();
+							
+							if(map.isLocked())
+							{
+								f(p, "Cannot delete. Map is locked");
+							}
+							
+							else
+							{
+								for(Game g : gs.getGameController().getGames())
+								{
+									if(g.getType().equals(GameType.REGIONED))
+									{
+										RegionedGame rg = (RegionedGame) g;
+										if(rg.getMap().equals(map))
+										{
+											f(p, "Cannot delete. Map is being used");
+											return true;
+										}
+									}
+								}
+								
+								gs.getGameController().getMaps().remove(map);
+								
+								f(p, "Deleting Map...");
+								f(p, "Reference Removed. To fully remove, delete the file");
+							}
+						}
+					}
+					
+					if(sub.equalsIgnoreCase("unlock") || sub.equalsIgnoreCase("ulk"))
+					{
+						if(hasMap(p))
+						{
+							Map map = get(p).getA();
+							
+							if(!map.isLocked())
+							{
+								f(p, "Map is not locked");
+								return true;
+							}
+							
+							map.unlock();
+							
+							s(p, "Map Unlocked");
+						}
+						
+						else
+						{
+							f(p, "No Map Selection");
+						}
+					}
+					
 					if(sub.equalsIgnoreCase("build") || sub.equalsIgnoreCase("b"))
 					{
 						if(hasMap(p))
@@ -443,6 +527,25 @@ public class CommandController extends Controller implements CommandExecutor
 						else
 						{
 							f(p, "No Map Selection");
+						}
+					}
+					
+					if(sub.equalsIgnoreCase("tp") || sub.equalsIgnoreCase("goto"))
+					{
+						if(hasMap(p))
+						{
+							Map map = get(p).getA();
+							
+							for(LinkedRegion i : map.getLinkedRegions())
+							{
+								if(!i.getSpawns().isEmpty())
+								{
+									i.spawn(p);
+									return true;
+								}
+							}
+							
+							f(p, "No spawns avalible, no teleport.");
 						}
 					}
 					
@@ -610,6 +713,53 @@ public class CommandController extends Controller implements CommandExecutor
 						}
 					}
 					
+					if(sub.equalsIgnoreCase("delete") || sub.equalsIgnoreCase("del"))
+					{
+						if(hasRegion(p))
+						{
+							Region r = get(p).getB();
+							
+							set(p, r.getMap());
+							r.getMap().getRegions().remove(r);
+							r.getChunklets().clear();
+							
+							s(p, "Deleted.");
+						}
+						
+						else
+						{
+							f(p, "No region selected.");
+						}
+					}
+					
+					if(sub.equalsIgnoreCase("tp") || sub.equalsIgnoreCase("goto"))
+					{
+						if(hasRegion(p))
+						{
+							Region r = get(p).getB();
+							
+							if(r.getType().equals(RegionType.TERRITORY) || r.getType().equals(RegionType.VILLAGE))
+							{
+								if(!((LinkedRegion)r).getSpawns().isEmpty())
+								{
+									((LinkedRegion)r).spawn(p);
+								}
+								
+								else
+								{
+									f(p, "No spawns avaliblem no teleport. Try /map tp");
+								}
+							}
+							
+							f(p, "No spawns avalible, no teleport.");
+						}
+						
+						else
+						{
+							f(p, "No region selected.");
+						}
+					}
+					
 					if(sub.equalsIgnoreCase("create") || sub.equalsIgnoreCase("new"))
 					{
 						if(!hasMap(p))
@@ -625,6 +775,15 @@ public class CommandController extends Controller implements CommandExecutor
 							Game game = gs.getGameController().getBuildGame();
 							Map map = get(p).getA();
 							Region region = null;
+							
+							for(Region r : map.getRegions())
+							{
+								if(r.getName().equals(name))
+								{
+									f(p, "That is already a region");
+									return true;
+								}
+							}
 							
 							if(m.equalsIgnoreCase("t"))
 							{
@@ -812,10 +971,298 @@ public class CommandController extends Controller implements CommandExecutor
 						}
 					}
 				}
+			}		
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_GAME))
+		{
+			if(isPlayer && isAdmin)
+			{
+				if(len > 0)
+				{
+					if(sub.equalsIgnoreCase("new") || sub.equalsIgnoreCase("create"))
+					{
+						if(len > 1)
+						{
+							String map = subWord(args, 1);
+							
+							for(Map i : gs.getGameController().getMaps())
+							{
+								if(i.getName().equalsIgnoreCase(map))
+								{
+									if(gs.getGameController().getGames().contains(i))
+									{
+										f(p, "Game is already running!");
+									}
+									
+									else
+									{
+										RegionedGame rg = new RegionedGame(gs.getGameController(), i);
+										gs.getGameController().addGame(rg);
+										s(p, "Game Started!");
+									}
+									
+									return true;
+								}
+								
+								if(i.getName().toLowerCase().contains(map.toLowerCase()))
+								{
+									if(gs.getGameController().getGames().contains(i))
+									{
+										f(p, "Game is already running!");
+									}
+									
+									else
+									{
+										RegionedGame rg = new RegionedGame(gs.getGameController(), i);
+										gs.getGameController().addGame(rg);
+										s(p, "Game Started!");
+									}
+									
+									return true;
+								}
+							}
+						}
+						
+						else
+						{
+							
+						}
+					}
+				}
+			}
+				
+			if(isPlayer)
+			{
+				if(len > 0)
+				{
+					if(sub.equalsIgnoreCase("list") || sub.equalsIgnoreCase("l"))
+					{
+						s(p, "--------------------------");
+
+						for(Game g : gs.getGameController().getGames())
+						{
+							if(g.getType().equals(GameType.REGIONED))
+							{
+								RegionedGame rg = (RegionedGame) g;
+								s(p, "Map: " + rg.getMap().getName() + " " + ChatColor.AQUA + rg.players().size() + " Playing");
+							}
+						}
+						
+						s(p, "--------------------------");
+					}
+					
+					if(sub.equalsIgnoreCase("join") || sub.equalsIgnoreCase("j"))
+					{
+						if(len > 1)
+						{
+							String name = subWord(args, 1);
+							
+							for(Game g : gs.getGameController().getGames())
+							{
+								if(g.getType().equals(GameType.REGIONED))
+								{
+									RegionedGame rg = (RegionedGame) g;
+									
+									if(rg.getMap().getName().equalsIgnoreCase(name))
+									{
+										s(p, "Joining " + rg.getMap().getName() + " " + ChatColor.AQUA + rg.players().size() + " Playing");
+										gs.getGameController().join(rg, p);
+										return true;
+									}
+									
+									if(rg.getMap().getName().toLowerCase().contains(name.toLowerCase()))
+									{
+										s(p, "Joining " + rg.getMap().getName() + " " + ChatColor.AQUA + rg.players().size() + " Playing");
+										gs.getGameController().join(rg, p);
+										return true;
+									}
+								}
+							}
+							
+							f(p, "Unknown game running. Use /game list");
+						}
+						
+						else
+						{
+							for(Game g : gs.getGameController().getGames())
+							{
+								if(g.getType().equals(GameType.REGIONED))
+								{
+									RegionedGame rg = (RegionedGame) g;
+									s(p, "Joining " + rg.getMap().getName() + " " + ChatColor.AQUA + rg.players().size() + " Playing");
+									gs.getGameController().join(rg, p);
+									return true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_GAMEMODEC))
+		{
+			if(isPlayer && isAdmin)
+			{
+				p.setGameMode(GameMode.CREATIVE);
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_GAMEMODEA))
+		{
+			if(isPlayer && isAdmin)
+			{
+				p.setGameMode(GameMode.ADVENTURE);
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_GAMEMODES))
+		{
+			if(isPlayer && isAdmin)
+			{
+				p.setGameMode(GameMode.SURVIVAL);
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_REPLY))
+		{
+			if(isPlayer)
+			{
+				if(len > 0)
+				{
+					if(conversations.containsKey(p))
+					{
+						String msg = subWord(args, 0);
+						Player px = conversations.get(p);
+						px.sendMessage(ChatColor.DARK_GRAY + "[" + ChatColor.AQUA + p.getName() + ChatColor.YELLOW + " > " + ChatColor.GREEN + "You" + ChatColor.DARK_GRAY + "]: " + ChatColor.AQUA + msg);
+						p.sendMessage(ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "You" + ChatColor.YELLOW + " > " + ChatColor.AQUA + px.getName() + ChatColor.DARK_GRAY + "]: " + ChatColor.GREEN + msg);
+						conversations.put(p, px);
+						conversations.put(px, p);
+					}
+					
+					else
+					{
+						f(p, "You are not conversing with anyone. Use /msg");
+					}
+				}
+				
+				else
+				{
+					f(p, "/reply <message>");
+				}
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_MESSAGE))
+		{
+			if(isPlayer)
+			{
+				if(len > 1)
+				{
+					String name = args[0];
+					Player px = pl.findPlayer(name);
+					
+					if(px != null)
+					{
+						String msg = subWord(args, 2);
+						px.sendMessage(ChatColor.DARK_GRAY + "[" + ChatColor.AQUA + p.getName() + ChatColor.YELLOW + " > " + ChatColor.GREEN + "You" + ChatColor.DARK_GRAY + "]: " + ChatColor.AQUA + msg);
+						p.sendMessage(ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "You" + ChatColor.YELLOW + " > " + ChatColor.AQUA + px.getName() + ChatColor.DARK_GRAY + "]: " + ChatColor.GREEN + msg);
+						conversations.put(p, px);
+						conversations.put(px, p);
+					}
+					
+					else
+					{
+						f(p, "Unknown Player");
+					}
+				}
+				
+				else
+				{
+					f(p, "/msg <player> <message>");
+				}
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_TELEPORT))
+		{
+			if(isPlayer && isAdmin)
+			{
+				if(len > 0)
+				{
+					String name = args[0];
+					Player px = pl.findPlayer(name);
+					
+					if(px != null)
+					{
+						p.teleport(px);
+					}
+					
+					else
+					{
+						f(p, "Huh?");
+					}
+				}
+				
+				else
+				{
+					f(p, "/tp <player>");
+				}
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_GAMEMODE))
+		{
+			if(isPlayer && isAdmin)
+			{
+				if(len > 0)
+				{
+					if(sub.equalsIgnoreCase("0"))
+					{
+						p.setGameMode(GameMode.SURVIVAL);
+					}
+					
+					else if(sub.equalsIgnoreCase("1"))
+					{
+						p.setGameMode(GameMode.CREATIVE);
+					}
+					
+					else if(sub.equalsIgnoreCase("2"))
+					{
+						p.setGameMode(GameMode.ADVENTURE);
+					}
+					
+					else
+					{
+						f(p, "/gm 0/1/2");
+					}
+				}
+				
+				else
+				{
+					f(p, "/gm 0/1/2");
+				}
 			}
 		}
 		
 		return false;
+	}
+	
+	@EventHandler
+	public void onPlayer(PlayerQuitEvent e)
+	{
+		Player p = e.getPlayer();
+		conversations.remove(p);
+		
+		for(Player i : conversations.keySet())
+		{
+			if(conversations.get(i).equals(p))
+			{
+				conversations.remove(i);
+				break;
+			}
+		}
 	}
 	
 	@SuppressWarnings("deprecation")

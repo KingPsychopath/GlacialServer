@@ -1,10 +1,10 @@
 name: GlacialServer
-main: com.glacialrush.GlacialServer
+main: com.glacialrush.server.GlacialServer
 version: 1.0
 depend: [GlacialAPI]
 commands:
   region:
-    aliases: [r, reg, rg]
+    aliases: [reg, rg]
   map:
     aliases: [m, mp]
   game:
@@ -13,3 +13,17 @@ commands:
     aliases: [b, br, bruh]
   language:
     aliases: [lang, l, lng, la]
+  teleport:
+    aliases: [tp]
+  message:
+    aliases: [msg, pm]
+  reply:
+    aliases: [r]
+  gamemode:
+    aliases: [gamemode]
+  gamemodec:
+    aliases: [gmc]
+  gamemodea:
+    aliases: [gma]
+  gamemodes:
+    aliases: [gms]
