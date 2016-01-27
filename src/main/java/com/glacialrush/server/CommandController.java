@@ -740,9 +740,9 @@ public class CommandController extends Controller implements CommandExecutor
 							
 							if(r.getType().equals(RegionType.TERRITORY) || r.getType().equals(RegionType.VILLAGE))
 							{
-								if(!((LinkedRegion)r).getSpawns().isEmpty())
+								if(!((LinkedRegion) r).getSpawns().isEmpty())
 								{
-									((LinkedRegion)r).spawn(p);
+									((LinkedRegion) r).spawn(p);
 								}
 								
 								else
@@ -971,7 +971,7 @@ public class CommandController extends Controller implements CommandExecutor
 						}
 					}
 				}
-			}		
+			}
 		}
 		
 		else if(command.getName().equalsIgnoreCase(Info.CMD_GAME))
@@ -1026,12 +1026,12 @@ public class CommandController extends Controller implements CommandExecutor
 						
 						else
 						{
-							
+						
 						}
 					}
 				}
 			}
-				
+			
 			if(isPlayer)
 			{
 				if(len > 0)
@@ -1039,7 +1039,7 @@ public class CommandController extends Controller implements CommandExecutor
 					if(sub.equalsIgnoreCase("list") || sub.equalsIgnoreCase("l"))
 					{
 						s(p, "--------------------------");
-
+						
 						for(Game g : gs.getGameController().getGames())
 						{
 							if(g.getType().equals(GameType.REGIONED))
@@ -1154,6 +1154,61 @@ public class CommandController extends Controller implements CommandExecutor
 			}
 		}
 		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_LEAVE))
+		{
+			if(isPlayer)
+			{
+				Game game = gs.getGameController().getGame(p);
+				
+				if(game == null)
+				{
+					f(p, "You are not in a game!");
+				}
+				
+				else
+				{
+					if(game.getType().equals(GameType.REGIONED))
+					{
+						((RegionedGame)game).leave(p);
+					}
+				}
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_DAY))
+		{
+			if(isPlayer && isAdmin)
+			{
+				p.getWorld().setTime(1000);
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_NIGHT))
+		{
+			if(isPlayer && isAdmin)
+			{
+				p.getWorld().setTime(13000);
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_SUN))
+		{
+			if(isPlayer && isAdmin)
+			{
+				p.getWorld().setThunderDuration(0);
+				p.getWorld().setWeatherDuration(0);
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_RAIN))
+		{
+			if(isPlayer && isAdmin)
+			{
+				p.getWorld().setThunderDuration(10000);
+				p.getWorld().setWeatherDuration(10000);
+			}
+		}
+		
 		else if(command.getName().equalsIgnoreCase(Info.CMD_MESSAGE))
 		{
 			if(isPlayer)
@@ -1208,6 +1263,33 @@ public class CommandController extends Controller implements CommandExecutor
 				else
 				{
 					f(p, "/tp <player>");
+				}
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_TELEPORT_HERE))
+		{
+			if(isPlayer && isAdmin)
+			{
+				if(len > 0)
+				{
+					String name = args[0];
+					Player px = pl.findPlayer(name);
+					
+					if(px != null)
+					{
+						px.teleport(p);
+					}
+					
+					else
+					{
+						f(p, "Huh?");
+					}
+				}
+				
+				else
+				{
+					f(p, "/tphere <player>");
 				}
 			}
 		}

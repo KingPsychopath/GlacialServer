@@ -15,6 +15,18 @@ commands:
     aliases: [lang, l, lng, la]
   teleport:
     aliases: [tp]
+  teleporthere:
+    aliases: [tphere, tph]
+  sun:
+    aliases: [sunny]
+  leave:
+    aliases: [quit, q, qqq, qq, rq, ragequit]
+  rain:
+    aliases: [snow, downfall]
+  day:
+    aliases: [norain, clearsky]
+  night:
+    aliases: [nightfall]
   message:
     aliases: [msg, pm]
   reply:

@@ -1,12 +1,25 @@
 package com.glacialrush.server;
 
 import java.io.File;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import com.glacialrush.api.GlacialPlugin;
 import com.glacialrush.api.component.MapDataController;
+import com.glacialrush.api.component.PlayerDataComponent;
+import com.glacialrush.api.component.UIController;
+import com.glacialrush.api.dispatch.notification.NotificationPreset;
+import com.glacialrush.api.game.Game;
 import com.glacialrush.api.game.GameController;
+import com.glacialrush.api.game.GameType;
+import com.glacialrush.api.game.RegionedGame;
 import com.glacialrush.api.game.data.ChunkletData;
 import com.glacialrush.api.game.data.MapData;
+import com.glacialrush.api.game.data.PlayerData;
 import com.glacialrush.api.game.data.RegionData;
+import com.glacialrush.api.gui.Element;
+import com.glacialrush.api.gui.ElementClickListener;
+import com.glacialrush.api.gui.Shortcut;
+import com.glacialrush.api.gui.ShortcutLaunchListener;
 import com.glacialrush.api.map.Chunklet;
 import com.glacialrush.api.map.Map;
 import com.glacialrush.api.map.RegionType;
@@ -14,12 +27,15 @@ import com.glacialrush.api.map.region.Edge;
 import com.glacialrush.api.map.region.Scenery;
 import com.glacialrush.api.map.region.Territory;
 import com.glacialrush.api.map.region.Village;
+import com.glacialrush.api.sfx.Audio;
+import net.md_5.bungee.api.ChatColor;
 
 public class GlacialServer extends GlacialPlugin
 {
 	private GameController gameController;
 	private CommandController commandController;
 	private MapDataController mapDataController;
+	private PlayerDataComponent playerDataComponent;
 	
 	public void onEnable()
 	{
@@ -28,8 +44,14 @@ public class GlacialServer extends GlacialPlugin
 		gameController = new GameController(this);
 		commandController = new CommandController(this);
 		mapDataController = new MapDataController(this, new File(getDataFolder(), "maps"), "map");
+		playerDataComponent = new PlayerDataComponent(this, new File(getDataFolder(), "playerdata"), "gp");
 		
 		super.startComponents();
+		
+		for(Player i : onlinePlayers())
+		{
+			playerDataComponent.load(i);
+		}
 		
 		for(File i : mapDataController.getMdc().getCache().keySet())
 		{
@@ -102,6 +124,8 @@ public class GlacialServer extends GlacialPlugin
 			}
 			
 			gameController.getMaps().add(map);
+			map.lock();
+			map.build();
 			s("Injected Map: " + map.getName());
 		}
 		
@@ -110,12 +134,20 @@ public class GlacialServer extends GlacialPlugin
 		getCommand(Info.CMD_MAP).setExecutor(commandController);
 		getCommand(Info.CMD_BRUSH).setExecutor(commandController);
 		getCommand(Info.CMD_TELEPORT).setExecutor(commandController);
+		getCommand(Info.CMD_TELEPORT_HERE).setExecutor(commandController);
 		getCommand(Info.CMD_GAMEMODE).setExecutor(commandController);
 		getCommand(Info.CMD_GAMEMODEA).setExecutor(commandController);
 		getCommand(Info.CMD_GAMEMODEC).setExecutor(commandController);
 		getCommand(Info.CMD_GAMEMODES).setExecutor(commandController);
 		getCommand(Info.CMD_MESSAGE).setExecutor(commandController);
 		getCommand(Info.CMD_REPLY).setExecutor(commandController);
+		getCommand(Info.CMD_LEAVE).setExecutor(commandController);
+		getCommand(Info.CMD_SUN).setExecutor(commandController);
+		getCommand(Info.CMD_RAIN).setExecutor(commandController);
+		getCommand(Info.CMD_DAY).setExecutor(commandController);
+		getCommand(Info.CMD_NIGHT).setExecutor(commandController);
+		
+		registerShortcuts();
 	}
 	
 	public void onDisable()
@@ -140,17 +172,73 @@ public class GlacialServer extends GlacialPlugin
 		
 		super.onDisable();
 	}
-
+	
+	public PlayerData gpd(Player p)
+	{
+		return playerDataComponent.get(p);
+	}
+	
+	public void registerShortcuts()
+	{
+		Shortcut sGames = new Shortcut(ChatColor.AQUA + "Games", Material.INK_SACK, 0, 1).setData((byte) 4).onShortcutLaunch(new ShortcutLaunchListener()
+		{
+			public void run()
+			{
+				int slot = -1;
+				
+				for(Game i : gameController.getGames())
+				{
+					if(i.getType().equals(GameType.REGIONED))
+					{
+						slot++;
+						final RegionedGame g = (RegionedGame) i;
+						Element e = new Element(getPane(), ChatColor.AQUA + g.getMap().getName(), Material.BOW, slot);
+						e.addLore(ChatColor.GREEN + "" + i.getState().getPlayers().size() + " Players");
+						
+						if(g.contains(getPlayer()))
+						{
+							e.addLore(ChatColor.AQUA + "Currently Playing");
+						}
+						
+						e.setOnLeftClickListener(new ElementClickListener()
+						{
+							public void run()
+							{
+								if(g.contains(getPlayer()))
+								{
+									Audio.UI_FAIL.play(getPlayer());
+								}
+								
+								else
+								{
+									close();
+									g.join(getPlayer());
+								}
+							}
+						});
+					}
+				}
+			}
+		}).setIX(0).setIY(2);
+		
+		uiController.addShortcut(sGames);
+	}
+	
+	public UIController getUiController()
+	{
+		return uiController;
+	}
+	
 	public GameController getGameController()
 	{
 		return gameController;
 	}
-
+	
 	public CommandController getCommandController()
 	{
 		return commandController;
 	}
-
+	
 	public MapDataController getMapDataController()
 	{
 		return mapDataController;
