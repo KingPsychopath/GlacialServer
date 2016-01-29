@@ -7,7 +7,6 @@ import com.glacialrush.api.GlacialPlugin;
 import com.glacialrush.api.component.MapDataController;
 import com.glacialrush.api.component.PlayerDataComponent;
 import com.glacialrush.api.component.UIController;
-import com.glacialrush.api.dispatch.notification.NotificationPreset;
 import com.glacialrush.api.game.Game;
 import com.glacialrush.api.game.GameController;
 import com.glacialrush.api.game.GameType;
@@ -146,6 +145,7 @@ public class GlacialServer extends GlacialPlugin
 		getCommand(Info.CMD_RAIN).setExecutor(commandController);
 		getCommand(Info.CMD_DAY).setExecutor(commandController);
 		getCommand(Info.CMD_NIGHT).setExecutor(commandController);
+		getCommand(Info.CMD_DEVELOPER).setExecutor(commandController);
 		
 		registerShortcuts();
 	}
@@ -194,6 +194,7 @@ public class GlacialServer extends GlacialPlugin
 						final RegionedGame g = (RegionedGame) i;
 						Element e = new Element(getPane(), ChatColor.AQUA + g.getMap().getName(), Material.BOW, slot);
 						e.addLore(ChatColor.GREEN + "" + i.getState().getPlayers().size() + " Players");
+						e.addLore(g.getFactionHandler().map());
 						
 						if(g.contains(getPlayer()))
 						{

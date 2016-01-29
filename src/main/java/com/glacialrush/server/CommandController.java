@@ -1169,7 +1169,8 @@ public class CommandController extends Controller implements CommandExecutor
 				{
 					if(game.getType().equals(GameType.REGIONED))
 					{
-						((RegionedGame)game).leave(p);
+						((RegionedGame) game).stopDeploying(p);
+						((RegionedGame) game).leave(p);
 					}
 				}
 			}
@@ -1290,6 +1291,30 @@ public class CommandController extends Controller implements CommandExecutor
 				else
 				{
 					f(p, "/tphere <player>");
+				}
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_DEVELOPER))
+		{
+			if(isPlayer && isAdmin)
+			{
+				if(len > 0)
+				{
+					if(sub.equalsIgnoreCase("overbose") || sub.equalsIgnoreCase("ob"))
+					{
+						if(pl.getDispatchListener().getPlayers().contains(p))
+						{
+							pl.getDispatchListener().getPlayers().remove(p);
+							s(p, "Stopped Overbose");
+						}
+						
+						else
+						{
+							pl.getDispatchListener().getPlayers().add(p);
+							s(p, "OVERBOSE ENABLED");
+						}
+					}
 				}
 			}
 		}

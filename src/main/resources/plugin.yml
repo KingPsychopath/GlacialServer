@@ -27,6 +27,8 @@ commands:
     aliases: [norain, clearsky]
   night:
     aliases: [nightfall]
+  developer:
+    aliases: [dev, db, d]
   message:
     aliases: [msg, pm]
   reply:

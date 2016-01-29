@@ -23,6 +23,7 @@ public class Info
 	public static final String CMD_GAMEMODEC = "gamemodec";
 	public static final String CMD_GAMEMODEA = "gamemodea";
 	public static final String CMD_GAMEMODES = "gamemodes";
+	public static final String CMD_DEVELOPER = "developer";
 	
 	public static final String PERM_ADMIN = "glacialrush.admin";
 	public static final String PERM_BUILDER = "glacialrush.builder";
