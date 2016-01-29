@@ -170,6 +170,11 @@ public class GlacialServer extends GlacialPlugin
 			return;
 		}
 		
+		for(Player i : onlinePlayers())
+		{
+			playerDataComponent.save(i);
+		}
+		
 		for(Map i : gameController.getMaps())
 		{
 			boolean held = false;
