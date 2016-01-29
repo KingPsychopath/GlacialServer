@@ -71,7 +71,7 @@
 		<dependency>
 			<groupId>com.glacialrush</groupId>
 			<artifactId>glacial-api</artifactId>
-			<version>1.1.29</version>
+			<version>1.1.33</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
