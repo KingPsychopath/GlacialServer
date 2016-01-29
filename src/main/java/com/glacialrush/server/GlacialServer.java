@@ -1,6 +1,7 @@
 package com.glacialrush.server;
 
 import java.io.File;
+import javax.print.attribute.standard.PDLOverrideSupported;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import com.glacialrush.api.GlacialPlugin;
@@ -40,10 +41,10 @@ public class GlacialServer extends GlacialPlugin
 	{
 		super.onEnable();
 		
-		gameController = new GameController(this);
 		commandController = new CommandController(this);
 		mapDataController = new MapDataController(this, new File(getDataFolder(), "maps"), "map");
 		playerDataComponent = new PlayerDataComponent(this, new File(getDataFolder(), "playerdata"), "gp");
+		gameController = new GameController(this, playerDataComponent);
 		
 		super.startComponents();
 		
