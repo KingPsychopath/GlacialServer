@@ -61,6 +61,8 @@ public class GlacialServer extends GlacialPlugin
 			playerDataComponent.load(i);
 		}
 		
+		gameController.setBlocking(true);
+		
 		for(File i : mapDataController.getMdc().getCache().keySet())
 		{
 			MapData md = mapDataController.getMdc().getCache().get(i);
@@ -133,9 +135,11 @@ public class GlacialServer extends GlacialPlugin
 			
 			gameController.getMaps().add(map);
 			map.lock();
-			map.build();
+			map.fastBuild();
 			s("Injected Map: " + map.getName());
 		}
+		
+		gameController.setBlocking(false);
 		
 		getCommand(Info.CMD_GAME).setExecutor(commandController);
 		getCommand(Info.CMD_REGION).setExecutor(commandController);
