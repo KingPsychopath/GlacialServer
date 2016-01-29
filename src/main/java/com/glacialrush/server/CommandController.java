@@ -4,6 +4,7 @@ import java.util.HashSet;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.WeatherType;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -1194,19 +1195,19 @@ public class CommandController extends Controller implements CommandExecutor
 		
 		else if(command.getName().equalsIgnoreCase(Info.CMD_SUN))
 		{
-			if(isPlayer && isAdmin)
+			if(isPlayer)
 			{
-				p.getWorld().setThunderDuration(0);
-				p.getWorld().setWeatherDuration(0);
+				p.setPlayerWeather(WeatherType.CLEAR);
+				s("Cleared the skies.");
 			}
 		}
 		
 		else if(command.getName().equalsIgnoreCase(Info.CMD_RAIN))
 		{
-			if(isPlayer && isAdmin)
+			if(isPlayer)
 			{
-				p.getWorld().setThunderDuration(10000);
-				p.getWorld().setWeatherDuration(10000);
+				p.setPlayerWeather(WeatherType.DOWNFALL);
+				s("Downfall Begins!");
 			}
 		}
 		

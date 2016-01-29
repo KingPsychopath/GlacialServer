@@ -1,7 +1,7 @@
 name: GlacialServer
 main: com.glacialrush.server.GlacialServer
 version: 1.0
-depend: [GlacialAPI]
+depend: [GlacialAPI, GlacialMonitor]
 commands:
   region:
     aliases: [reg, rg]
