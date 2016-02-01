@@ -478,7 +478,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				ns.addLore(ChatColor.AQUA + "for all the members to see");
 				ns.addLore(ChatColor.AQUA + "Bonus 5% xp for all members and leaders");
 			}
-		}).setIX(4).setIY(2);
+		}).setIX(-4).setIY(2);
 		
 		uiController.addShortcut(sSquad);
 		uiController.addShortcut(sShop);

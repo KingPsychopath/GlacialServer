@@ -34,6 +34,7 @@ import com.glacialrush.api.map.region.Territory;
 import com.glacialrush.api.map.region.Village;
 import com.glacialrush.api.object.GBiset;
 import com.glacialrush.api.object.GMap;
+import com.glacialrush.api.sfx.Audio;
 import net.md_5.bungee.api.ChatColor;
 
 public class CommandController extends Controller implements CommandExecutor
@@ -1302,7 +1303,12 @@ public class CommandController extends Controller implements CommandExecutor
 			{
 				if(len > 0)
 				{
-					if(sub.equalsIgnoreCase("overbose") || sub.equalsIgnoreCase("ob"))
+					if(sub.equalsIgnoreCase("cla") || sub.equalsIgnoreCase("ca"))
+					{
+						Audio.load(p);
+					}
+					
+					else if(sub.equalsIgnoreCase("overbose") || sub.equalsIgnoreCase("ob"))
 					{
 						if(pl.getDispatchListener().getPlayers().contains(p))
 						{
