@@ -11,9 +11,7 @@ import com.glacialrush.api.GlacialPlugin;
 import com.glacialrush.api.component.MapDataController;
 import com.glacialrush.api.component.PlayerDataComponent;
 import com.glacialrush.api.component.UIController;
-import com.glacialrush.api.game.Game;
 import com.glacialrush.api.game.GameController;
-import com.glacialrush.api.game.GameType;
 import com.glacialrush.api.game.RegionedGame;
 import com.glacialrush.api.game.data.ChunkletData;
 import com.glacialrush.api.game.data.MapData;
@@ -171,6 +169,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		getCommand(Info.CMD_DAY).setExecutor(commandController);
 		getCommand(Info.CMD_NIGHT).setExecutor(commandController);
 		getCommand(Info.CMD_DEVELOPER).setExecutor(commandController);
+		getCommand(Info.CMD_RANK).setExecutor(commandController);
 		
 		pdc = playerDataComponent;
 		
@@ -247,38 +246,35 @@ public class GlacialServer extends GlacialPlugin implements Listener
 			{
 				int slot = -1;
 				
-				for(Game i : gameController.getGames())
+				for(RegionedGame i : gameController.getRegionedGames())
 				{
-					if(i.getType().equals(GameType.REGIONED))
+					slot++;
+					final RegionedGame g = i;
+					Element e = new Element(getPane(), ChatColor.AQUA + g.getMap().getName(), Material.BOW, slot);
+					e.addLore(ChatColor.GREEN + "" + i.getState().getPlayers().size() + " Players");
+					e.addLore(g.getFactionHandler().map());
+					
+					if(g.contains(getPlayer()))
 					{
-						slot++;
-						final RegionedGame g = (RegionedGame) i;
-						Element e = new Element(getPane(), ChatColor.AQUA + g.getMap().getName(), Material.BOW, slot);
-						e.addLore(ChatColor.GREEN + "" + i.getState().getPlayers().size() + " Players");
-						e.addLore(g.getFactionHandler().map());
-						
-						if(g.contains(getPlayer()))
-						{
-							e.addLore(ChatColor.AQUA + "Currently Playing");
-						}
-						
-						e.setOnLeftClickListener(new ElementClickListener()
-						{
-							public void run()
-							{
-								if(g.contains(getPlayer()))
-								{
-									Audio.UI_FAIL.play(getPlayer());
-								}
-								
-								else
-								{
-									close();
-									g.join(getPlayer());
-								}
-							}
-						});
+						e.addLore(ChatColor.AQUA + "Currently Playing");
 					}
+					
+					e.setOnLeftClickListener(new ElementClickListener()
+					{
+						public void run()
+						{
+							if(g.contains(getPlayer()))
+							{
+								Audio.UI_FAIL.play(getPlayer());
+							}
+							
+							else
+							{
+								close();
+								g.join(getPlayer());
+							}
+						}
+					});
 				}
 			}
 		}).setIX(0).setIY(2);

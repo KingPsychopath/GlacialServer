@@ -41,3 +41,5 @@ commands:
     aliases: [gma]
   gamemodes:
     aliases: [gms]
+  rank:
+    aliases: [rnk, rk]

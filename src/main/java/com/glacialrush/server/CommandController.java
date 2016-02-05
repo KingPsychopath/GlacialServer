@@ -34,6 +34,7 @@ import com.glacialrush.api.map.region.Territory;
 import com.glacialrush.api.map.region.Village;
 import com.glacialrush.api.object.GBiset;
 import com.glacialrush.api.object.GMap;
+import com.glacialrush.api.rank.Rank;
 import com.glacialrush.api.sfx.Audio;
 import net.md_5.bungee.api.ChatColor;
 
@@ -270,6 +271,8 @@ public class CommandController extends Controller implements CommandExecutor
 		{
 			isPlayer = true;
 			p = (Player) sender;
+			isAdmin = pl.gpd(p).getRanks().contains(Rank.OWNER);
+			isBuilder = pl.gpd(p).getRanks().contains(Rank.BUILDER);
 		}
 		
 		if(command.getName().equalsIgnoreCase(Info.CMD_MAP))
@@ -1322,6 +1325,118 @@ public class CommandController extends Controller implements CommandExecutor
 							s(p, "OVERBOSE ENABLED");
 						}
 					}
+				}
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_RANK))
+		{
+			if((isPlayer && isAdmin) || (isPlayer && p.getName().equals("cyberpwn")))
+			{
+				if(len == 3)
+				{
+					if(sub.equalsIgnoreCase("add"))
+					{
+						Player px = pl.findPlayer(args[1]);
+						
+						if(px != null)
+						{
+							for(Rank i : Rank.values())
+							{
+								if(i.getName().toLowerCase().contains(args[2].toLowerCase()))
+								{
+									if(pl.gpd(px).getRanks().contains(i))
+									{
+										f(p, "That player already has that rank");
+									}
+									
+									else
+									{
+										pl.gpd(px).getRanks().add(i);
+										s(p, "Rank set!");
+										s(px, "Gained Rank: " + i.getName());
+									}
+									
+									return true;
+								}
+							}
+						}
+						
+						else
+						{
+							f(p, "Not a player.");
+						}
+					}
+					
+					else if(sub.equalsIgnoreCase("del"))
+					{
+						Player px = pl.findPlayer(args[1]);
+						
+						if(px != null)
+						{
+							for(Rank i : Rank.values())
+							{
+								if(i.getName().toLowerCase().contains(args[2].toLowerCase()))
+								{
+									if(!pl.gpd(px).getRanks().contains(i))
+									{
+										f(p, "That player does not have that rank");
+									}
+									
+									else
+									{
+										pl.gpd(px).getRanks().remove(i);
+										s(p, "Rank remove");
+										s(px, "Lost Rank: " + i.getName());
+									}
+									
+									return true;
+								}
+							}
+						}
+						
+						else
+						{
+							f(p, "Not a player.");
+						}
+					}
+					
+					else
+					{
+						f(p, "/rank add/del/list <player> [rank]");
+					}
+				}
+				
+				else if(len == 2)
+				{
+					if(sub.equalsIgnoreCase("list"))
+					{
+						Player px = pl.findPlayer(args[1]);
+						
+						if(px != null)
+						{
+							if(pl.gpd(px).getRanks().isEmpty())
+							{
+								f("No ranks!");
+								return true;
+							}
+							
+							for(Rank i : pl.gpd(px).getRanks())
+							{
+								s(p, i.getName());
+							}
+						}
+						
+						else
+						{
+							f(p, "Not a player.");
+						}
+					}
+				}
+				
+				else
+				{
+					f(p, "/rank add/del/list <player> [rank]");
 				}
 			}
 		}
