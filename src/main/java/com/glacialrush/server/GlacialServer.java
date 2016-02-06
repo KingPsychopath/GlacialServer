@@ -17,6 +17,11 @@ import com.glacialrush.api.game.data.ChunkletData;
 import com.glacialrush.api.game.data.MapData;
 import com.glacialrush.api.game.data.PlayerData;
 import com.glacialrush.api.game.data.RegionData;
+import com.glacialrush.api.game.loadout.Loadout;
+import com.glacialrush.api.game.obtainable.Item;
+import com.glacialrush.api.game.obtainable.Obtainable;
+import com.glacialrush.api.game.obtainable.item.weapon.MeleeWeapon;
+import com.glacialrush.api.game.obtainable.item.weapon.RangedWeapon;
 import com.glacialrush.api.gui.Element;
 import com.glacialrush.api.gui.ElementClickListener;
 import com.glacialrush.api.gui.Shortcut;
@@ -460,7 +465,96 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		{
 			public void run()
 			{
-			
+				Loadout loadout = gpd(getPlayer()).getLoadoutSet().getLoadout();
+				Element primary = new Element(getPane(), ChatColor.RED + "No Primary Weapon", Material.QUARTZ, -1, 2).addLore(ChatColor.DARK_RED + "Click to equip an item you own");
+				Element secondary = new Element(getPane(), ChatColor.RED + "No Secondary Weapon", Material.QUARTZ, 0, 2).addLore(ChatColor.DARK_RED + "Click to equip an item you own");
+				Element tertiary = new Element(getPane(), ChatColor.RED + "No Tertiary Weapon", Material.QUARTZ, 1, 2).addLore(ChatColor.DARK_RED + "Click to equip an item you own");
+				Element tool = new Element(getPane(), ChatColor.RED + "No Tool", Material.QUARTZ, 1, 3).addLore(ChatColor.DARK_RED + "Click to equip an item you own");
+				Element utility = new Element(getPane(), ChatColor.RED + "No Utility", Material.QUARTZ, -1, 3).addLore(ChatColor.DARK_RED + "Click to equip an item you own");
+				
+				Obtainable pw = gameController.getObtainableBank().resolve(loadout.getPrimaryWeapon());
+				Obtainable sw = gameController.getObtainableBank().resolve(loadout.getSecondaryWeapon());
+				Obtainable tw = gameController.getObtainableBank().resolve(loadout.getTertiaryWeapon());
+				Obtainable t = gameController.getObtainableBank().resolve(loadout.getTool());
+				Obtainable u = gameController.getObtainableBank().resolve(loadout.getUtility());
+				
+				if(pw != null)
+				{
+					primary.setMaterial(((Item) pw).getMaterial());
+					primary.setData(((Item)pw).getMaterialMeta());
+					primary.setTitle(ChatColor.AQUA + "Primary: " + pw.getName()).clearLore().addLore(ChatColor.DARK_AQUA + pw.getDescription());
+					
+					if(gameController.getObtainableBank().getObtainableFilter().isRangedWeapon(pw))
+					{
+						primary.addLore(ChatColor.GREEN + "- Type: Ranged (" + ((RangedWeapon)pw).getProjectileType().toString().toLowerCase() + ")");
+						primary.addLore(ChatColor.GREEN + "- Fire Rate: " + ((RangedWeapon)pw).getRateOfFire());
+						primary.addLore(ChatColor.GREEN + "- Automatic: " + ((RangedWeapon)pw).getAutomatic());
+						primary.addLore(ChatColor.GREEN + "- Damage: Depends on projectile");
+					}
+					
+					else
+					{
+						primary.addLore(ChatColor.GREEN + "- Type: Melee");
+						primary.addLore(ChatColor.GREEN + "- Damage: " + ((MeleeWeapon)pw).getDamage());
+					}
+				}
+				
+				if(sw != null)
+				{
+					secondary.setMaterial(((Item) sw).getMaterial());
+					secondary.setData(((Item)sw).getMaterialMeta());
+					secondary.setTitle(ChatColor.GREEN + "Secondary: " + sw.getName()).clearLore().addLore(ChatColor.DARK_GREEN + sw.getDescription());
+					
+					if(gameController.getObtainableBank().getObtainableFilter().isRangedWeapon(sw))
+					{
+						secondary.addLore(ChatColor.GREEN + "- Type: Ranged (" + ((RangedWeapon)sw).getProjectileType().toString().toLowerCase() + ")");
+						secondary.addLore(ChatColor.GREEN + "- Fire Rate: " + ((RangedWeapon)sw).getRateOfFire());
+						secondary.addLore(ChatColor.GREEN + "- Automatic: " + ((RangedWeapon)sw).getAutomatic());
+						secondary.addLore(ChatColor.GREEN + "- Damage: Depends on projectile");
+					}
+					
+					else
+					{
+						secondary.addLore(ChatColor.GREEN + "- Type: Melee");
+						secondary.addLore(ChatColor.GREEN + "- Damage: " + ((MeleeWeapon)sw).getDamage());
+					}
+				}
+				
+				if(tw != null)
+				{
+					tertiary.setMaterial(((Item) tw).getMaterial());
+					tertiary.setData(((Item)tw).getMaterialMeta());
+					tertiary.setTitle(ChatColor.YELLOW + "Tertiary: " + tw.getName()).clearLore().addLore(ChatColor.GOLD + tw.getDescription());
+					
+					if(gameController.getObtainableBank().getObtainableFilter().isRangedWeapon(tw))
+					{
+						tertiary.addLore(ChatColor.GREEN + "- Type: Ranged (" + ((RangedWeapon)tw).getProjectileType().toString().toLowerCase() + ")");
+						tertiary.addLore(ChatColor.GREEN + "- Fire Rate: " + ((RangedWeapon)tw).getRateOfFire());
+						tertiary.addLore(ChatColor.GREEN + "- Automatic: " + ((RangedWeapon)tw).getAutomatic());
+						tertiary.addLore(ChatColor.GREEN + "- Damage: Depends on projectile");
+					}
+					
+					else
+					{
+						tertiary.addLore(ChatColor.GREEN + "- Type: Melee");
+						tertiary.addLore(ChatColor.GREEN + "- Damage: " + ((MeleeWeapon)tw).getDamage());
+					}
+				}
+				
+				if(t != null)
+				{
+					tool.setMaterial(((Item) t).getMaterial());
+					tool.setData(((Item)t).getMaterialMeta());
+					tool.setTitle(ChatColor.BLUE + "Tool: " + t.getName()).clearLore().addLore(ChatColor.BLUE + sw.getDescription());
+				}
+				
+				if(u != null)
+				{
+					utility.setMaterial(((Item) u).getMaterial());
+					utility.setData(((Item)u).getMaterialMeta());
+					utility.setTitle(ChatColor.LIGHT_PURPLE + "Utility: " + u.getName()).clearLore().addLore(ChatColor.DARK_PURPLE + tw.getDescription());
+				}
+
 			}
 		}).setIX(-3).setIY(2);
 		
