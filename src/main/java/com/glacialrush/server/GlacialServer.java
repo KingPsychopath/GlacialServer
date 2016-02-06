@@ -250,12 +250,13 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				{
 					slot++;
 					final RegionedGame g = i;
-					Element e = new Element(getPane(), ChatColor.AQUA + g.getMap().getName(), Material.BOW, slot);
+					Element e = new Element(getPane(), ChatColor.AQUA + g.getMap().getName(), Material.SLIME_BALL, slot);
 					e.addLore(ChatColor.GREEN + "" + i.getState().getPlayers().size() + " Players");
 					e.addLore(g.getFactionHandler().map());
 					
 					if(g.contains(getPlayer()))
 					{
+						e.setMaterial(Material.MAGMA_CREAM);
 						e.addLore(ChatColor.AQUA + "Currently Playing");
 					}
 					
@@ -455,6 +456,14 @@ public class GlacialServer extends GlacialPlugin implements Listener
 			}
 		}).setIX(-2).setIY(2);
 		
+		Shortcut sLoadout = new Shortcut(ChatColor.BLUE + "Loadout", Material.COOKIE, -3, 1).onShortcutLaunch(new ShortcutLaunchListener()
+		{
+			public void run()
+			{
+			
+			}
+		}).setIX(-3).setIY(2);
+		
 		Shortcut sHelp = new Shortcut(ChatColor.RED + "Help & Information", Material.QUARTZ, 2, 1).onShortcutLaunch(new ShortcutLaunchListener()
 		{
 			public void run()
@@ -463,7 +472,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 			}
 		}).setIX(2).setIY(2);
 		
-		Shortcut sSquad = new Shortcut(ChatColor.BLUE + "Squad", Material.SUGAR, -4, 1).onShortcutLaunch(new ShortcutLaunchListener()
+		Shortcut sSquad = new Shortcut(ChatColor.DARK_BLUE + "Squad", Material.SUGAR, -4, 1).onShortcutLaunch(new ShortcutLaunchListener()
 		{
 			public void run()
 			{
@@ -478,6 +487,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		
 		uiController.addShortcut(sSquad);
 		uiController.addShortcut(sShop);
+		uiController.addShortcut(sLoadout);
 		uiController.addShortcut(sHelp);
 		uiController.addShortcut(sGames);
 		uiController.addShortcut(sSettings);
