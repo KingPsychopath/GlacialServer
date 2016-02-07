@@ -33,6 +33,7 @@ import com.glacialrush.api.map.region.Scenery;
 import com.glacialrush.api.map.region.Territory;
 import com.glacialrush.api.map.region.Village;
 import com.glacialrush.api.object.GBiset;
+import com.glacialrush.api.object.GList;
 import com.glacialrush.api.object.GMap;
 import com.glacialrush.api.rank.Rank;
 import com.glacialrush.api.sfx.Audio;
@@ -59,8 +60,14 @@ public class CommandController extends Controller implements CommandExecutor
 			@Override
 			public void run()
 			{
-				for(Player i : selection.keySet())
+				for(Player i : new GList<Player>(selection.keySet()))
 				{
+					if(get(i).getA().getGame().getType().equals(GameType.REGIONED))
+					{
+						clear(i);
+						continue;
+					}
+					
 					gs.getGameController().join(gs.getGameController().getBuildGame(), i);
 					gs.getGameController().getBuildGame().updateSelection(i, get(i));
 				}
@@ -70,12 +77,24 @@ public class CommandController extends Controller implements CommandExecutor
 	
 	public void set(Player p, Map map)
 	{
+		if(map.getGame().getType().equals(GameType.REGIONED))
+		{
+			f(p, "Map is in use.");
+			return;
+		}
+		
 		selection.put(p, new GBiset<Map, Region>(map, null));
 		gs.getGameController().join(gs.getGameController().getBuildGame(), p);
 	}
 	
 	public void set(Player p, Region region)
 	{
+		if(region.getMap().getGame().getType().equals(GameType.REGIONED))
+		{
+			f(p, "Map is in use.");
+			return;
+		}
+		
 		selection.put(p, new GBiset<Map, Region>(region.getMap(), region));
 		gs.getGameController().join(gs.getGameController().getBuildGame(), p);
 	}
@@ -262,8 +281,8 @@ public class CommandController extends Controller implements CommandExecutor
 	{
 		Player p = null;
 		Boolean isPlayer = false;
-		Boolean isAdmin = sender.hasPermission(Info.PERM_ADMIN);
-		Boolean isBuilder = sender.hasPermission(Info.PERM_BUILDER);
+		Boolean isAdmin = sender.hasPermission(Info.PERM_ADMIN) || sender.isOp();
+		Boolean isBuilder = sender.hasPermission(Info.PERM_BUILDER) || sender.isOp();
 		Integer len = args.length;
 		String sub = len > 0 ? args[0] : "";
 		
