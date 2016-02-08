@@ -170,19 +170,19 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		getCommand(Info.CMD_REGION).setExecutor(commandController);
 		getCommand(Info.CMD_MAP).setExecutor(commandController);
 		getCommand(Info.CMD_BRUSH).setExecutor(commandController);
-		// getCommand(Info.CMD_TELEPORT).setExecutor(commandController);
-		// getCommand(Info.CMD_TELEPORT_HERE).setExecutor(commandController);
-		// getCommand(Info.CMD_GAMEMODE).setExecutor(commandController);
-		// getCommand(Info.CMD_GAMEMODEA).setExecutor(commandController);
-		// getCommand(Info.CMD_GAMEMODEC).setExecutor(commandController);
-		// getCommand(Info.CMD_GAMEMODES).setExecutor(commandController);
-		// getCommand(Info.CMD_MESSAGE).setExecutor(commandController);
-		// getCommand(Info.CMD_REPLY).setExecutor(commandController);
+		getCommand(Info.CMD_TELEPORT).setExecutor(commandController);
+		getCommand(Info.CMD_TELEPORT_HERE).setExecutor(commandController);
+		getCommand(Info.CMD_GAMEMODE).setExecutor(commandController);
+		getCommand(Info.CMD_GAMEMODEA).setExecutor(commandController);
+		getCommand(Info.CMD_GAMEMODEC).setExecutor(commandController);
+		getCommand(Info.CMD_GAMEMODES).setExecutor(commandController);
+		getCommand(Info.CMD_MESSAGE).setExecutor(commandController);
+		getCommand(Info.CMD_REPLY).setExecutor(commandController);
 		getCommand(Info.CMD_LEAVE).setExecutor(commandController);
-		// getCommand(Info.CMD_SUN).setExecutor(commandController);
-		// getCommand(Info.CMD_RAIN).setExecutor(commandController);
-		// getCommand(Info.CMD_DAY).setExecutor(commandController);
-		// getCommand(Info.CMD_NIGHT).setExecutor(commandController);
+		getCommand(Info.CMD_SUN).setExecutor(commandController);
+		getCommand(Info.CMD_RAIN).setExecutor(commandController);
+		getCommand(Info.CMD_DAY).setExecutor(commandController);
+		getCommand(Info.CMD_NIGHT).setExecutor(commandController);
 		getCommand(Info.CMD_DEVELOPER).setExecutor(commandController);
 		getCommand(Info.CMD_RANK).setExecutor(commandController);
 		
@@ -469,7 +469,83 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		{
 			public void run()
 			{
-			
+				Element w = new Element(getPane(), ChatColor.GREEN + "Weapons", Material.DIAMOND_SWORD, 0);
+				Element a = new Element(getPane(), ChatColor.BLUE + "Ammunition", Material.ARROW, 1);
+				
+				w.addLore(ChatColor.GREEN + "Get all weapons here.");
+				a.addLore(ChatColor.BLUE + "Get all ammunition here.");
+				
+				w.setOnLeftClickListener(new ElementClickListener()
+				{
+					public void run()
+					{
+						close();
+						getUi().getPanes().clear();
+						Pane pane = new Pane(getUi(), "Select a Weapon");
+						
+						int c = 0;
+						
+						for(final Weapon i : gameController.getObtainableBank().getObtainableFilter().getWeapons())
+						{
+							if(!gameController.getObtainableBank().getObtainableFilter().has(getPlayer(), i))
+							{
+								Element e = configure(getPlayer(), pane, i, c);
+								e.setOnLeftClickListener(new ElementClickListener()
+								{
+									public void run()
+									{
+										PlayerData pd = gpd(getPlayer());
+										
+										if(i.getCost() <= pd.getSkill())
+										{
+											Audio.CAPTURE_CAPTURE.play(getPlayer());
+											pd.getOwned().add(i.getId());
+											close();
+										}
+										
+										else
+										{
+											Audio.UI_FAIL.play(getPlayer());
+										}
+									}
+								});
+								
+								c++;
+							}
+						}
+						
+						getUi().open(pane);
+					}
+				});
+				
+				a.setOnLeftClickListener(new ElementClickListener()
+				{
+					public void run()
+					{
+						Pane pane = new Pane(getUi(), "Select Ammunition");
+						
+						int c = 0;
+						
+						for(Projectile i : gameController.getObtainableBank().getObtainableFilter().getProjectiles())
+						{
+							if(!gameController.getObtainableBank().getObtainableFilter().has(getPlayer(), i))
+							{
+								Element e = configure(getPlayer(), getPane(), i, c);
+								e.setOnLeftClickListener(new ElementClickListener()
+								{
+									public void run()
+									{
+									
+									}
+								});
+								
+								c++;
+							}
+						}
+						
+						getUi().open(pane);
+					}
+				});
 			}
 		}).setIX(-2).setIY(2);
 		
@@ -673,6 +749,11 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		uiController.addShortcut(sHelp);
 		uiController.addShortcut(sGames);
 		uiController.addShortcut(sSettings);
+	}
+	
+	public void buyWeapons(Player player)
+	{
+	
 	}
 	
 	public void selectProjectile(Player player, final ProjectileType type, Obtainable current)
