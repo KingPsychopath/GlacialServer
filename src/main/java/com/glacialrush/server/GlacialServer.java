@@ -22,12 +22,17 @@ import com.glacialrush.api.game.obtainable.Item;
 import com.glacialrush.api.game.obtainable.Obtainable;
 import com.glacialrush.api.game.obtainable.ObtainableFilter;
 import com.glacialrush.api.game.obtainable.Projectile;
+import com.glacialrush.api.game.obtainable.Upgrade;
 import com.glacialrush.api.game.obtainable.item.Weapon;
 import com.glacialrush.api.game.obtainable.item.weapon.MeleeWeapon;
 import com.glacialrush.api.game.obtainable.item.weapon.RangedWeapon;
 import com.glacialrush.api.game.obtainable.item.weapon.type.WeaponEnclosureType;
 import com.glacialrush.api.game.obtainable.projectile.ProjectileArrow;
 import com.glacialrush.api.game.obtainable.type.ProjectileType;
+import com.glacialrush.api.game.obtainable.type.UpgradeType;
+import com.glacialrush.api.game.obtainable.upgrade.MeleeWeaponUpgrade;
+import com.glacialrush.api.game.obtainable.upgrade.ProjectileUpgrade;
+import com.glacialrush.api.game.obtainable.upgrade.RangedWeaponUpgrade;
 import com.glacialrush.api.gui.Element;
 import com.glacialrush.api.gui.ElementClickListener;
 import com.glacialrush.api.gui.Pane;
@@ -185,6 +190,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		getCommand(Info.CMD_NIGHT).setExecutor(commandController);
 		getCommand(Info.CMD_DEVELOPER).setExecutor(commandController);
 		getCommand(Info.CMD_RANK).setExecutor(commandController);
+		getCommand(Info.CMD_SKILL).setExecutor(commandController);
 		
 		pdc = playerDataComponent;
 		
@@ -471,9 +477,55 @@ public class GlacialServer extends GlacialPlugin implements Listener
 			{
 				Element w = new Element(getPane(), ChatColor.GREEN + "Weapons", Material.DIAMOND_SWORD, 0);
 				Element a = new Element(getPane(), ChatColor.BLUE + "Ammunition", Material.ARROW, 1);
+				Element u = new Element(getPane(), ChatColor.YELLOW + "Upgrades", Material.COOKIE, 2);
 				
 				w.addLore(ChatColor.GREEN + "Get all weapons here.");
 				a.addLore(ChatColor.BLUE + "Get all ammunition here.");
+				u.addLore(ChatColor.YELLOW + "Get all upgrades here.");
+				
+				u.setOnLeftClickListener(new ElementClickListener()
+				{
+					public void run()
+					{
+						close();
+						getUi().getPanes().clear();
+						Pane pane = new Pane(getUi(), "Select Upgrades");
+						
+						int c = 0;
+						
+						for(final Upgrade i : gameController.getObtainableBank().getObtainableFilter().getUpgrades())
+						{
+							if(!gameController.getObtainableBank().getObtainableFilter().has(getPlayer(), i))
+							{
+								Element e = configure(getPlayer(), pane, i, c);
+								o(e.getTitle());
+								e.setOnLeftClickListener(new ElementClickListener()
+								{
+									public void run()
+									{
+										PlayerData pd = gpd(getPlayer());
+										
+										if(i.getCost() <= pd.getSkill())
+										{
+											Audio.CAPTURE_CAPTURE.play(getPlayer());
+											pd.getOwned().add(i.getId());
+											close();
+										}
+										
+										else
+										{
+											Audio.UI_FAIL.play(getPlayer());
+										}
+									}
+								});
+								
+								c++;
+							}
+						}
+						
+						getUi().open(pane);
+					}
+				});
 				
 				w.setOnLeftClickListener(new ElementClickListener()
 				{
@@ -522,11 +574,13 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				{
 					public void run()
 					{
+						close();
+						getUi().getPanes().clear();
 						Pane pane = new Pane(getUi(), "Select Ammunition");
 						
 						int c = 0;
 						
-						for(Projectile i : gameController.getObtainableBank().getObtainableFilter().getProjectiles())
+						for(final Projectile i : gameController.getObtainableBank().getObtainableFilter().getProjectiles())
 						{
 							if(!gameController.getObtainableBank().getObtainableFilter().has(getPlayer(), i))
 							{
@@ -535,7 +589,19 @@ public class GlacialServer extends GlacialPlugin implements Listener
 								{
 									public void run()
 									{
-									
+										PlayerData pd = gpd(getPlayer());
+										
+										if(i.getCost() <= pd.getSkill())
+										{
+											Audio.CAPTURE_CAPTURE.play(getPlayer());
+											pd.getOwned().add(i.getId());
+											close();
+										}
+										
+										else
+										{
+											Audio.UI_FAIL.play(getPlayer());
+										}
 									}
 								});
 								
@@ -859,7 +925,61 @@ public class GlacialServer extends GlacialPlugin implements Listener
 			}
 		}
 		
-		if(f.isItem(o))
+		if(f.isUpgrade(o))
+		{
+			Upgrade u = (Upgrade) o;
+			
+			e.setMaterial(Material.COOKIE);
+			
+			if(u.getUpgradeType().equals(UpgradeType.PROJECTILE))
+			{
+				ProjectileUpgrade uu = (ProjectileUpgrade) u;
+				e.addLore(ChatColor.YELLOW + "- Projectile Upgrade");
+				e.addLore(ChatColor.GOLD + "- Damage: +" + (int) ((double) uu.getDamageModifier() / (double) 100) + "% dmg");
+				e.addLore(ChatColor.GOLD + "- Ammunition: +" + (int) ((double) uu.getAmmunitionModifier() / (double) 100) + "% ammo");
+				e.addLore(ChatColor.GOLD + "- Velocity: +" + (int) ((double) uu.getVelocityModifier() / (double) 100) + "% speed");
+				e.addLore(ChatColor.RED + "- Compatible with " + uu.getProjectileType().toString().toLowerCase() + "s");
+				e.setMaterial(Material.ARROW);
+				
+				return e;
+			}
+			
+			else if(u.getUpgradeType().equals(UpgradeType.MELEE_WEAPON))
+			{
+				MeleeWeaponUpgrade uu = (MeleeWeaponUpgrade) u;
+				e.addLore(ChatColor.YELLOW + "- Melee Weapon Upgrade");
+				e.addLore(ChatColor.GOLD + "- Damage: +" + (int) ((double) uu.getDamageModifier() / (double) 100) + "% dmg");
+				e.addLore(ChatColor.RED + "- Compatible with Melee Weapons");
+				e.setMaterial(Material.IRON_SWORD);
+				
+				return e;
+			}
+			
+			else if(u.getUpgradeType().equals(UpgradeType.RANGED_WEAPON))
+			{
+				RangedWeaponUpgrade uu = (RangedWeaponUpgrade) u;
+				e.addLore(ChatColor.YELLOW + "- Ranged Weapon Upgrade (" + uu.getProjectileType().toString().toLowerCase() + "s)");
+				e.addLore(ChatColor.GOLD + "- Rate Of Fire: +" + (int) ((double) uu.getRateOfFireModifier() / (double) 100) + "% rof");
+				e.addLore(ChatColor.RED + "- Compatible with Weapons (" + uu.getProjectileType().toString().toLowerCase() + "s)");
+				e.setMaterial(Material.BOW);
+				
+				return e;
+			}
+			
+			else if(u.getUpgradeType().equals(UpgradeType.TOOL))
+			{
+			
+			}
+			
+			else if(u.getUpgradeType().equals(UpgradeType.UTILITY))
+			{
+			
+			}
+			
+			return e;
+		}
+		
+		else if(f.isItem(o))
 		{
 			Item i = (Item) o;
 			e.setMaterial(i.getMaterial());
@@ -875,6 +995,15 @@ public class GlacialServer extends GlacialPlugin implements Listener
 					
 					e.addLore(ChatColor.YELLOW + "- Melee Weapon");
 					e.addLore(ChatColor.GOLD + "- Damage: " + mw.getDamage());
+					
+					for(MeleeWeaponUpgrade j : getGameController().getObtainableBank().getObtainableFilter().getMeleeWeaponUpgrades())
+					{
+						if(gameController.getObtainableBank().getObtainableFilter().has(p, j))
+						{
+							e.addLore(ChatColor.LIGHT_PURPLE + "Enchantment: " + j.getName());
+						}
+					}
+					
 					return e;
 				}
 				
@@ -887,6 +1016,15 @@ public class GlacialServer extends GlacialPlugin implements Listener
 					e.addLore(ChatColor.GOLD + "- Shoots: " + rw.getProjectileType().toString().toLowerCase() + "s");
 					e.addLore(ChatColor.GOLD + "- Fire Rate: " + rw.getRateOfFire());
 					e.addLore(ChatColor.GOLD + "- Automatic: " + (rw.getAutomatic() ? "Yes" : "No"));
+					
+					for(RangedWeaponUpgrade j : getGameController().getObtainableBank().getObtainableFilter().getRangedWeaponUpgrades())
+					{
+						if(gameController.getObtainableBank().getObtainableFilter().has(p, j))
+						{
+							e.addLore(ChatColor.LIGHT_PURPLE + "Enchantment: " + j.getName());
+						}
+					}
+					
 					return e;
 				}
 			}
@@ -924,6 +1062,15 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				e.addLore(ChatColor.YELLOW + "- Arrow Projectile");
 				e.addLore(ChatColor.GOLD + "- Damage: " + pja.getDamage());
 				e.addLore(ChatColor.GOLD + "- Velocity: " + pja.getVelocity());
+				
+				for(ProjectileUpgrade j : getGameController().getObtainableBank().getObtainableFilter().getProjectileUpgrades(ProjectileType.ARROW))
+				{
+					if(gameController.getObtainableBank().getObtainableFilter().has(p, j))
+					{
+						e.addLore(ChatColor.LIGHT_PURPLE + "Enchantment: " + j.getName());
+					}
+				}
+				
 				return e;
 			}
 		}

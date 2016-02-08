@@ -22,6 +22,7 @@ import com.glacialrush.api.dispatch.Title;
 import com.glacialrush.api.game.Game;
 import com.glacialrush.api.game.GameType;
 import com.glacialrush.api.game.RegionedGame;
+import com.glacialrush.api.game.data.PlayerData;
 import com.glacialrush.api.game.object.Faction;
 import com.glacialrush.api.map.Chunklet;
 import com.glacialrush.api.map.Map;
@@ -1125,6 +1126,22 @@ public class CommandController extends Controller implements CommandExecutor
 			}
 		}
 		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_SKILL))
+		{
+			if(isPlayer)
+			{
+				PlayerData pd = pl.gpd(p);
+				s(p, ChatColor.YELLOW + "--------------------------");
+				s(p, ChatColor.GOLD + "Skill Points: " + pd.getSkill());
+				s(p, ChatColor.AQUA + "Shards: " + pd.getShards());
+				s(p, ChatColor.GREEN + "Battle Rank: " + pd.getBattleRank());
+				s(p, ChatColor.RED + "Total XP: " + pd.getExperience());
+				s(p, ChatColor.LIGHT_PURPLE + "XP to next rank: " + Math.abs(xpToNextBR(p)));
+				s(p, ChatColor.BLUE + "XP boost: " + (int)(((double)100 * pd.getExperienceBoost())) + "%");
+				s(p, ChatColor.YELLOW + "--------------------------");
+			}
+		}
+		
 		else if(command.getName().equalsIgnoreCase(Info.CMD_GAMEMODEC))
 		{
 			if(isPlayer && isAdmin)
@@ -1550,6 +1567,25 @@ public class CommandController extends Controller implements CommandExecutor
 			
 			r.getMap().draw(l.getBlockY());
 		}
+	}
+	
+	public int getBattleRank(long xp)
+	{
+		return (int) Math.pow(xp, 1.0 / 4);
+	}
+	
+	public double xpToNextBR(Player p)
+	{
+		long c = getExperience(pl.gpd(p).getBattleRank() + 1);
+		long b = pl.gpd(p).getExperience();
+		long a = getExperience(pl.gpd(p).getBattleRank());
+		
+		return c - (a + b);
+	}
+	
+	public long getExperience(int battleRank)
+	{
+		return (long) Math.pow(battleRank, 4);
 	}
 	
 	@EventHandler

@@ -43,3 +43,5 @@ commands:
     aliases: [gms]
   rank:
     aliases: [rnk, rk]
+  skill:
+    aliases: [sk, exp, xp, experience, ski, skills]
