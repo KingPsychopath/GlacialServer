@@ -25,6 +25,7 @@ public class Info
 	public static final String CMD_DEVELOPER = "developer";
 	public static final String CMD_RANK = "rank";
 	public static final String CMD_SKILL = "skill";
+	public static final String CMD_TUTORIAL = "tutorial";
 	
 	public static final String PERM_ADMIN = "glacialrush.admin";
 	public static final String PERM_BUILDER = "glacialrush.builder";

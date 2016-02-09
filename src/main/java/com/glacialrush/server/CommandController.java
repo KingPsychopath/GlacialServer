@@ -38,6 +38,7 @@ import com.glacialrush.api.object.GList;
 import com.glacialrush.api.object.GMap;
 import com.glacialrush.api.rank.Rank;
 import com.glacialrush.api.sfx.Audio;
+import com.glacialrush.packet.EndCredits;
 import net.md_5.bungee.api.ChatColor;
 
 public class CommandController extends Controller implements CommandExecutor
@@ -1005,6 +1006,50 @@ public class CommandController extends Controller implements CommandExecutor
 			{
 				if(len > 0)
 				{
+					if(sub.equalsIgnoreCase("setspawn"))
+					{
+						pl.getServerDataComponent().setHub(p.getLocation());
+						s(p, "Set Spawn!");
+					}
+					
+					if(sub.equalsIgnoreCase("stop") || sub.equalsIgnoreCase("destroy"))
+					{
+						if(len > 1)
+						{
+							String map = subWord(args, 1);
+							
+							for(Map i : gs.getGameController().getMaps())
+							{
+								if(i.getName().equalsIgnoreCase(map))
+								{
+									if(i.getGame().getType().equals(GameType.REGIONED))
+									{
+										RegionedGame rg = (RegionedGame) i.getGame();
+										
+										if(rg.isRunning())
+										{
+											s(p, "Stopping Game");
+											rg.stop();
+											s(p, "Stopped");
+										}
+										
+										else
+										{
+											f(p, "Game is not running (or it's stopping)");
+										}
+									}
+									
+									else
+									{
+										f(p, "Game is not running");
+									}
+									
+									return true;
+								}
+							}
+						}
+					}
+					
 					if(sub.equalsIgnoreCase("new") || sub.equalsIgnoreCase("create"))
 					{
 						if(len > 1)
@@ -1163,6 +1208,14 @@ public class CommandController extends Controller implements CommandExecutor
 			if(isPlayer && isAdmin)
 			{
 				p.setGameMode(GameMode.SURVIVAL);
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_TUTORIAL))
+		{
+			if(isPlayer)
+			{
+				EndCredits.showTutorial(p);
 			}
 		}
 		
@@ -1344,7 +1397,7 @@ public class CommandController extends Controller implements CommandExecutor
 				{
 					if(sub.equalsIgnoreCase("cla") || sub.equalsIgnoreCase("ca"))
 					{
-						Audio.load(p);
+						Audio.loadAll(p, pl);
 					}
 					
 					else if(sub.equalsIgnoreCase("overbose") || sub.equalsIgnoreCase("ob"))
