@@ -47,3 +47,5 @@ commands:
     aliases: [sk, exp, xp, experience, ski, skills]
   tutorial:
     aliases: [tut, helptutorial, showhelp, credits]
+  spectate:
+    aliases: [fly, youtube]

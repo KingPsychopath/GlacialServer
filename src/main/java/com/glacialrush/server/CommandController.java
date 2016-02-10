@@ -1530,6 +1530,31 @@ public class CommandController extends Controller implements CommandExecutor
 			}
 		}
 		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_SPECTATE))
+		{
+			if(isPlayer)
+			{
+				Game g = gs.getGameController().getGame(p);
+				
+				if(g.getType().equals(GameType.REGIONED))
+				{
+					RegionedGame rg = (RegionedGame)g;
+					
+					if(rg.isSpectating(p))
+					{
+						s(p, "Deploying your fortress.");
+						rg.unSpectate(p);
+					}
+					
+					else
+					{
+						rg.spectate(p);
+						s(p, "Spectating. Use /spectate to turn it off.");
+					}
+				}
+			}
+		}
+		
 		else if(command.getName().equalsIgnoreCase(Info.CMD_GAMEMODE))
 		{
 			if(isPlayer && isAdmin)

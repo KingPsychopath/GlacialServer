@@ -76,6 +76,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		mapDataController = new MapDataController(this, new File(getDataFolder(), "maps"), "map");
 		playerDataComponent = new PlayerDataComponent(this, new File(getDataFolder(), "playerdata"), "gp");
 		gameController = new GameController(this, playerDataComponent);
+		gameControl = gameController;
 		
 		super.startComponents();
 		
@@ -192,6 +193,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		getCommand(Info.CMD_RANK).setExecutor(commandController);
 		getCommand(Info.CMD_SKILL).setExecutor(commandController);
 		getCommand(Info.CMD_TUTORIAL).setExecutor(commandController);
+		getCommand(Info.CMD_SPECTATE).setExecutor(commandController);
 		
 		pdc = playerDataComponent;
 		
@@ -635,6 +637,21 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				Obtainable u = gameController.getObtainableBank().resolve(loadout.getUtility());
 				final Obtainable pjt = gameController.getObtainableBank().resolve(loadout.getProjectile());
 				
+				if(pw != null)
+				{
+					primary = configure(getPlayer(), getPane(), pw, 12);
+				}
+				
+				if(sw != null)
+				{
+					secondary = configure(getPlayer(), getPane(), sw, 13);
+				}
+				
+				if(tw != null)
+				{
+					tertiary = configure(getPlayer(), getPane(), tw, 14);
+				}
+				
 				primary.setOnLeftClickListener(new ElementClickListener()
 				{
 					public void run()
@@ -666,67 +683,25 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				
 				if(pw != null)
 				{
-					primary.setMaterial(((Item) pw).getMaterial());
-					primary.setData(((Item) pw).getMaterialMeta());
-					primary.setTitle(ChatColor.AQUA + "Primary: " + pw.getName()).clearLore().addLore(ChatColor.DARK_AQUA + pw.getDescription());
-					
 					if(gameController.getObtainableBank().getObtainableFilter().isRangedWeapon(pw))
 					{
 						pjtx = true;
-						primary.addLore(ChatColor.GREEN + "- Type: Ranged (" + ((RangedWeapon) pw).getProjectileType().toString().toLowerCase() + ")");
-						primary.addLore(ChatColor.GREEN + "- Fire Rate: " + ((RangedWeapon) pw).getRateOfFire());
-						primary.addLore(ChatColor.GREEN + "- Automatic: " + ((RangedWeapon) pw).getAutomatic());
-						primary.addLore(ChatColor.GREEN + "- Damage: Depends on projectile");
-					}
-					
-					else
-					{
-						primary.addLore(ChatColor.GREEN + "- Type: Melee");
-						primary.addLore(ChatColor.GREEN + "- Damage: " + ((MeleeWeapon) pw).getDamage());
 					}
 				}
 				
 				if(sw != null)
 				{
-					secondary.setMaterial(((Item) sw).getMaterial());
-					secondary.setData(((Item) sw).getMaterialMeta());
-					secondary.setTitle(ChatColor.GREEN + "Secondary: " + sw.getName()).clearLore().addLore(ChatColor.DARK_GREEN + sw.getDescription());
-					
 					if(gameController.getObtainableBank().getObtainableFilter().isRangedWeapon(sw))
 					{
 						pjtx = true;
-						secondary.addLore(ChatColor.GREEN + "- Type: Ranged (" + ((RangedWeapon) sw).getProjectileType().toString().toLowerCase() + ")");
-						secondary.addLore(ChatColor.GREEN + "- Fire Rate: " + ((RangedWeapon) sw).getRateOfFire());
-						secondary.addLore(ChatColor.GREEN + "- Automatic: " + ((RangedWeapon) sw).getAutomatic());
-						secondary.addLore(ChatColor.GREEN + "- Damage: Depends on projectile");
-					}
-					
-					else
-					{
-						secondary.addLore(ChatColor.GREEN + "- Type: Melee");
-						secondary.addLore(ChatColor.GREEN + "- Damage: " + ((MeleeWeapon) sw).getDamage());
 					}
 				}
 				
 				if(tw != null)
 				{
-					tertiary.setMaterial(((Item) tw).getMaterial());
-					tertiary.setData(((Item) tw).getMaterialMeta());
-					tertiary.setTitle(ChatColor.YELLOW + "Tertiary: " + tw.getName()).clearLore().addLore(ChatColor.GOLD + tw.getDescription());
-					
 					if(gameController.getObtainableBank().getObtainableFilter().isRangedWeapon(tw))
 					{
 						pjtx = true;
-						tertiary.addLore(ChatColor.GREEN + "- Type: Ranged (" + ((RangedWeapon) tw).getProjectileType().toString().toLowerCase() + ")");
-						tertiary.addLore(ChatColor.GREEN + "- Fire Rate: " + ((RangedWeapon) tw).getRateOfFire());
-						tertiary.addLore(ChatColor.GREEN + "- Automatic: " + ((RangedWeapon) tw).getAutomatic());
-						tertiary.addLore(ChatColor.GREEN + "- Damage: Depends on projectile");
-					}
-					
-					else
-					{
-						tertiary.addLore(ChatColor.GREEN + "- Type: Melee");
-						tertiary.addLore(ChatColor.GREEN + "- Damage: " + ((MeleeWeapon) tw).getDamage());
 					}
 				}
 				
@@ -750,28 +725,16 @@ public class GlacialServer extends GlacialPlugin implements Listener
 					
 					if(pjt != null)
 					{
-						Projectile px = (Projectile) pjt;
+						projectile = configure(getPlayer(), getPane(), pjt, 22);
 						
-						if(px.getProjectileType().equals(ProjectileType.ARROW))
+						projectile.setOnLeftClickListener(new ElementClickListener()
 						{
-							ProjectileArrow pja = (ProjectileArrow) pjt;
-							projectile.clearLore();
-							projectile.setMaterial(Material.ARROW);
-							projectile.setTitle(ChatColor.BLUE + pja.getName());
-							projectile.addLore(ChatColor.DARK_BLUE + pja.getDescription());
-							projectile.addLore(ChatColor.GREEN + "- Type: Arrow");
-							projectile.addLore(ChatColor.GREEN + "- Damage: " + pja.getDamage());
-							projectile.addLore(ChatColor.GREEN + "- Velocity: " + pja.getVelocity());
-							
-							projectile.setOnLeftClickListener(new ElementClickListener()
+							public void run()
 							{
-								public void run()
-								{
-									close();
-									selectProjectile(this.getPlayer(), ProjectileType.ARROW, pjt);
-								}
-							});
-						}
+								close();
+								selectProjectile(this.getPlayer(), ProjectileType.ARROW, pjt);
+							}
+						});
 					}
 					
 					else
@@ -949,7 +912,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 			{
 				MeleeWeaponUpgrade uu = (MeleeWeaponUpgrade) u;
 				e.addLore(ChatColor.YELLOW + "- Melee Weapon Upgrade");
-				e.addLore(ChatColor.GOLD + "- Damage: +" + (int) ((double) uu.getDamageModifier() / (double) 100) + "% dmg");
+				e.addLore(ChatColor.GOLD + "- Damage: +" + 100 * ((int) ((double) uu.getDamageModifier() / (double) 100)) + "% dmg");
 				e.addLore(ChatColor.RED + "- Compatible with Melee Weapons");
 				e.setMaterial(Material.IRON_SWORD);
 				
@@ -960,8 +923,8 @@ public class GlacialServer extends GlacialPlugin implements Listener
 			{
 				RangedWeaponUpgrade uu = (RangedWeaponUpgrade) u;
 				e.addLore(ChatColor.YELLOW + "- Ranged Weapon Upgrade (" + uu.getProjectileType().toString().toLowerCase() + "s)");
-				e.addLore(ChatColor.GOLD + "- Rate Of Fire: +" + (int) ((double) uu.getRateOfFireModifier() / (double) 100) + "% rof");
-				e.addLore(ChatColor.RED + "- Compatible with Weapons (" + uu.getProjectileType().toString().toLowerCase() + "s)");
+				e.addLore(ChatColor.GOLD + "- Rate Of Fire: +" + 100 * ((int) ((double) uu.getRateOfFireModifier() / (double) 100)) + "% rof");
+				e.addLore(ChatColor.RED + "- Compatible with Ranged Weapons (" + uu.getProjectileType().toString().toLowerCase() + "s)");
 				e.setMaterial(Material.BOW);
 				
 				return e;
