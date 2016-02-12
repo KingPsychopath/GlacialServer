@@ -27,6 +27,9 @@ public class Info
 	public static final String CMD_SKILL = "skill";
 	public static final String CMD_TUTORIAL = "tutorial";
 	public static final String CMD_SPECTATE = "spectate";
+	public static final String CMD_GIVEXP = "givexp";
+	public static final String CMD_GIVESKILL = "giveskill";
+	public static final String CMD_GIVESHARDS = "giveshards";
 	
 	public static final String PERM_ADMIN = "glacialrush.admin";
 	public static final String PERM_BUILDER = "glacialrush.builder";

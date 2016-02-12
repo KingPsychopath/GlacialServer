@@ -23,6 +23,7 @@ import com.glacialrush.api.game.Game;
 import com.glacialrush.api.game.GameType;
 import com.glacialrush.api.game.RegionedGame;
 import com.glacialrush.api.game.data.PlayerData;
+import com.glacialrush.api.game.experience.Experience;
 import com.glacialrush.api.game.object.Faction;
 import com.glacialrush.api.map.Chunklet;
 import com.glacialrush.api.map.Map;
@@ -1385,6 +1386,178 @@ public class CommandController extends Controller implements CommandExecutor
 				else
 				{
 					f(p, "/tphere <player>");
+				}
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_GIVEXP))
+		{
+			if(isPlayer && isAdmin)
+			{
+				if(len == 2)
+				{
+					Player px = pl.findPlayer(args[0]);
+					Long am = 0l;
+					
+					if(px == null)
+					{
+						f(p, "Huh?");
+					}
+					
+					try
+					{
+						am = Long.parseLong(args[1]);
+						
+						if(am > 0)
+						{
+							s(p, "Gave " + px.getName() + " " + am.toString() + "xp");
+							s(px, p.getName() + " gave you " + am.toString() + "xp");
+							Game g = pl.gameControl.getGame(px);
+							
+							if(g != null)
+							{
+								if(g.getType().equals(GameType.REGIONED))
+								{
+									((RegionedGame)g).getExperienceHandler().giveXp(px, am, Experience.UNKNOWN);
+								}
+								
+								else
+								{
+									pl.gpd(px).setExperience(pl.gpd(px).getExperience() + am);
+								}
+							}
+							
+							else
+							{
+								pl.gpd(px).setExperience(pl.gpd(px).getExperience() + am);
+							}
+						}
+						
+						else
+						{
+							f(p, "Not a positive number.");
+						}
+					}
+					
+					catch(Exception e)
+					{
+						f(p, args[1] + " is not a number.");
+					}
+				}
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_GIVESKILL))
+		{
+			if(isPlayer && isAdmin)
+			{
+				if(len == 2)
+				{
+					Player px = pl.findPlayer(args[0]);
+					Long am = 0l;
+					
+					if(px == null)
+					{
+						f(p, "Huh?");
+					}
+					
+					try
+					{
+						am = Long.parseLong(args[1]);
+						
+						if(am > 0)
+						{
+							s(p, "Gave " + px.getName() + " " + am.toString() + " skill");
+							s(px, p.getName() + " gave you " + am.toString() + " skill");
+							Game g = pl.gameControl.getGame(px);
+							
+							if(g != null)
+							{
+								if(g.getType().equals(GameType.REGIONED))
+								{
+									((RegionedGame)g).getExperienceHandler().addSk(px, am);
+								}
+								
+								else
+								{
+									pl.gpd(px).setSkill(pl.gpd(px).getSkill() + am);
+								}
+							}
+							
+							else
+							{
+								pl.gpd(px).setSkill(pl.gpd(px).getSkill() + am);
+							}
+						}
+						
+						else
+						{
+							f(p, "Not a positive number.");
+						}
+					}
+					
+					catch(Exception e)
+					{
+						f(p, args[1] + " is not a number.");
+					}
+				}
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_GIVESHARDS))
+		{
+			if(isPlayer && isAdmin)
+			{
+				if(len == 2)
+				{
+					Player px = pl.findPlayer(args[0]);
+					Long am = 0l;
+					
+					if(px == null)
+					{
+						f(p, "Huh?");
+					}
+					
+					try
+					{
+						am = Long.parseLong(args[1]);
+						
+						if(am > 0)
+						{
+							s(p, "Gave " + px.getName() + " " + am.toString() + " shards");
+							s(px, p.getName() + " gave you " + am.toString() + " shards");
+							Game g = pl.gameControl.getGame(px);
+							
+							if(g != null)
+							{
+								if(g.getType().equals(GameType.REGIONED))
+								{
+									//TODO Shards stuff
+									pl.gpd(px).setExperience(pl.gpd(px).getExperience() + am);
+								}
+								
+								else
+								{
+									pl.gpd(px).setShards(pl.gpd(px).getShards() + am);
+								}
+							}
+							
+							else
+							{
+								pl.gpd(px).setShards(pl.gpd(px).getShards() + am);
+							}
+						}
+						
+						else
+						{
+							f(p, "Not a positive number.");
+						}
+					}
+					
+					catch(Exception e)
+					{
+						f(p, args[1] + " is not a number.");
+					}
 				}
 			}
 		}

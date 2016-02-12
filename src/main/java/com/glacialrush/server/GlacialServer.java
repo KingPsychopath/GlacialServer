@@ -18,6 +18,7 @@ import com.glacialrush.api.game.data.MapData;
 import com.glacialrush.api.game.data.PlayerData;
 import com.glacialrush.api.game.data.RegionData;
 import com.glacialrush.api.game.loadout.Loadout;
+import com.glacialrush.api.game.obtainable.Ability;
 import com.glacialrush.api.game.obtainable.Item;
 import com.glacialrush.api.game.obtainable.Obtainable;
 import com.glacialrush.api.game.obtainable.ObtainableFilter;
@@ -194,6 +195,9 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		getCommand(Info.CMD_SKILL).setExecutor(commandController);
 		getCommand(Info.CMD_TUTORIAL).setExecutor(commandController);
 		getCommand(Info.CMD_SPECTATE).setExecutor(commandController);
+		getCommand(Info.CMD_GIVEXP).setExecutor(commandController);
+		getCommand(Info.CMD_GIVESKILL).setExecutor(commandController);
+		getCommand(Info.CMD_GIVESHARDS).setExecutor(commandController);
 		
 		pdc = playerDataComponent;
 		
@@ -511,7 +515,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 										if(i.getCost() <= pd.getSkill())
 										{
 											Audio.CAPTURE_CAPTURE.play(getPlayer());
-											pd.getOwned().add(i.getId());
+											getMarketController().buy(getPlayer(), i);
 											close();
 										}
 										
@@ -554,7 +558,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 										if(i.getCost() <= pd.getSkill())
 										{
 											Audio.CAPTURE_CAPTURE.play(getPlayer());
-											pd.getOwned().add(i.getId());
+											getMarketController().buy(getPlayer(), i);
 											close();
 										}
 										
@@ -597,7 +601,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 										if(i.getCost() <= pd.getSkill())
 										{
 											Audio.CAPTURE_CAPTURE.play(getPlayer());
-											pd.getOwned().add(i.getId());
+											getMarketController().buy(getPlayer(), i);
 											close();
 										}
 										
@@ -629,6 +633,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				Element tool = new Element(getPane(), ChatColor.RED + "No Tool", Material.QUARTZ, 1, 3).addLore(ChatColor.DARK_RED + "Click to equip an item you own");
 				Element utility = new Element(getPane(), ChatColor.RED + "No Utility", Material.QUARTZ, -1, 3).addLore(ChatColor.DARK_RED + "Click to equip an item you own");
 				Element projectile = null;
+				Element ability = new Element(getPane(), ChatColor.RED + "No Ability", Material.QUARTZ, 0, 4).addLore(ChatColor.DARK_RED + "Click to equip an ability you own");
 				
 				final Obtainable pw = gameController.getObtainableBank().resolve(loadout.getPrimaryWeapon());
 				final Obtainable sw = gameController.getObtainableBank().resolve(loadout.getSecondaryWeapon());
@@ -636,6 +641,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				Obtainable t = gameController.getObtainableBank().resolve(loadout.getTool());
 				Obtainable u = gameController.getObtainableBank().resolve(loadout.getUtility());
 				final Obtainable pjt = gameController.getObtainableBank().resolve(loadout.getProjectile());
+				Obtainable a = gameController.getObtainableBank().resolve(loadout.getAbility());
 				
 				if(pw != null)
 				{
@@ -651,6 +657,20 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				{
 					tertiary = configure(getPlayer(), getPane(), tw, 14);
 				}
+				
+				if(a != null)
+				{
+					ability = configure(getPlayer(), getPane(), a, 31);
+				}
+				
+				ability.setOnLeftClickListener(new ElementClickListener()
+				{
+					public void run()
+					{
+						close();
+						selectAbility(this.getPlayer());
+					}
+				});
 				
 				primary.setOnLeftClickListener(new ElementClickListener()
 				{
@@ -784,6 +804,35 @@ public class GlacialServer extends GlacialPlugin implements Listener
 	public void buyWeapons(Player player)
 	{
 	
+	}
+	
+	public void selectAbility(Player player)
+	{
+		Pane pane = new Pane(uiController.get(player), "Select an ability");
+		int s = 0;
+		
+		for(final Ability i : gameController.gpo(player).abilities())
+		{
+			if(gameController.getObtainableBank().getObtainableFilter().has(player, i))
+			{
+				Element e = configure(player, pane, i, s);
+				e.setOnLeftClickListener(new ElementClickListener()
+				{
+					public void run()
+					{
+						gameController.gpd(getPlayer()).getLoadoutSet().getLoadout().setAbility(i.getId());
+						
+						uiController.get(getPlayer()).close();
+						uiController.get(getPlayer()).getPanes().clear();
+						sLoadout.launch(uiController.get(getPlayer()));
+					}
+				});
+				
+				s++;
+			}
+		}
+		
+		uiController.get(player).open(pane);
 	}
 	
 	public void selectProjectile(Player player, final ProjectileType type, Obtainable current)

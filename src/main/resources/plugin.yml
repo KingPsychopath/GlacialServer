@@ -49,3 +49,9 @@ commands:
     aliases: [tut, helptutorial, showhelp, credits]
   spectate:
     aliases: [fly, youtube]
+  givexp:
+    aliases: [gxp, givex]
+  giveskill:
+    aliases: [gskill, gsk, givesk]
+  giveshards:
+    aliases: [gsh, givesh, gshards, gshard, giveshard]
