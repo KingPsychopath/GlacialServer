@@ -25,6 +25,8 @@ import com.glacialrush.api.game.RegionedGame;
 import com.glacialrush.api.game.data.PlayerData;
 import com.glacialrush.api.game.experience.Experience;
 import com.glacialrush.api.game.object.Faction;
+import com.glacialrush.api.gui.Element;
+import com.glacialrush.api.gui.Pane;
 import com.glacialrush.api.map.Chunklet;
 import com.glacialrush.api.map.Map;
 import com.glacialrush.api.map.Region;
@@ -39,6 +41,9 @@ import com.glacialrush.api.object.GList;
 import com.glacialrush.api.object.GMap;
 import com.glacialrush.api.rank.Rank;
 import com.glacialrush.api.sfx.Audio;
+import com.glacialrush.api.thread.GlacialTask;
+import com.glacialrush.api.thread.GlacialThread;
+import com.glacialrush.api.thread.ThreadState;
 import com.glacialrush.packet.EndCredits;
 import net.md_5.bungee.api.ChatColor;
 
@@ -1533,7 +1538,7 @@ public class CommandController extends Controller implements CommandExecutor
 								if(g.getType().equals(GameType.REGIONED))
 								{
 									//TODO Shards stuff
-									pl.gpd(px).setExperience(pl.gpd(px).getExperience() + am);
+									pl.gpd(px).setShards(pl.gpd(px).getShards() + am);
 								}
 								
 								else
@@ -1571,6 +1576,24 @@ public class CommandController extends Controller implements CommandExecutor
 					if(sub.equalsIgnoreCase("cla") || sub.equalsIgnoreCase("ca"))
 					{
 						Audio.loadAll(p, pl);
+					}
+					
+					if(sub.equalsIgnoreCase("threads"))
+					{
+						s("Showing current thread data...");
+						showThreads(p);
+					}
+					
+					if(sub.equalsIgnoreCase("mode-p") || sub.equalsIgnoreCase("mp"))
+					{
+						s(p, "Production Mode set.");
+						pl.getServerDataComponent().setProduction(true);
+					}
+					
+					if(sub.equalsIgnoreCase("mode-d") || sub.equalsIgnoreCase("md"))
+					{
+						s(p, "Developer Mode set.");
+						pl.getServerDataComponent().setProduction(false);
 					}
 					
 					else if(sub.equalsIgnoreCase("overbose") || sub.equalsIgnoreCase("ob"))
@@ -1792,6 +1815,12 @@ public class CommandController extends Controller implements CommandExecutor
 		
 		Player p = e.getPlayer();
 		Location l = e.getPlayer().getTargetBlock((HashSet<Byte>) null, 512).getLocation();
+		
+		if(get(p) == null)
+		{
+			return;
+		}
+		
 		Region r = get(p).getB();
 		
 		if(e.getAction().equals(Action.RIGHT_CLICK_AIR))
@@ -1837,6 +1866,53 @@ public class CommandController extends Controller implements CommandExecutor
 	public long getExperience(int battleRank)
 	{
 		return (long) Math.pow(battleRank, 4);
+	}
+	
+	public void showThreads(Player p)
+	{
+		Pane pane = new Pane(pl.getUiController().get(p), "Threads");
+		
+		int c = 0;
+		
+		GList<GlacialTask> tl = pl.getThreadComponent().getTasks().copy();
+		
+		for(GlacialTask i : tl)
+		{
+			Element e = new Element(pane, "SYNC: " + i.getName(), Material.SLIME_BALL, c);
+			e.addLore(ChatColor.GREEN + "Cycles: " + i.getCycles());
+			e.addLore(ChatColor.GOLD + "CycleTime: " + i.getCycleTime());
+			e.addLore(ChatColor.RED + "Impact: " + (int)(100.0 * ((double)i.getCycleTime() / (double)50)) + "%");
+			e.addLore(ChatColor.LIGHT_PURPLE + "State: " + i.getState().toString());
+			
+			c++;
+		}
+		
+		for(Game i : pl.getGameControl().getGames())
+		{
+			if(i.getType().equals(GameType.REGIONED))
+			{
+				RegionedGame r = (RegionedGame) i;
+				
+				Element e = new Element(pane, "Game: " + r.getMap().getName(), Material.MAGMA_CREAM, c);
+				
+				for(GlacialThread j : i.getThreadHandler().getThreads())
+				{
+					if(!j.getState().equals(ThreadState.FINISHED))
+					{
+						e.addLore(ChatColor.GREEN + j.getName() + ": " + ((int)(100.0 * ((double)j.getMonitor().getActiveTime() / 50.0))) + "%" + ChatColor.RED + " (" + j.getMonitor().getActiveTime() + "ms)");
+					}
+				}
+				
+				for(String j : r.getGameStateHandler().getTmx().keySet())
+				{
+					e.addLore(ChatColor.YELLOW + j + ": " + ((int)(100.0 * ((double)r.getGameStateHandler().getTmx().get(j) / 50.0))) + "%" + ChatColor.RED + " (" + r.getGameStateHandler().getTmx().get(j) + "ms)");
+				}
+				
+				c++;
+			}
+		}
+		
+		pane.getUi().open(pane);
 	}
 	
 	@EventHandler

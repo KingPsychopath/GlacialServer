@@ -485,10 +485,12 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				Element w = new Element(getPane(), ChatColor.GREEN + "Weapons", Material.DIAMOND_SWORD, 0);
 				Element a = new Element(getPane(), ChatColor.BLUE + "Ammunition", Material.ARROW, 1);
 				Element u = new Element(getPane(), ChatColor.YELLOW + "Upgrades", Material.COOKIE, 2);
+				Element ab = new Element(getPane(), ChatColor.LIGHT_PURPLE + "Abilities", Material.COOKIE, 3);
 				
 				w.addLore(ChatColor.GREEN + "Get all weapons here.");
 				a.addLore(ChatColor.BLUE + "Get all ammunition here.");
 				u.addLore(ChatColor.YELLOW + "Get all upgrades here.");
+				ab.addLore(ChatColor.LIGHT_PURPLE + "Get all abilities (press q to activate) here.");
 				
 				u.setOnLeftClickListener(new ElementClickListener()
 				{
@@ -505,7 +507,6 @@ public class GlacialServer extends GlacialPlugin implements Listener
 							if(!gameController.getObtainableBank().getObtainableFilter().has(getPlayer(), i))
 							{
 								Element e = configure(getPlayer(), pane, i, c);
-								o(e.getTitle());
 								e.setOnLeftClickListener(new ElementClickListener()
 								{
 									public void run()
@@ -592,6 +593,50 @@ public class GlacialServer extends GlacialPlugin implements Listener
 							if(!gameController.getObtainableBank().getObtainableFilter().has(getPlayer(), i))
 							{
 								Element e = configure(getPlayer(), getPane(), i, c);
+								e.setOnLeftClickListener(new ElementClickListener()
+								{
+									public void run()
+									{
+										PlayerData pd = gpd(getPlayer());
+										
+										if(i.getCost() <= pd.getSkill())
+										{
+											Audio.CAPTURE_CAPTURE.play(getPlayer());
+											getMarketController().buy(getPlayer(), i);
+											close();
+										}
+										
+										else
+										{
+											Audio.UI_FAIL.play(getPlayer());
+										}
+									}
+								});
+								
+								c++;
+							}
+						}
+						
+						getUi().open(pane);
+					}
+				});
+				
+				ab.setOnLeftClickListener(new ElementClickListener()
+				{
+					public void run()
+					{
+						close();
+						getUi().getPanes().clear();
+						Pane pane = new Pane(getUi(), "Select Abilities");
+						
+						int c = 0;
+						
+						for(final Ability i : gameController.getObtainableBank().getObtainableFilter().getAbilities())
+						{
+							if(!gameController.getObtainableBank().getObtainableFilter().has(getPlayer(), i))
+							{
+								Element e = configure(getPlayer(), getPane(), i, c);
+								
 								e.setOnLeftClickListener(new ElementClickListener()
 								{
 									public void run()
