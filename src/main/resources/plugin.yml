@@ -55,3 +55,5 @@ commands:
     aliases: [gskill, gsk, givesk]
   giveshards:
     aliases: [gsh, givesh, gshards, gshard, giveshard]
+  respawn:
+    aliases: [resupply, resup, resp, rsp, deploy, redeploy]

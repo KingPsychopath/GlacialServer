@@ -1614,6 +1614,24 @@ public class CommandController extends Controller implements CommandExecutor
 			}
 		}
 		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_RESPAWN))
+		{
+			if(isPlayer)
+			{
+				Game game = pl.getGameControl().getGame(p);
+				
+				if(game != null)
+				{
+					if(game.getType().equals(GameType.REGIONED))
+					{
+						RegionedGame rg = (RegionedGame) game;
+						
+						rg.resp(p);
+					}
+				}
+			}
+		}
+		
 		else if(command.getName().equalsIgnoreCase(Info.CMD_RANK))
 		{
 			if((isPlayer && isAdmin) || (isPlayer && p.getName().equals("cyberpwn")))
