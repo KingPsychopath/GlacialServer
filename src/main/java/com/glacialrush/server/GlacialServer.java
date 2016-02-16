@@ -100,11 +100,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 			
 			Map map = new Map(md.getName(), gameController.getBuildGame(), getServer().getWorld(md.getWorld()));
 			map.setMapConfiguration(md.getConfig());
-			
-			if(md.getLocked())
-			{
-				map.lock();
-			}
+			map.lock();
 			
 			for(RegionData j : md.getRegions())
 			{
