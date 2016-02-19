@@ -1066,34 +1066,42 @@ public class CommandController extends Controller implements CommandExecutor
 							{
 								if(i.getName().equalsIgnoreCase(map))
 								{
-									if(gs.getGameController().getGames().contains(i))
+									for(Game g : gs.getGameControl().getGames())
 									{
-										f(p, "Game is already running!");
+										if(g.getType().equals(GameType.REGIONED))
+										{
+											if(((RegionedGame)g).getMap().equals(i))
+											{
+												f(p, "Game is already running!");
+												return true;
+											}
+										}
 									}
 									
-									else
-									{
-										RegionedGame rg = new RegionedGame(gs.getGameController(), i);
-										gs.getGameController().addGame(rg);
-										s(p, "Game Started!");
-									}
+									RegionedGame rg = new RegionedGame(gs.getGameController(), i);
+									gs.getGameController().addGame(rg);
+									s(p, "Game Started!");
 									
 									return true;
 								}
 								
 								if(i.getName().toLowerCase().contains(map.toLowerCase()))
 								{
-									if(gs.getGameController().getGames().contains(i))
+									for(Game g : gs.getGameControl().getGames())
 									{
-										f(p, "Game is already running!");
+										if(g.getType().equals(GameType.REGIONED))
+										{
+											if(((RegionedGame)g).getMap().equals(i))
+											{
+												f(p, "Game is already running!");
+												return true;
+											}
+										}
 									}
 									
-									else
-									{
-										RegionedGame rg = new RegionedGame(gs.getGameController(), i);
-										gs.getGameController().addGame(rg);
-										s(p, "Game Started!");
-									}
+									RegionedGame rg = new RegionedGame(gs.getGameController(), i);
+									gs.getGameController().addGame(rg);
+									s(p, "Game Started!");
 									
 									return true;
 								}
@@ -1102,7 +1110,7 @@ public class CommandController extends Controller implements CommandExecutor
 						
 						else
 						{
-						
+							f(p, "No map found.");
 						}
 					}
 				}
