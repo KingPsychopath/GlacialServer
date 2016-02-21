@@ -57,3 +57,12 @@ commands:
     aliases: [gsh, givesh, gshards, gshard, giveshard]
   respawn:
     aliases: [resupply, resup, resp, rsp, deploy, redeploy]
+  squad:
+    aliases: [s, sq, sd]
+  point:
+    aliases: [target, tg, wp, waypoint, beacon, bcn]
+  invite:
+    aliases: [inv]
+  objective:
+    aliases: [o, obj]
+  

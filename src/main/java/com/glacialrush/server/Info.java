@@ -31,6 +31,10 @@ public class Info
 	public static final String CMD_GIVESKILL = "giveskill";
 	public static final String CMD_GIVESHARDS = "giveshards";
 	public static final String CMD_RESPAWN = "respawn";
+	public static final String CMD_SQUAD = "squad";
+	public static final String CMD_POINT = "point";
+	public static final String CMD_INVITE = "invite";
+	public static final String CMD_OBJECTIVE = "objective";
 	
 	public static final String PERM_ADMIN = "glacialrush.admin";
 	public static final String PERM_BUILDER = "glacialrush.builder";
