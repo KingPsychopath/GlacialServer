@@ -11,13 +11,17 @@ import com.glacialrush.api.GlacialPlugin;
 import com.glacialrush.api.component.MapDataController;
 import com.glacialrush.api.component.PlayerDataComponent;
 import com.glacialrush.api.component.UIController;
+import com.glacialrush.api.game.Game;
 import com.glacialrush.api.game.GameController;
+import com.glacialrush.api.game.GameType;
 import com.glacialrush.api.game.RegionedGame;
 import com.glacialrush.api.game.data.ChunkletData;
 import com.glacialrush.api.game.data.MapData;
 import com.glacialrush.api.game.data.PlayerData;
 import com.glacialrush.api.game.data.RegionData;
 import com.glacialrush.api.game.loadout.Loadout;
+import com.glacialrush.api.game.object.Greek;
+import com.glacialrush.api.game.object.Squad;
 import com.glacialrush.api.game.obtainable.Ability;
 import com.glacialrush.api.game.obtainable.Item;
 import com.glacialrush.api.game.obtainable.Obtainable;
@@ -41,11 +45,13 @@ import com.glacialrush.api.gui.Shortcut;
 import com.glacialrush.api.gui.ShortcutLaunchListener;
 import com.glacialrush.api.map.Chunklet;
 import com.glacialrush.api.map.Map;
+import com.glacialrush.api.map.Region;
 import com.glacialrush.api.map.RegionType;
 import com.glacialrush.api.map.region.Edge;
 import com.glacialrush.api.map.region.Scenery;
 import com.glacialrush.api.map.region.Territory;
 import com.glacialrush.api.map.region.Village;
+import com.glacialrush.api.object.GList;
 import com.glacialrush.api.rank.Rank;
 import com.glacialrush.api.sfx.Audio;
 import net.md_5.bungee.api.ChatColor;
@@ -58,6 +64,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 	private PlayerDataComponent playerDataComponent;
 	
 	private Shortcut sLoadout;
+	private Shortcut sSquad;
 	
 	private boolean uppd;
 	
@@ -195,6 +202,10 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		getCommand(Info.CMD_GIVESKILL).setExecutor(commandController);
 		getCommand(Info.CMD_GIVESHARDS).setExecutor(commandController);
 		getCommand(Info.CMD_RESPAWN).setExecutor(commandController);
+		getCommand(Info.CMD_SQUAD).setExecutor(commandController);
+		getCommand(Info.CMD_INVITE).setExecutor(commandController);
+		getCommand(Info.CMD_OBJECTIVE).setExecutor(commandController);
+		getCommand(Info.CMD_POINT).setExecutor(commandController);
 		
 		pdc = playerDataComponent;
 		
@@ -822,16 +833,73 @@ public class GlacialServer extends GlacialPlugin implements Listener
 			}
 		}).setIX(2).setIY(2);
 		
-		Shortcut sSquad = new Shortcut(ChatColor.DARK_BLUE + "Squad", Material.SUGAR, -4, 1).onShortcutLaunch(new ShortcutLaunchListener()
+		sSquad = new Shortcut(ChatColor.DARK_BLUE + "Squad", Material.SUGAR, -4, 1).onShortcutLaunch(new ShortcutLaunchListener()
 		{
 			public void run()
 			{
 				Element ns = new Element(getPane(), ChatColor.BLUE + "New Squad", Material.EMERALD, -4, 1);
 				ns.clearLore();
-				ns.addLore(ChatColor.AQUA + "Create a squad and add allies.");
-				ns.addLore(ChatColor.AQUA + "Create objectives, and waypoints");
-				ns.addLore(ChatColor.AQUA + "for all the members to see");
-				ns.addLore(ChatColor.AQUA + "Bonus 5% xp for all members and leaders");
+				
+				Game g = gameController.getGame(getPlayer());
+				
+				if(g == null || !g.getType().equals(GameType.REGIONED))
+				{
+					ns.setTitle(ChatColor.RED + "You must be in a game to create a squad");
+				}
+				
+				else
+				{
+					if(((RegionedGame) g).getSquadHandler().inSquad(getPlayer()))
+					{
+						getPane().remove(ns);
+						showSquadMenu(getPane(), getPlayer());
+					}
+					
+					else
+					{
+						ns.addLore(ChatColor.AQUA + "Create a squad and add allies.");
+						ns.addLore(ChatColor.AQUA + "Create objectives, and waypoints");
+						ns.addLore(ChatColor.AQUA + "for all the members you invite to see");
+						
+						ns.setOnLeftClickListener(new ElementClickListener()
+						{
+							public void run()
+							{
+								createSquad(getPlayer());
+							}
+						});
+						
+						int c = 1;
+						
+						for(Squad i : ((RegionedGame) g).getSquadHandler().getSquads(((RegionedGame) g).getFactionHandler().getFaction(getPlayer())))
+						{
+							Element e = new Element(getPane(), i.getColor() + i.getGreek().symbol() + " " + i.getGreek().fName(), Material.STAINED_GLASS_PANE, c);
+							
+							if(((RegionedGame) g).getSquadHandler().isInvited(getPlayer(), i))
+							{
+								e.addLore(ChatColor.GREEN + "You are INVITED, Click to join!");
+								
+								e.setOnLeftClickListener(new ElementClickListener()
+								{
+									public void run()
+									{
+										((RegionedGame) g).getSquadHandler().join(getPlayer(), i);
+										getPane().getUi().close();
+										getPane().getUi().getPanes().clear();
+									}
+								});
+							}
+							
+							else
+							{
+								e.addLore(ChatColor.RED + "You are not yet invited.");
+								e.addLore(ChatColor.YELLOW + "Ask " + i.getLeader().getName() + " to join");
+							}
+							
+							c++;
+						}
+					}
+				}
 			}
 		}).setIX(-4).setIY(2);
 		
@@ -846,6 +914,205 @@ public class GlacialServer extends GlacialPlugin implements Listener
 	public void buyWeapons(Player player)
 	{
 	
+	}
+	
+	public void showSquadMenu(Pane pane, Player p)
+	{
+		final RegionedGame rg = (RegionedGame) gameController.getGame(p);
+		final Squad s = rg.getSquadHandler().getSquad(p);
+		final Boolean lead = s.getLeader().equals(p);
+		
+		Element beacon = new Element(pane, ChatColor.BLUE + "Waypoint", Material.ARROW, -1, 2);
+		beacon.clearLore();
+		
+		if(s.getBeacon() == null)
+		{
+			beacon.addLore(ChatColor.RED + "No Beacon Set");
+		}
+		
+		else
+		{
+			Region r = rg.getMap().getRegion(s.getBeacon());
+			beacon.addLore(ChatColor.AQUA + "Nearby: " + ChatColor.BLUE + r.getName());
+			beacon.addLore(ChatColor.DARK_AQUA + "Left click your compass to view it.");
+		}
+		
+		if(lead)
+		{
+			beacon.addLore(ChatColor.YELLOW + "You can change this to your location");
+			beacon.addLore(ChatColor.GOLD + "Simply use /squad point");
+			beacon.addLore(ChatColor.GREEN + "THIS WILL SHOW ON SQUAD MEMBERS COMPASSES. Be sure to keep it updated.");
+		}
+		
+		Element objective = new Element(pane, ChatColor.YELLOW + "Objective", Material.IRON_SWORD, 0, 2);
+		objective.clearLore();
+		objective.addLore(ChatColor.AQUA + s.getObjective());
+		
+		if(lead)
+		{
+			objective.addLore(ChatColor.YELLOW + "You can change this anytime with");
+			objective.addLore(ChatColor.YELLOW + "/squad objective <text>");
+			objective.addLore(ChatColor.GREEN + "THIS WILL SHOW ON SQUAD MEMBERS COMPASSES. Be sure to keep it updated.");
+		}
+		
+		Element members = new Element(pane, ChatColor.GREEN + "Members", Material.BOOK_AND_QUILL, 0, 3);
+		members.clearLore();
+		
+		if(lead)
+		{
+			members.addLore(ChatColor.GREEN + "Here, you can add members, kick members, or just view them.");
+		}
+		
+		else
+		{
+			members.addLore(ChatColor.GREEN + "Here, you can view members in your squad.");
+		}
+		
+		members.setOnLeftClickListener(new ElementClickListener()
+		{
+			public void run()
+			{
+				showMembers(getPlayer());
+			}
+		});
+		
+		Element leave = new Element(pane, ChatColor.DARK_RED + "Leave Squad", Material.BARRIER, 4, 6);
+		leave.clearLore();
+		
+		if(lead)
+		{
+			if(s.getMembers().size() == 1)
+			{
+				leave.addLore(ChatColor.RED + "Leaving This squad will DISBAND the squad. Someone else will be able to create a squad with this symbol. Since no one else is in the squad.");
+			}
+			
+			else
+			{
+				leave.addLore(ChatColor.RED + "Leaving This squad will make another RANDOM player in the squad as the new leader. You can use /squad setleader <player> instead BEFORE LEAVING.");
+			}
+		}
+		
+		else
+		{
+			leave.addLore(ChatColor.RED + "By leaving this squad, you will not be able to join it again unless the leader invites you!");
+		}
+		
+		leave.setOnLeftClickListener(new ElementClickListener()
+		{
+			public void run()
+			{
+				rg.getSquadHandler().leave(getPlayer());
+				getUi().close();
+			}
+		});
+	}
+	
+	public void showMembers(Player p)
+	{
+		uiController.get(p).close();
+		uiController.get(p).getPanes().clear();
+		
+		Pane pane = new Pane(uiController.get(p), ChatColor.GREEN + "Squad Members");
+		final RegionedGame rg = (RegionedGame) gameController.getGame(p);
+		final Squad s = rg.getSquadHandler().getSquad(p);
+		Integer c = 0;
+		
+		Element bk = new Element(pane, ChatColor.RED + "Back", Material.BARRIER, 4, 6);
+		bk.addLore(ChatColor.RED + "(Squad Overview)");
+		
+		bk.setOnLeftClickListener(new ElementClickListener()
+		{
+			public void run()
+			{
+				close();
+				getUi().getPanes().clear();
+				sSquad.launch(getUi());
+			}
+		});
+		
+		for(Player i : s.getMembers())
+		{
+			if(i.equals(p))
+			{
+				continue;
+			}
+			
+			Element e = new Element(pane, s.getColor() + i.getName(), Material.BOOK, c);
+			
+			if(rg.getSquadHandler().isLeader(p, s))
+			{
+				e.addLore(ChatColor.RED + "RIGHT CLICK TO KICK PLAYER");
+				e.addLore(ChatColor.RED + "or use /squad kick " + i.getName());
+				
+				e.setOnRightClickListener(new ElementClickListener()
+				{
+					public void run()
+					{
+						rg.getSquadHandler().leave(i);
+						close();
+						getUi().getPanes().clear();
+						showMembers(getPlayer());
+					}
+				});
+			}
+			
+			c++;
+		}
+		
+		if(rg.getSquadHandler().isLeader(p, s))
+		{
+			Element ad = new Element(pane, ChatColor.AQUA + "Invite a Player", Material.EMERALD, c);
+			ad.addLore(ChatColor.YELLOW + "Use /squad invite <player>");
+		}
+		
+		getUiController().get(p).open(pane);
+	}
+	
+	public void createSquad(Player p)
+	{
+		uiController.get(p).close();
+		uiController.get(p).getPanes().clear();
+		RegionedGame rg = (RegionedGame) gameController.getGame(p);
+		GList<Greek> gck = rg.getSquadHandler().squadsForCreation(rg.getFactionHandler().getFaction(p));
+		
+		if(gck.isEmpty())
+		{
+			p.closeInventory();
+			p.sendMessage(ChatColor.RED + "No Squads can be created at this time (join one)");
+			return;
+		}
+		
+		Pane pane = new Pane(uiController.get(p), "Select a Color / Symbol");
+		int s = 0;
+		
+		for(final Greek i : gck)
+		{
+			Element e = new Element(pane, i.color() + "[" + i.symbol() + "] " + i.fName(), Material.STAINED_GLASS_PANE, s);
+			e.clearLore();
+			e.addLore(i.color() + "Click to make " + i.fName() + " your squad symbol. This will show up in many ways.");
+			e.addLore(i.color() + "[" + i.symbol() + "] Will show up in your members chat tags");
+			e.addLore(i.color() + "" + i.symbol() + " Will show up on region banners you capture");
+			e.addLore(i.color() + "Your members helmets will be colored " + i.dye().toString().toLowerCase());
+			e.addLore(i.color() + "Some particles from your squad are " + i.dye().toString().toLowerCase());
+			
+			e.setOnLeftClickListener(new ElementClickListener()
+			{
+				public void run()
+				{
+					rg.getSquadHandler().create(p, i);
+					pane.getUi().close();
+					getUi().getPanes().clear();
+					p.closeInventory();
+					uiController.get(getPlayer()).close();
+					uiController.get(getPlayer()).getPanes().clear();
+					sSquad.launch(uiController.get(getPlayer()));
+				}
+			});
+			
+			s++;
+		}
+		
+		pane.getUi().open(pane);
 	}
 	
 	public void selectAbility(Player player)
