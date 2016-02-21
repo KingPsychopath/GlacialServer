@@ -25,6 +25,7 @@ import com.glacialrush.api.game.RegionedGame;
 import com.glacialrush.api.game.data.PlayerData;
 import com.glacialrush.api.game.experience.Experience;
 import com.glacialrush.api.game.object.Faction;
+import com.glacialrush.api.game.object.Squad;
 import com.glacialrush.api.gui.Element;
 import com.glacialrush.api.gui.Pane;
 import com.glacialrush.api.map.Chunklet;
@@ -1517,6 +1518,220 @@ public class CommandController extends Controller implements CommandExecutor
 			}
 		}
 		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_SQUAD))
+		{
+			if(isPlayer)
+			{
+				Game game = pl.gameControl.getGame(p);
+				
+				if(game == null || !game.getType().equals(GameType.REGIONED))
+				{
+					f(p, "You must be in a game.");
+					return true;
+				}
+				
+				RegionedGame rg = (RegionedGame) game;
+				Squad s = rg.getSquadHandler().getSquad(p);
+				
+				if(s == null)
+				{
+					f(p, "You are not in a squad. Join or create one in the squads menu");
+					return true;
+				}
+				
+				if(args.length > 0)
+				{
+					if(args[0].equalsIgnoreCase("setleader") || args[0].equalsIgnoreCase("slead"))
+					{
+						if(!s.getLeader().equals(p))
+						{
+							f(p, "You must be the squad leader to set another leader.");
+							return true;
+						}
+						
+						if(args.length == 2)
+						{
+							Player px = pl.findPlayer(args[1]);
+							
+							if(px != null)
+							{
+								if(!s.getMembers().contains(px))
+								{
+									f(p, px.getName() + " is not in the squad. Use /sq invite");
+									return true;
+								}
+								
+								if(px.equals(p))
+								{
+									f(p, "You are already the leader.");
+									return true;
+								}
+								
+								rg.getSquadHandler().setLeader(px, s);
+								s(px, p.getName() + ChatColor.AQUA + " promoted you to Squad LEADER");
+								s(p, ChatColor.AQUA + "Promoted " + px + " to the squad leader.");
+							}
+							
+							else
+							{
+								f(p, "Cannot find " + args[1]);
+							}
+						}
+						
+						else
+						{
+							f(p, "/sq slead <PLAYER>");
+						}
+					}
+					
+					if(args[0].equalsIgnoreCase("kick") || args[0].equalsIgnoreCase("remove"))
+					{
+						if(!s.getLeader().equals(p))
+						{
+							f(p, "You must be the squad leader to kick members.");
+							return true;
+						}
+						
+						if(args.length == 2)
+						{
+							Player px = pl.findPlayer(args[1]);
+							
+							if(px != null)
+							{
+								if(!s.getMembers().contains(px))
+								{
+									f(p, px + " is not in the squad.");
+									return true;
+								}
+								
+								if(px.equals(p))
+								{
+									f(p, "You cannot kick yourself.");
+									return true;
+								}
+								
+								rg.getSquadHandler().leave(px);
+								s(px, p.getName() + ChatColor.AQUA + " kicked you from the squad.");
+								s(p, ChatColor.AQUA + "Kicked " + px.getName() + " from the squad.");
+							}
+							
+							else
+							{
+								f(p, "Cannot find " + args[1]);
+							}
+						}
+						
+						else
+						{
+							f(p, "/sq slead <PLAYER>");
+						}
+					}
+					
+					if(args[0].equalsIgnoreCase("point") || args[0].equalsIgnoreCase("p"))
+					{
+						if(!s.getLeader().equals(p))
+						{
+							f(p, "You must be the squad leader to set targets.");
+							return true;
+						}
+						
+						if(args.length == 1)
+						{
+							if(rg.getMap().contains(p))
+							{
+								s(p, "Set Squad Beacon to your location");
+								s.setBeacon(new Chunklet(p.getLocation()));
+							}
+							
+							else
+							{
+								f(p, "For some reason, you are not in the map. Use /resp to respawn");
+							}
+						}
+						
+						else
+						{
+							f(p, "/sq p");
+						}
+					}
+					
+					if(args[0].equalsIgnoreCase("objective") || args[0].equalsIgnoreCase("obj"))
+					{
+						if(!s.getLeader().equals(p))
+						{
+							f(p, "You must be the squad leader to set objectives.");
+							return true;
+						}
+						
+						if(args.length >= 2)
+						{
+							String des = subWord(args, 1);
+							s(p, "Set Squad Objective to " + des);
+							s.setObjective(des);
+						}
+						
+						else
+						{
+							f(p, "/sq obj <objective info>");
+						}
+					}
+					
+					if(args[0].equalsIgnoreCase("invite") || args[0].equalsIgnoreCase("inv"))
+					{
+						if(!s.getLeader().equals(p))
+						{
+							f(p, "You must be the squad leader to invite others.");
+							return true;
+						}
+						
+						if(args.length == 2)
+						{
+							Player px = pl.findPlayer(args[1]);
+							
+							if(px != null)
+							{
+								if(s.getMembers().contains(px))
+								{
+									f(p, px.getName() + " is already in the squad.");
+									return true;
+								}
+								
+								if(px.equals(p))
+								{
+									f(p, "You cannot invite yourself.");
+									return true;
+								}
+								
+								rg.getSquadHandler().invite(px, s);
+								s(px, p.getName() + ChatColor.AQUA + " invited you to the " + s.getGreek().color() + s.getGreek().fName() + ChatColor.AQUA + " Squad.");
+								s(px, ChatColor.AQUA + "Press e, and click on the squad " + s.getGreek().fName() + " to join.");
+								s(p, ChatColor.AQUA + "Invited " + px.getName());
+							}
+							
+							else
+							{
+								f(p, "Cannot find " + args[1]);
+							}
+						}
+						
+						else
+						{
+							f(p, "/sq inv <PLAYER>");
+						}
+					}
+				}
+				
+				else
+				{
+					s(p, "/squad setleader <player>");
+					s(p, "/squad invite <player>");
+					s(p, "/squad objective <desc>");
+					s(p, "/squad kick <player>");
+					s(p, "/squad point");
+				}
+			}
+		}
+		
 		else if(command.getName().equalsIgnoreCase(Info.CMD_GIVESHARDS))
 		{
 			if(isPlayer && isAdmin)
@@ -1602,6 +1817,43 @@ public class CommandController extends Controller implements CommandExecutor
 					{
 						s(p, "Developer Mode set.");
 						pl.getServerDataComponent().setProduction(false);
+					}
+					
+					if(sub.equalsIgnoreCase("cf") || sub.equalsIgnoreCase("cfaction"))
+					{
+						if(len == 2)
+						{
+							Faction f = null;
+							
+							for(Faction i : Faction.all())
+							{
+								if(args[1].equalsIgnoreCase(i.getName()) || i.getName().toLowerCase().contains(args[1].toLowerCase()))
+								{
+									f = i;
+								}
+							}
+							
+							if(f != null)
+							{
+								Game game = pl.getGameControl().getGame(p);
+								
+								if(game != null && game.getType().equals(GameType.REGIONED))
+								{
+									((RegionedGame)game).getFactionHandler().cf(p, f);
+									s(p, "Changed to " + f.getName());
+								}
+							}
+							
+							else
+							{
+								
+							}
+						}
+						
+						else
+						{
+							f(p, "/dev cf <faction>");
+						}
 					}
 					
 					else if(sub.equalsIgnoreCase("overbose") || sub.equalsIgnoreCase("ob"))
