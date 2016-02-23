@@ -28,11 +28,14 @@ import com.glacialrush.api.game.obtainable.Obtainable;
 import com.glacialrush.api.game.obtainable.ObtainableFilter;
 import com.glacialrush.api.game.obtainable.Projectile;
 import com.glacialrush.api.game.obtainable.Upgrade;
+import com.glacialrush.api.game.obtainable.WeaponAbility;
 import com.glacialrush.api.game.obtainable.item.Weapon;
+import com.glacialrush.api.game.obtainable.item.type.WeaponType;
 import com.glacialrush.api.game.obtainable.item.weapon.MeleeWeapon;
 import com.glacialrush.api.game.obtainable.item.weapon.RangedWeapon;
 import com.glacialrush.api.game.obtainable.item.weapon.type.WeaponEnclosureType;
 import com.glacialrush.api.game.obtainable.projectile.ProjectileArrow;
+import com.glacialrush.api.game.obtainable.type.ObtainableType;
 import com.glacialrush.api.game.obtainable.type.ProjectileType;
 import com.glacialrush.api.game.obtainable.type.UpgradeType;
 import com.glacialrush.api.game.obtainable.upgrade.MeleeWeaponUpgrade;
@@ -490,15 +493,17 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		{
 			public void run()
 			{
-				Element w = new Element(getPane(), ChatColor.GREEN + "Weapons", Material.DIAMOND_SWORD, 0);
-				Element a = new Element(getPane(), ChatColor.BLUE + "Ammunition", Material.ARROW, 1);
-				Element u = new Element(getPane(), ChatColor.YELLOW + "Upgrades", Material.COOKIE, 2);
-				Element ab = new Element(getPane(), ChatColor.LIGHT_PURPLE + "Abilities", Material.COOKIE, 3);
+				Element w = new Element(getPane(), ChatColor.GREEN + "Weapons", Material.DIAMOND_SWORD, -2, 3);
+				Element a = new Element(getPane(), ChatColor.BLUE + "Ammunition", Material.ARROW, -1, 3);
+				Element u = new Element(getPane(), ChatColor.YELLOW + "Upgrades", Material.COOKIE, 0, 3);
+				Element ab = new Element(getPane(), ChatColor.LIGHT_PURPLE + "Abilities", Material.SUGAR, 1, 3);
+				Element wa = new Element(getPane(), ChatColor.RED + "Weapon Abilities", Material.STICK, 2, 3);
 				
 				w.addLore(ChatColor.GREEN + "Get all weapons here.");
 				a.addLore(ChatColor.BLUE + "Get all ammunition here.");
 				u.addLore(ChatColor.YELLOW + "Get all upgrades here.");
-				ab.addLore(ChatColor.LIGHT_PURPLE + "Get all abilities (press q to activate) here.");
+				ab.addLore(ChatColor.LIGHT_PURPLE + "Get all abilities here.");
+				wa.addLore(ChatColor.RED + "Get all weapon abilities here.");
 				
 				u.setOnLeftClickListener(new ElementClickListener()
 				{
@@ -511,6 +516,49 @@ public class GlacialServer extends GlacialPlugin implements Listener
 						int c = 0;
 						
 						for(final Upgrade i : gameController.getObtainableBank().getObtainableFilter().getUpgrades())
+						{
+							if(!gameController.getObtainableBank().getObtainableFilter().has(getPlayer(), i))
+							{
+								Element e = configure(getPlayer(), pane, i, c);
+								e.setOnLeftClickListener(new ElementClickListener()
+								{
+									public void run()
+									{
+										PlayerData pd = gpd(getPlayer());
+										
+										if(i.getCost() <= pd.getSkill())
+										{
+											Audio.CAPTURE_CAPTURE.play(getPlayer());
+											getMarketController().buy(getPlayer(), i);
+											close();
+										}
+										
+										else
+										{
+											Audio.UI_FAIL.play(getPlayer());
+										}
+									}
+								});
+								
+								c++;
+							}
+						}
+						
+						getUi().open(pane);
+					}
+				});
+				
+				wa.setOnLeftClickListener(new ElementClickListener()
+				{
+					public void run()
+					{
+						close();
+						getUi().getPanes().clear();
+						Pane pane = new Pane(getUi(), "Select Weapon Abilities");
+						
+						int c = 0;
+						
+						for(final WeaponAbility i : gameController.getObtainableBank().getObtainableFilter().getWeaponAbilities())
 						{
 							if(!gameController.getObtainableBank().getObtainableFilter().has(getPlayer(), i))
 							{
@@ -688,6 +736,13 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				Element projectile = null;
 				Element ability = new Element(getPane(), ChatColor.RED + "No Ability", Material.QUARTZ, 0, 4).addLore(ChatColor.DARK_RED + "Click to equip an ability you own");
 				
+				Element primaryaa = new Element(getPane(), ChatColor.RED + "No Primary Weapon Ability", Material.QUARTZ, -1, 1).addLore(ChatColor.DARK_RED + "Click to equip an item you own");
+				Element secondaryaa = new Element(getPane(), ChatColor.RED + "No Secondary Weapon Ability", Material.QUARTZ, 0, 1).addLore(ChatColor.DARK_RED + "Click to equip an item you own");
+				Element tertiaryaa = new Element(getPane(), ChatColor.RED + "No Tertiary Weapon Ability", Material.QUARTZ, 1, 1).addLore(ChatColor.DARK_RED + "Click to equip an item you own");
+				
+				Obtainable pwa = gameController.getObtainableBank().resolve(loadout.getPrimaryWeaponAbility());
+				Obtainable swa = gameController.getObtainableBank().resolve(loadout.getSecondaryWeaponAbility());
+				Obtainable twa = gameController.getObtainableBank().resolve(loadout.getTertiaryWeaponAbility());
 				final Obtainable pw = gameController.getObtainableBank().resolve(loadout.getPrimaryWeapon());
 				final Obtainable sw = gameController.getObtainableBank().resolve(loadout.getSecondaryWeapon());
 				final Obtainable tw = gameController.getObtainableBank().resolve(loadout.getTertiaryWeapon());
@@ -699,16 +754,31 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				if(pw != null)
 				{
 					primary = configure(getPlayer(), getPane(), pw, 12);
+					
+					if(pwa != null)
+					{
+						primaryaa = configure(getPlayer(), getPane(), pwa, 3);
+					}
 				}
 				
 				if(sw != null)
 				{
 					secondary = configure(getPlayer(), getPane(), sw, 13);
+					
+					if(swa != null)
+					{
+						secondaryaa = configure(getPlayer(), getPane(), swa, 4);
+					}
 				}
 				
 				if(tw != null)
 				{
 					tertiary = configure(getPlayer(), getPane(), tw, 14);
+					
+					if(twa != null)
+					{
+						tertiaryaa = configure(getPlayer(), getPane(), twa, 5);
+					}
 				}
 				
 				if(a != null)
@@ -749,6 +819,33 @@ public class GlacialServer extends GlacialPlugin implements Listener
 					{
 						close();
 						selectWeapon(this.getPlayer(), WeaponEnclosureType.TERTIARY, tw);
+					}
+				});
+				
+				primaryaa.setOnLeftClickListener(new ElementClickListener()
+				{
+					public void run()
+					{
+						close();
+						selectWeaponAbility(this.getPlayer(), WeaponEnclosureType.PRIMARY, (Weapon) pw);
+					}
+				});
+				
+				secondaryaa.setOnLeftClickListener(new ElementClickListener()
+				{
+					public void run()
+					{
+						close();
+						selectWeaponAbility(this.getPlayer(), WeaponEnclosureType.SECONDARY, (Weapon) sw);
+					}
+				});
+				
+				tertiaryaa.setOnLeftClickListener(new ElementClickListener()
+				{
+					public void run()
+					{
+						close();
+						selectWeaponAbility(this.getPlayer(), WeaponEnclosureType.TERTIARY, (Weapon) tw);
 					}
 				});
 				
@@ -1144,6 +1241,50 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		uiController.get(player).open(pane);
 	}
 	
+	public void selectWeaponAbility(Player player, WeaponEnclosureType tx, Weapon w)
+	{
+		Pane pane = new Pane(uiController.get(player), "Select a weapon ability");
+		int s = 0;
+		
+		for(final WeaponAbility i : gameController.gpo(player).weaponAbilities())
+		{
+			WeaponType t = w.getWeaponType();
+			
+			if(i.getType().equals(t) && gameController.getObtainableBank().getObtainableFilter().has(player, i))
+			{
+				Element e = configure(player, pane, i, s);
+				e.setOnLeftClickListener(new ElementClickListener()
+				{
+					public void run()
+					{
+						if(tx.equals(WeaponEnclosureType.PRIMARY))
+						{
+							gameController.gpd(getPlayer()).getLoadoutSet().getLoadout().setPrimaryWeaponAbility(i.getId());
+						}
+						
+						if(tx.equals(WeaponEnclosureType.SECONDARY))
+						{
+							gameController.gpd(getPlayer()).getLoadoutSet().getLoadout().setSecondaryWeaponAbility(i.getId());
+						}
+						
+						if(tx.equals(WeaponEnclosureType.TERTIARY))
+						{
+							gameController.gpd(getPlayer()).getLoadoutSet().getLoadout().setTertiaryWeaponAbility(i.getId());
+						}
+						
+						uiController.get(getPlayer()).close();
+						uiController.get(getPlayer()).getPanes().clear();
+						sLoadout.launch(uiController.get(getPlayer()));
+					}
+				});
+				
+				s++;
+			}
+		}
+		
+		uiController.get(player).open(pane);
+	}
+	
 	public void selectProjectile(Player player, final ProjectileType type, Obtainable current)
 	{
 		Pane pane = new Pane(uiController.get(player), "Select an " + type.toString().toLowerCase());
@@ -1176,6 +1317,52 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		uiController.get(player).open(pane);
 	}
 	
+	public void checkWeaponAbility(Player p, final WeaponEnclosureType type, WeaponType t)
+	{
+		Obtainable o = null;
+		
+		if(type.equals(WeaponEnclosureType.PRIMARY))
+		{
+			o = gameController.getObtainableBank().resolve(gameController.gpd(p).getLoadoutSet().getLoadout().getPrimaryWeaponAbility());
+		}
+		
+		if(type.equals(WeaponEnclosureType.SECONDARY))
+		{
+			o = gameController.getObtainableBank().resolve(gameController.gpd(p).getLoadoutSet().getLoadout().getSecondaryWeaponAbility());
+		}
+		
+		if(type.equals(WeaponEnclosureType.TERTIARY))
+		{
+			o = gameController.getObtainableBank().resolve(gameController.gpd(p).getLoadoutSet().getLoadout().getTertiaryWeaponAbility());
+		}
+		
+		if(o != null)
+		{
+			if(o.getObtainableType().equals(ObtainableType.WEAPON_ABILITY))
+			{
+				WeaponAbility wa = (WeaponAbility) o;
+				
+				if(!wa.getType().equals(t))
+				{
+					if(type.equals(WeaponEnclosureType.PRIMARY))
+					{
+						gameController.gpd(p).getLoadoutSet().getLoadout().setPrimaryWeaponAbility("null");
+					}
+					
+					if(type.equals(WeaponEnclosureType.SECONDARY))
+					{
+						gameController.gpd(p).getLoadoutSet().getLoadout().setSecondaryWeaponAbility("null");
+					}
+					
+					if(type.equals(WeaponEnclosureType.TERTIARY))
+					{
+						gameController.gpd(p).getLoadoutSet().getLoadout().setTertiaryWeaponAbility("null");
+					}
+				}
+			}
+		}
+	}
+	
 	public void selectWeapon(Player player, final WeaponEnclosureType type, Obtainable current)
 	{
 		Pane pane = new Pane(uiController.get(player), "Select a " + type.toString().toLowerCase() + " weapon");
@@ -1206,6 +1393,8 @@ public class GlacialServer extends GlacialPlugin implements Listener
 							{
 								gameController.gpd(getPlayer()).getLoadoutSet().getLoadout().setTertiaryWeapon(i.getId());
 							}
+							
+							checkWeaponAbility(getPlayer(), i.getWeaponEnclosureType(), i.getWeaponType());
 							
 							uiController.get(getPlayer()).close();
 							uiController.get(getPlayer()).getPanes().clear();
@@ -1364,12 +1553,33 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		
 		else if(f.isAbility(o))
 		{
-		
+			Ability aa = (Ability) o;
+			
+			e.addLore(ChatColor.YELLOW + "- Ability (press [drop] to activate)");
+			e.addLore(ChatColor.GOLD + "- Duration: " + aa.getDuration());
+			e.addLore(ChatColor.GOLD + "- Cooldown: " + aa.getCooldown());
+			e.setMaterial(Material.SUGAR);
 		}
 		
-		else if(f.isUpgrade(o))
+		else if(f.isWeaponAbility(o))
 		{
-		
+			WeaponAbility wa = (WeaponAbility) o;
+			
+			if(wa.getType().equals(WeaponType.MELEE))
+			{
+				e.addLore(ChatColor.YELLOW + "- Weapon Ability (right click to activate)");
+				e.addLore(ChatColor.GOLD + "- Compatible with Melee Weapons.");
+			}
+			
+			if(wa.getType().equals(WeaponType.RANGED))
+			{
+				e.addLore(ChatColor.YELLOW + "- Weapon Ability (left click to activate)");
+				e.addLore(ChatColor.GOLD + "- Compatible with Ranged Weapons.");
+			}
+			
+			e.addLore(ChatColor.GOLD + "- Duration: " + wa.getDuration());
+			e.addLore(ChatColor.GOLD + "- Cooldown: " + wa.getCooldown());
+			e.setMaterial(Material.SUGAR);
 		}
 		
 		else if(f.isProjectile(o))
