@@ -19,6 +19,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import com.glacialrush.api.GlacialPlugin;
 import com.glacialrush.api.component.Controller;
 import com.glacialrush.api.dispatch.Title;
+import com.glacialrush.api.dispatch.notification.Notification;
+import com.glacialrush.api.dispatch.notification.NotificationPreset;
 import com.glacialrush.api.game.Game;
 import com.glacialrush.api.game.GameType;
 import com.glacialrush.api.game.RegionedGame;
@@ -1641,6 +1643,18 @@ public class CommandController extends Controller implements CommandExecutor
 							{
 								s(p, "Set Squad Beacon to your location");
 								s.setBeacon(new Chunklet(p.getLocation()));
+								Notification n = NotificationPreset.SQUAD_POINT.format(null, null, new Object[]{s.getColor() + ""});
+								
+								for(Player i : s.getMembers())
+								{
+									if(i.equals(p))
+									{
+										continue;
+									}
+									
+									rg.getNotificationHandler().queue(i, n);
+									Audio.UI_ACTION.play(i);
+								}
 							}
 							
 							else
@@ -1668,6 +1682,19 @@ public class CommandController extends Controller implements CommandExecutor
 							String des = subWord(args, 1);
 							s(p, "Set Squad Objective to " + des);
 							s.setObjective(des);
+							
+							Notification n = NotificationPreset.SQUAD_OBJECT.format(null, new Object[]{s.getColor() + "", des}, null);
+							
+							for(Player i : s.getMembers())
+							{
+								if(i.equals(p))
+								{
+									continue;
+								}
+								
+								rg.getNotificationHandler().queue(i, n);
+								Audio.UI_ACTION.play(i);
+							}
 						}
 						
 						else
