@@ -11,6 +11,7 @@ import com.glacialrush.api.GlacialPlugin;
 import com.glacialrush.api.component.MapDataController;
 import com.glacialrush.api.component.PlayerDataComponent;
 import com.glacialrush.api.component.UIController;
+import com.glacialrush.api.dispatch.notification.NotificationPreset;
 import com.glacialrush.api.game.Game;
 import com.glacialrush.api.game.GameController;
 import com.glacialrush.api.game.GameType;
@@ -521,11 +522,15 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				Element a = new Element(getPane(), ChatColor.BLUE + "Ammunition", Material.ARROW, -1, 3);
 				Element u = new Element(getPane(), ChatColor.YELLOW + "Upgrades", Material.COOKIE, 0, 3);
 				Element ab = new Element(getPane(), ChatColor.LIGHT_PURPLE + "Abilities", Material.SUGAR, 1, 3);
+				Element bb = new Element(getPane(), ChatColor.AQUA + "BOOST!", Material.INK_SACK, 0, 4);
 				
 				w.addLore(ChatColor.GREEN + "Get all weapons here.");
 				a.addLore(ChatColor.BLUE + "Get all ammunition here.");
 				u.addLore(ChatColor.YELLOW + "Get all upgrades here.");
 				ab.addLore(ChatColor.LIGHT_PURPLE + "Get all abilities here.");
+				bb.addLore(ChatColor.AQUA + "Boosts increase your xp income which earns you more skill points faster!");
+				bb.addLore(ChatColor.AQUA + "Boosts only last for the game you purchase them in! Make sure its a brand new game!");
+				bb.setData((byte) 4);
 				
 				u.setOnLeftClickListener(new ElementClickListener()
 				{
@@ -565,6 +570,135 @@ public class GlacialServer extends GlacialPlugin implements Listener
 								c++;
 							}
 						}
+						
+						getUi().open(pane);
+					}
+				});
+				
+				bb.setOnLeftClickListener(new ElementClickListener()
+				{
+					public void run()
+					{
+						close();
+						getUi().getPanes().clear();
+						Pane pane = new Pane(getUi(), ChatColor.AQUA + "Select Boosts!");
+						
+						Element bba = new Element(pane, ChatColor.AQUA + "+ 50% XP", Material.INK_SACK, -1, 3).setData((byte) 4);
+						bba.addLore(ChatColor.AQUA + "Costs 75 Shards!");
+						bba.addLore(ChatColor.RED + "100 XP " + ChatColor.AQUA + "> " + ChatColor.GREEN + "150 XP");
+						bba.addLore(ChatColor.AQUA + "Put your shards where they matter. Boost your xp income!");
+						
+						Element bbb = new Element(pane, ChatColor.AQUA + "+ 75% XP", Material.INK_SACK, 0, 3).setData((byte) 4);
+						bbb.addLore(ChatColor.AQUA + "Costs 125 Shards!");
+						bbb.addLore(ChatColor.RED + "100 XP " + ChatColor.AQUA + "> " + ChatColor.GREEN + "175 XP");
+						bbb.addLore(ChatColor.AQUA + "This is almost double XP!");
+						
+						Element bbc = new Element(pane, ChatColor.AQUA + "+ 125% XP", Material.INK_SACK, 1, 3).setData((byte) 4);
+						bbc.addLore(ChatColor.AQUA + "Costs 220 Shards!");
+						bbc.addLore(ChatColor.RED + "100 XP " + ChatColor.AQUA + "> " + ChatColor.GREEN + "225 XP");
+						bbc.addLore(ChatColor.AQUA + "MORE THAN DOUBLE XP! DOUBLE SKILL! BOOM!");
+						
+						bba.setOnLeftClickListener(new ElementClickListener()
+						{
+							public void run()
+							{
+								if(gameController.getGame(getPlayer()) == null || !gameControl.getGame(getPlayer()).getType().equals(GameType.REGIONED))
+								{
+									getPlayer().sendMessage(ChatColor.RED + "You must be in a game to purchase this!");
+									getUi().close();
+									return;
+								}
+								
+								if(gameController.gpd(getPlayer()).getShards() < 75)
+								{
+									getPlayer().sendMessage(ChatColor.RED + "You need 75 shards to purchase this! You currently have " + gameController.gpd(getPlayer()).getShards() + " (/skill)");
+									getUi().close();
+									return;
+								}
+								
+								RegionedGame rg = (RegionedGame) gameControl.getGame(getPlayer());
+								
+								if(!rg.canBoost(getPlayer()))
+								{
+									getPlayer().sendMessage(ChatColor.RED + "You have already boosted this game! You can do this in the next game!");
+									getUi().close();
+									return;
+								}
+								
+								gameController.gpd(getPlayer()).setShards(gameController.gpd(getPlayer()).getShards() - 75);
+								rg.secureBoost(getPlayer(), 0.5);
+								getUi().close();
+								rg.getNotificationHandler().queue(getPlayer(), NotificationPreset.BOOSTED.format(null, new Object[]{ChatColor.AQUA + "^50%"}, null));
+							}
+						});
+						
+						bbb.setOnLeftClickListener(new ElementClickListener()
+						{
+							public void run()
+							{
+								if(gameController.getGame(getPlayer()) == null || !gameControl.getGame(getPlayer()).getType().equals(GameType.REGIONED))
+								{
+									getPlayer().sendMessage(ChatColor.RED + "You must be in a game to purchase this!");
+									getUi().close();
+									return;
+								}
+								
+								if(gameController.gpd(getPlayer()).getShards() < 125)
+								{
+									getPlayer().sendMessage(ChatColor.RED + "You need 125 shards to purchase this! You currently have " + gameController.gpd(getPlayer()).getShards() + " (/skill)");
+									getUi().close();
+									return;
+								}
+								
+								RegionedGame rg = (RegionedGame) gameControl.getGame(getPlayer());
+								
+								if(!rg.canBoost(getPlayer()))
+								{
+									getPlayer().sendMessage(ChatColor.RED + "You have already boosted this game! You can do this in the next game!");
+									getUi().close();
+									return;
+								}
+								
+								gameController.gpd(getPlayer()).setShards(gameController.gpd(getPlayer()).getShards() - 125);
+								rg.secureBoost(getPlayer(), 0.75);
+								getUi().close();
+								rg.getNotificationHandler().queue(getPlayer(), NotificationPreset.BOOSTED.format(null, new Object[]{ChatColor.AQUA + "^75%"}, null));
+							}
+						});
+						
+						bbc.setOnLeftClickListener(new ElementClickListener()
+						{
+							public void run()
+							{
+								if(gameController.getGame(getPlayer()) == null || !gameControl.getGame(getPlayer()).getType().equals(GameType.REGIONED))
+								{
+									getPlayer().sendMessage(ChatColor.RED + "You must be in a game to purchase this!");
+									getUi().close();
+									return;
+								}
+								
+								if(gameController.gpd(getPlayer()).getShards() < 220)
+								{
+									getPlayer().sendMessage(ChatColor.RED + "You need 220 shards to purchase this! You currently have " + gameController.gpd(getPlayer()).getShards() + " (/skill)");
+									getUi().close();
+									return;
+								}
+								
+								RegionedGame rg = (RegionedGame) gameControl.getGame(getPlayer());
+								
+								if(!rg.canBoost(getPlayer()))
+								{
+									getPlayer().sendMessage(ChatColor.RED + "You have already boosted this game! You can do this in the next game!");
+									getUi().close();
+									return;
+								}
+								
+								gameController.gpd(getPlayer()).setShards(gameController.gpd(getPlayer()).getShards() - 220);
+								rg.secureBoost(getPlayer(), 1.25);
+								getUi().close();
+								rg.getNotificationHandler().queue(getPlayer(), NotificationPreset.BOOSTED.format(null, new Object[]{ChatColor.AQUA + "^125%"}, null));
+							}
+						});
 						
 						getUi().open(pane);
 					}
