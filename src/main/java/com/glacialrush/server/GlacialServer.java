@@ -22,6 +22,7 @@ import com.glacialrush.api.game.data.RegionData;
 import com.glacialrush.api.game.loadout.Loadout;
 import com.glacialrush.api.game.object.Greek;
 import com.glacialrush.api.game.object.Squad;
+import com.glacialrush.api.game.object.Statistic;
 import com.glacialrush.api.game.obtainable.Ability;
 import com.glacialrush.api.game.obtainable.Item;
 import com.glacialrush.api.game.obtainable.Obtainable;
@@ -52,6 +53,7 @@ import com.glacialrush.api.map.region.Scenery;
 import com.glacialrush.api.map.region.Territory;
 import com.glacialrush.api.map.region.Village;
 import com.glacialrush.api.object.GList;
+import com.glacialrush.api.object.GMap;
 import com.glacialrush.api.rank.Rank;
 import com.glacialrush.api.sfx.Audio;
 import net.md_5.bungee.api.ChatColor;
@@ -65,6 +67,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 	
 	private Shortcut sLoadout;
 	private Shortcut sSquad;
+	private Shortcut sStats;
 	
 	private boolean uppd;
 	
@@ -315,6 +318,30 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				}
 			}
 		}).setIX(0).setIY(2);
+		
+		sStats = new Shortcut(ChatColor.GOLD + "Stats", Material.INK_SACK, 3, 1).setData((byte) 14).onShortcutLaunch(new ShortcutLaunchListener()
+		{
+			public void run()
+			{
+				int slot = 0;
+				
+				GMap<String, GList<Statistic>> map = Statistic.filter();
+				
+				for(final String i : map.keySet())
+				{
+					Element e = new Element(getPane(), i + " Stats", Material.BREAD, slot);
+					e.addLore("Click to view " + i + " related stats.");
+					e.setOnLeftClickListener(new ElementClickListener()
+					{
+						public void run()
+						{
+							showStats(i, getPlayer());
+						}
+					});
+					slot++;
+				}
+			}
+		}).setIX(3).setIY(2);
 		
 		Shortcut sSettings = new Shortcut(ChatColor.GREEN + "Settings", Material.REDSTONE, 4, 1).onShortcutLaunch(new ShortcutLaunchListener()
 		{
@@ -909,6 +936,40 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		uiController.addShortcut(sHelp);
 		uiController.addShortcut(sGames);
 		uiController.addShortcut(sSettings);
+		uiController.addShortcut(sStats);
+	}
+	
+	public void showStats(String cat, Player p)
+	{
+		uiController.get(p).close();
+		uiController.get(p).getPanes().clear();
+		
+		Pane pane = new Pane(uiController.get(p), "Statistics for " + cat);
+		
+		GMap<String, GList<Statistic>> map = Statistic.filter();
+		
+		int c = 0;
+		
+		for(Statistic i : map.get(cat))
+		{
+			Element e = new Element(pane, ChatColor.GOLD + i.tag(gpd(p).getPlayerStatistics().get(i)), Material.COOKIE, c);
+			e.addLore(ChatColor.YELLOW + i.describe(gpd(p).getPlayerStatistics().get(i)));
+			
+			c++;
+		}
+		
+		Element cl = new Element(pane, "Back to Stats", Material.BARRIER, 4, 6);
+		cl.setOnLeftClickListener(new ElementClickListener()
+		{
+			public void run()
+			{
+				uiController.get(getPlayer()).close();
+				uiController.get(getPlayer()).getPanes().clear();
+				sStats.launch(uiController.get(getPlayer()));
+			}
+		});
+		
+		uiController.get(p).open(pane);
 	}
 	
 	public void buyWeapons(Player player)
@@ -1206,7 +1267,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 							{
 								gameController.gpd(getPlayer()).getLoadoutSet().getLoadout().setTertiaryWeapon(i.getId());
 							}
-														
+							
 							uiController.get(getPlayer()).close();
 							uiController.get(getPlayer()).getPanes().clear();
 							sLoadout.launch(uiController.get(getPlayer()));
