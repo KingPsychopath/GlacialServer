@@ -23,6 +23,7 @@ import com.glacialrush.api.dispatch.notification.Notification;
 import com.glacialrush.api.dispatch.notification.NotificationPreset;
 import com.glacialrush.api.game.Game;
 import com.glacialrush.api.game.GameType;
+import com.glacialrush.api.game.GlacialHandler;
 import com.glacialrush.api.game.RegionedGame;
 import com.glacialrush.api.game.data.PlayerData;
 import com.glacialrush.api.game.experience.Experience;
@@ -2211,6 +2212,11 @@ public class CommandController extends Controller implements CommandExecutor
 				for(String j : r.getGameStateHandler().getTmx().keySet())
 				{
 					e.addLore(ChatColor.YELLOW + j + ": " + ((int)(100.0 * ((double)r.getGameStateHandler().getTmx().get(j) / 50.0))) + "%" + ChatColor.RED + " (" + r.getGameStateHandler().getTmx().get(j) + "ms)");
+				}
+				
+				for(GlacialHandler j : r.getHandlers())
+				{
+					e.addLore(ChatColor.GREEN + j.getName() + ": " + "RUNNING");
 				}
 				
 				c++;
