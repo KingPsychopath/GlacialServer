@@ -330,8 +330,8 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				
 				for(final String i : map.keySet())
 				{
-					Element e = new Element(getPane(), i + " Stats", Material.BREAD, slot);
-					e.addLore("Click to view " + i + " related stats.");
+					Element e = new Element(getPane(), ChatColor.GOLD + i + " Stats", Material.BREAD, slot);
+					e.addLore(ChatColor.YELLOW + "Click to view " + i + " related stats.");
 					e.setOnLeftClickListener(new ElementClickListener()
 					{
 						public void run()
@@ -1078,7 +1078,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		uiController.get(p).close();
 		uiController.get(p).getPanes().clear();
 		
-		Pane pane = new Pane(uiController.get(p), "Statistics for " + cat);
+		Pane pane = new Pane(uiController.get(p), ChatColor.GOLD + "Statistics for " + cat);
 		
 		GMap<String, GList<Statistic>> map = Statistic.filter();
 		
