@@ -65,4 +65,6 @@ commands:
     aliases: [inv]
   objective:
     aliases: [o, obj]
+  help:
+    aliases: [?, h, helpop]
   
