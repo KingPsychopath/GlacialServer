@@ -31,7 +31,7 @@
 						<version>2.3.1</version>
 						<configuration>
 							<finalName>GlacialServer</finalName>
-							<outputDirectory>X:\development\server\plugins\GlacialMonitor\update</outputDirectory>
+							<outputDirectory>X:\development\server\plugins</outputDirectory>
 						</configuration>
 					</plugin>
 				</plugins>
