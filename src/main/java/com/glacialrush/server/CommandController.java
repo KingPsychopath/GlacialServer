@@ -45,6 +45,7 @@ import com.glacialrush.api.object.GList;
 import com.glacialrush.api.object.GMap;
 import com.glacialrush.api.rank.Rank;
 import com.glacialrush.api.sfx.Audio;
+import com.glacialrush.api.text.RawText;
 import com.glacialrush.api.thread.GlacialTask;
 import com.glacialrush.api.thread.GlacialThread;
 import com.glacialrush.api.thread.ThreadState;
@@ -234,6 +235,16 @@ public class CommandController extends Controller implements CommandExecutor
 	public void f(CommandSender sender, String msg)
 	{
 		msg(sender, ChatColor.RED + msg);
+	}
+	
+	public void hr(CommandSender sender)
+	{
+		sn(sender, ChatColor.AQUA + "" + ChatColor.STRIKETHROUGH + "-------------------------------------------------");
+	}
+	
+	public void sn(CommandSender sender, String msg)
+	{
+		sender.sendMessage(msg);
 	}
 	
 	public void s(CommandSender sender, String msg)
@@ -2053,6 +2064,52 @@ public class CommandController extends Controller implements CommandExecutor
 						rg.spectate(p);
 						s(p, "Spectating. Use /spectate to turn it off.");
 					}
+				}
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_HELP))
+		{
+			if(isPlayer)
+			{
+				for(int i = 0; i < 32; i++)
+				{
+					sn(p, "   ");
+				}
+				
+				hr(p);
+				RawText rt = new RawText();
+				
+				rt.addTextWithHoverCommand("Chat  ", RawText.COLOR_GREEN, "/help chat", "Click to view information on using the chat.", RawText.COLOR_GREEN);
+				rt.addTextWithHoverCommand("Shortcuts  ", RawText.COLOR_LIGHT_PURPLE, "/help shortcuts", "Click to view information on using shortcuts.", RawText.COLOR_LIGHT_PURPLE);
+				rt.addTextWithHoverCommand("Games  ", RawText.COLOR_YELLOW, "/help games", "Click to view information on games.", RawText.COLOR_YELLOW);
+				
+				rt.tellRawTo(pl, p);
+				hr(p);
+				
+				if(len > 0)
+				{
+					if(sub.equalsIgnoreCase("chat"))
+					{
+						sn(p, ChatColor.GREEN + "The Chat is very simple to use. It is also private by default. If you are in a game, your messages will ONLY be sent to allies!");
+						sn(p, ChatColor.YELLOW + "Placing a '!' symbol before your messages will send it to all players in the game your playing.");
+						sn(p, ChatColor.YELLOW + "Placing '!!' symbols before your messages will send it to all players on the server.");
+					}
+					
+					else if(sub.equalsIgnoreCase("shortcuts"))
+					{
+						sn(p, ChatColor.LIGHT_PURPLE + "Shortcuts are the icons on your hotbar. If you do not see them, due to being in a game, simply onpen your inventory.");
+						sn(p, ChatColor.LIGHT_PURPLE + "While inside your inventory, you can click these to access them. They also function as tabs. While in one 'shortcut', you can click on another to change tabs!");
+						sn(p, ChatColor.LIGHT_PURPLE + "If you are in an inventory while respawning, the counter will wait until you close your inventory before teleporting.");
+					}
+					
+					else if(sub.equalsIgnoreCase("games"))
+					{
+						sn(p, ChatColor.YELLOW + "Games can be joined, and viewed from the games 'shortcut'. To join a game, simply click it in the games gui.");
+						sn(p, ChatColor.YELLOW + "To leave a game, simply use /leave");
+					}
+					
+					hr(p);
 				}
 			}
 		}
