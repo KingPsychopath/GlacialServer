@@ -556,7 +556,6 @@ public class GlacialServer extends GlacialPlugin implements Listener
 										
 										if(i.getCost() <= pd.getSkill())
 										{
-											Audio.CAPTURE_CAPTURE.play(getPlayer());
 											getMarketController().buy(getPlayer(), i);
 											close();
 										}
