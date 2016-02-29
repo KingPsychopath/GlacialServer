@@ -211,6 +211,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		getCommand(Info.CMD_OBJECTIVE).setExecutor(commandController);
 		getCommand(Info.CMD_POINT).setExecutor(commandController);
 		getCommand(Info.CMD_HELP).setExecutor(commandController);
+		getCommand(Info.CMD_REMOTE).setExecutor(commandController);
 		
 		pdc = playerDataComponent;
 		
@@ -591,7 +592,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 						
 						for(final Rank i : Rank.forPlayer(getPlayer()))
 						{
-							Element e = new Element(getPane(), ChatColor.AQUA + i.getName(), Material.INK_SACK, c).setData((byte) 4);
+							Element e = new Element(pane, ChatColor.AQUA + i.getName(), Material.INK_SACK, c).setData((byte) 4);
 							
 							e.addLore(ChatColor.AQUA + "Costs " + i.getCost() + " Shards");
 							
@@ -602,6 +603,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 									if(gameControl.pl().getMarketController().getShards(getPlayer()) >= i.getCost())
 									{
 										gameControl.pl().getMarketController().rankUp(getPlayer(), i);
+										getPlayer().closeInventory();
 									}
 									
 									else
