@@ -524,6 +524,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				Element u = new Element(getPane(), ChatColor.YELLOW + "Upgrades", Material.COOKIE, 0, 3);
 				Element ab = new Element(getPane(), ChatColor.LIGHT_PURPLE + "Abilities", Material.SUGAR, 1, 3);
 				Element bb = new Element(getPane(), ChatColor.AQUA + "BOOST!", Material.INK_SACK, 0, 4);
+				Element rr = new Element(getPane(), ChatColor.AQUA + "Ranks", Material.INK_SACK, 0, 2);
 				
 				w.addLore(ChatColor.GREEN + "Get all weapons here.");
 				a.addLore(ChatColor.BLUE + "Get all ammunition here.");
@@ -531,7 +532,10 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				ab.addLore(ChatColor.LIGHT_PURPLE + "Get all abilities here.");
 				bb.addLore(ChatColor.AQUA + "Boosts increase your xp income which earns you more skill points faster!");
 				bb.addLore(ChatColor.AQUA + "Boosts only last for the game you purchase them in! Make sure its a brand new game!");
+				rr.addLore(ChatColor.AQUA + "Get Powerful ranks within the rush!");
+				rr.addLore(ChatColor.AQUA + "Simply use shards to get ranks.");
 				bb.setData((byte) 4);
+				rr.setData((byte) 4);
 				
 				u.setOnLeftClickListener(new ElementClickListener()
 				{
@@ -569,6 +573,45 @@ public class GlacialServer extends GlacialPlugin implements Listener
 								
 								c++;
 							}
+						}
+						
+						getUi().open(pane);
+					}
+				});
+				
+				rr.setOnLeftClickListener(new ElementClickListener()
+				{
+					public void run()
+					{
+						close();
+						getUi().getPanes().clear();
+						Pane pane = new Pane(getUi(), ChatColor.AQUA + "Select a Rank!");
+						
+						int c = 0;
+						
+						for(final Rank i : Rank.forPlayer(getPlayer()))
+						{
+							Element e = new Element(getPane(), ChatColor.AQUA + i.getName(), Material.INK_SACK, c).setData((byte) 4);
+							
+							e.addLore(ChatColor.AQUA + "Costs " + i.getCost() + " Shards");
+							
+							e.setOnLeftClickListener(new ElementClickListener()
+							{
+								public void run()
+								{
+									if(gameControl.pl().getMarketController().getShards(getPlayer()) >= i.getCost())
+									{
+										gameControl.pl().getMarketController().rankUp(getPlayer(), i);
+									}
+									
+									else
+									{
+										Audio.UI_FAIL.play(getPlayer());
+									}
+								}
+							});
+							
+							c++;
 						}
 						
 						getUi().open(pane);
@@ -628,7 +671,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 								gameController.gpd(getPlayer()).setShards(gameController.gpd(getPlayer()).getShards() - 75);
 								rg.secureBoost(getPlayer(), 0.5);
 								getUi().close();
-								rg.getNotificationHandler().queue(getPlayer(), NotificationPreset.BOOSTED.format(null, new Object[]{ChatColor.AQUA + "^50%"}, null));
+								rg.getNotificationHandler().queue(getPlayer(), NotificationPreset.BOOSTED.format(null, new Object[] {ChatColor.AQUA + "^50%"}, null));
 							}
 						});
 						
@@ -662,7 +705,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 								gameController.gpd(getPlayer()).setShards(gameController.gpd(getPlayer()).getShards() - 125);
 								rg.secureBoost(getPlayer(), 0.75);
 								getUi().close();
-								rg.getNotificationHandler().queue(getPlayer(), NotificationPreset.BOOSTED.format(null, new Object[]{ChatColor.AQUA + "^75%"}, null));
+								rg.getNotificationHandler().queue(getPlayer(), NotificationPreset.BOOSTED.format(null, new Object[] {ChatColor.AQUA + "^75%"}, null));
 							}
 						});
 						
@@ -696,7 +739,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 								gameController.gpd(getPlayer()).setShards(gameController.gpd(getPlayer()).getShards() - 220);
 								rg.secureBoost(getPlayer(), 1.25);
 								getUi().close();
-								rg.getNotificationHandler().queue(getPlayer(), NotificationPreset.BOOSTED.format(null, new Object[]{ChatColor.AQUA + "^125%"}, null));
+								rg.getNotificationHandler().queue(getPlayer(), NotificationPreset.BOOSTED.format(null, new Object[] {ChatColor.AQUA + "^125%"}, null));
 							}
 						});
 						
