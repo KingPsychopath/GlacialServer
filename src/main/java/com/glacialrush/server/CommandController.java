@@ -208,6 +208,11 @@ public class CommandController extends Controller implements CommandExecutor
 		gs.getGameController().leave(gs.getGameController().getBuildGame(), p);
 	}
 	
+	public void remoteGS(String name, int i)
+	{
+		pl.getMarketController().giveShards(name, i);
+	}
+	
 	public void msg(CommandSender sender, String msg)
 	{
 		if(sender instanceof Player)
@@ -317,7 +322,31 @@ public class CommandController extends Controller implements CommandExecutor
 			isBuilder = pl.gpd(p).getRanks().contains(Rank.BUILDER);
 		}
 		
-		if(command.getName().equalsIgnoreCase(Info.CMD_MAP))
+		if(command.getName().equalsIgnoreCase(Info.CMD_REMOTE))
+		{
+			if(!isPlayer)
+			{
+				if(len > 0)
+				{
+					if(sub.equalsIgnoreCase("gs"))
+					{
+						if(len == 3)
+						{
+							Integer i = Integer.parseInt(args[2]);
+							
+							remoteGS(args[1], Math.abs(i));
+						}
+					}
+				}
+			}
+			
+			else
+			{
+				return false;
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_MAP))
 		{
 			if(isPlayer && isBuilder)
 			{
