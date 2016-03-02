@@ -353,6 +353,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				final boolean particlesOn = gpd(getPlayer()).getParticles();
 				final boolean customSounds = gpd(getPlayer()).getCustomSounds();
 				
+				
 				final Element particles = new Element(getPane(), "Particles " + (particlesOn ? "ON" : "MINIMAL"), particlesOn ? Material.SLIME_BALL : Material.MAGMA_CREAM, -1, 4);
 				
 				if(!particlesOn)
