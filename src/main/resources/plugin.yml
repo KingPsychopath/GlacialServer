@@ -69,4 +69,6 @@ commands:
     aliases: [o, obj]
   help:
     aliases: [?, h, helpop]
+  stats:
+    aliases: [stat, sts]
   
