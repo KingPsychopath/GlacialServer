@@ -212,6 +212,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		getCommand(Info.CMD_POINT).setExecutor(commandController);
 		getCommand(Info.CMD_HELP).setExecutor(commandController);
 		getCommand(Info.CMD_REMOTE).setExecutor(commandController);
+		getCommand(Info.CMD_STATS).setExecutor(commandController);
 		
 		pdc = playerDataComponent;
 		
@@ -596,6 +597,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 							Element e = new Element(pane, ChatColor.AQUA + i.getName(), Material.INK_SACK, c).setData((byte) 4);
 							
 							e.addLore(ChatColor.AQUA + "Costs " + i.getCost() + " Shards");
+							e.addLore(ChatColor.GREEN + "Permanent XP Boost: " + ChatColor.AQUA + (100.0 * i.getBoost()) + "%");
 							
 							e.setOnLeftClickListener(new ElementClickListener()
 							{
@@ -1119,6 +1121,31 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		uiController.addShortcut(sStats);
 	}
 	
+	public void showStats(Player p, Player px)
+	{
+		int slot = 0;
+		
+		Pane pane = new Pane(getUiController().get(p), ChatColor.GOLD + px.getName() + "'s Statistics");
+		
+		GMap<String, GList<Statistic>> map = Statistic.filter();
+		
+		for(final String i : map.keySet())
+		{
+			Element e = new Element(pane, ChatColor.GOLD + px.getName() + "'s " + i + " Stats", Material.BREAD, slot);
+			e.addLore(ChatColor.YELLOW + "Click to view " + i + " related stats for " + px.getName());
+			e.setOnLeftClickListener(new ElementClickListener()
+			{
+				public void run()
+				{
+					showStats(i, getPlayer(), px);
+				}
+			});
+			slot++;
+		}
+		
+		getUiController().get(p).open(pane);
+	}
+	
 	public void showStats(String cat, Player p)
 	{
 		uiController.get(p).close();
@@ -1146,6 +1173,39 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				uiController.get(getPlayer()).close();
 				uiController.get(getPlayer()).getPanes().clear();
 				sStats.launch(uiController.get(getPlayer()));
+			}
+		});
+		
+		uiController.get(p).open(pane);
+	}
+	
+	public void showStats(String cat, Player p, Player px)
+	{
+		uiController.get(p).close();
+		uiController.get(p).getPanes().clear();
+		
+		Pane pane = new Pane(uiController.get(p), ChatColor.GOLD + px.getName() + "'s Statistics for " + cat);
+		
+		GMap<String, GList<Statistic>> map = Statistic.filter();
+		
+		int c = 0;
+		
+		for(Statistic i : map.get(cat))
+		{
+			Element e = new Element(pane, ChatColor.GOLD + i.tag(gpd(px).getPlayerStatistics().get(i)), Material.COOKIE, c);
+			e.addLore(ChatColor.YELLOW + i.describe(gpd(px).getPlayerStatistics().get(i)));
+			
+			c++;
+		}
+		
+		Element cl = new Element(pane, "Back to Stats", Material.BARRIER, 4, 6);
+		cl.setOnLeftClickListener(new ElementClickListener()
+		{
+			public void run()
+			{
+				uiController.get(getPlayer()).close();
+				uiController.get(getPlayer()).getPanes().clear();
+				showStats(p, px);
 			}
 		});
 		
