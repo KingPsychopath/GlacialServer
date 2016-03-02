@@ -1253,6 +1253,32 @@ public class CommandController extends Controller implements CommandExecutor
 			}
 		}
 		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_STATS))
+		{
+			if(isPlayer)
+			{
+				if(len == 1)
+				{
+					Player px = pl.findPlayer(args[0]);
+					
+					if(px != null)
+					{
+						gs.showStats(p, px);
+					}
+					
+					else
+					{
+						f(p, "Unknown or Offline Player");
+					}
+				}
+				
+				else
+				{
+					f(p, "/stats <player>");
+				}
+			}
+		}
+		
 		else if(command.getName().equalsIgnoreCase(Info.CMD_GAMEMODEA))
 		{
 			if(isPlayer && isAdmin)
