@@ -37,6 +37,7 @@ public class Info
 	public static final String CMD_OBJECTIVE = "objective";
 	public static final String CMD_HELP = "help";
 	public static final String CMD_REMOTE = "remote";
+	public static final String CMD_STATS = "stats";
 	
 	public static final String PERM_ADMIN = "glacialrush.admin";
 	public static final String PERM_BUILDER = "glacialrush.builder";
