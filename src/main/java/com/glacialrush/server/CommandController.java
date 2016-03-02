@@ -1,5 +1,9 @@
 package com.glacialrush.server;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashSet;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -31,6 +35,7 @@ import com.glacialrush.api.game.object.Faction;
 import com.glacialrush.api.game.object.Squad;
 import com.glacialrush.api.gui.Element;
 import com.glacialrush.api.gui.Pane;
+import com.glacialrush.api.json.JSONObject;
 import com.glacialrush.api.map.Chunklet;
 import com.glacialrush.api.map.Map;
 import com.glacialrush.api.map.Region;
@@ -1886,6 +1891,50 @@ public class CommandController extends Controller implements CommandExecutor
 		
 		else if(command.getName().equalsIgnoreCase(Info.CMD_DEVELOPER))
 		{
+			if(isAdmin)
+			{
+				if(len > 0)
+				{
+					if(sub.equalsIgnoreCase("json"))
+					{
+						File f = new File(pl.getDataFolder(), "status.json");
+						
+						if(f.exists())
+						{
+							f.delete();
+						}
+						
+						if(!f.exists())
+						{
+							try
+							{
+								f.createNewFile();
+							}
+							
+							catch(IOException e)
+							{
+								e.printStackTrace();
+							}
+						}
+						
+						JSONObject status = GlacialPlugin.instance().host().statusJSON();
+						
+						try
+						{
+							PrintWriter pw = new PrintWriter(f);
+							status.write(pw);
+							pw.close();
+							s("Wrote Status to " + f.getPath());
+						}
+						
+						catch(FileNotFoundException e)
+						{
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+			
 			if(isPlayer && isAdmin)
 			{
 				if(len > 0)
