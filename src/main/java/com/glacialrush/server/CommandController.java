@@ -1908,6 +1908,7 @@ public class CommandController extends Controller implements CommandExecutor
 								if(game != null && game.getType().equals(GameType.REGIONED))
 								{
 									((RegionedGame)game).getFactionHandler().cf(p, f);
+									game.getGameController().gpo(p).buildItems();
 									s(p, "Changed to " + f.getName());
 								}
 							}
