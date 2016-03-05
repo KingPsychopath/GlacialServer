@@ -57,6 +57,7 @@ import com.glacialrush.api.object.GList;
 import com.glacialrush.api.object.GMap;
 import com.glacialrush.api.rank.Rank;
 import com.glacialrush.api.sfx.Audio;
+import com.glacialrush.xapi.Duration;
 import net.md_5.bungee.api.ChatColor;
 
 public class GlacialServer extends GlacialPlugin implements Listener
@@ -293,9 +294,13 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				{
 					slot++;
 					final RegionedGame g = i;
+					
+					Duration d = new Duration((long) g.getSeconds() * (long) 1000);
+					
 					Element e = new Element(getPane(), ChatColor.AQUA + g.getMap().getName(), Material.SLIME_BALL, slot);
 					e.addLore(ChatColor.GREEN + "" + i.getState().getPlayers().size() + " Players");
 					e.addLore(g.getFactionHandler().map());
+					e.addLore(ChatColor.GOLD + "" + d.getMinutes() + " Minutes left.");
 					
 					if(g.contains(getPlayer()))
 					{
