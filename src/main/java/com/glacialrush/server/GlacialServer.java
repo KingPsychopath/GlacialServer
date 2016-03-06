@@ -1617,6 +1617,8 @@ public class GlacialServer extends GlacialPlugin implements Listener
 			{
 				Weapon w = (Weapon) i;
 				
+				e.addLore(ChatColor.GREEN + "This is a " + w.getWeaponEnclosureType().toString().toLowerCase() + " weapon");
+				
 				if(f.isMeleeWeapon(o))
 				{
 					MeleeWeapon mw = (MeleeWeapon) w;
