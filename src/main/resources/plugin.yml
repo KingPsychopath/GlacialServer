@@ -71,4 +71,6 @@ commands:
     aliases: [?, h, helpop]
   stats:
     aliases: [stat, sts]
+  ping:
+    aliases: [pn, png, pong, lag, latency]
   
