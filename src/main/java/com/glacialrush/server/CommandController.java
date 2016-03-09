@@ -55,6 +55,7 @@ import com.glacialrush.api.thread.GlacialTask;
 import com.glacialrush.api.thread.GlacialThread;
 import com.glacialrush.api.thread.ThreadState;
 import com.glacialrush.packet.EndCredits;
+import com.glacialrush.packet.PacketUtil;
 import net.md_5.bungee.api.ChatColor;
 
 public class CommandController extends Controller implements CommandExecutor
@@ -1404,7 +1405,7 @@ public class CommandController extends Controller implements CommandExecutor
 					
 					if(px != null)
 					{
-						String msg = subWord(args, 2);
+						String msg = subWord(args, 1);
 						px.sendMessage(ChatColor.DARK_GRAY + "[" + ChatColor.AQUA + p.getName() + ChatColor.YELLOW + " > " + ChatColor.GREEN + "You" + ChatColor.DARK_GRAY + "]: " + ChatColor.AQUA + msg);
 						p.sendMessage(ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + "You" + ChatColor.YELLOW + " > " + ChatColor.AQUA + px.getName() + ChatColor.DARK_GRAY + "]: " + ChatColor.GREEN + msg);
 						conversations.put(p, px);
@@ -2032,6 +2033,32 @@ public class CommandController extends Controller implements CommandExecutor
 						
 						rg.resp(p);
 					}
+				}
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_PING))
+		{
+			if(isPlayer)
+			{
+				if(len == 1)
+				{
+					Player px = pl.findPlayer(sub);
+					
+					if(px == null)
+					{
+						f(p, "Unknown Player");
+					}
+					
+					else
+					{
+						s(p, "Pong: " + PacketUtil.ping(px) + "ms");
+					}
+				}
+				
+				else
+				{
+					f(p, "/ping <player>");
 				}
 			}
 		}
