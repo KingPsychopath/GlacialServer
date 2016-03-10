@@ -1379,7 +1379,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 	{
 		uiController.get(p).close();
 		uiController.get(p).getPanes().clear();
-		RegionedGame rg = (RegionedGame) gameController.getGame(p);
+		final RegionedGame rg = (RegionedGame) gameController.getGame(p);
 		GList<Greek> gck = rg.getSquadHandler().squadsForCreation(rg.getFactionHandler().getFaction(p));
 		
 		if(gck.isEmpty())
