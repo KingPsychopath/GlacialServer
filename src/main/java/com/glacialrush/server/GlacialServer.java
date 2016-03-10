@@ -1055,7 +1055,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				Element ns = new Element(getPane(), ChatColor.BLUE + "New Squad", Material.EMERALD, -4, 1);
 				ns.clearLore();
 				
-				Game g = gameController.getGame(getPlayer());
+				final Game g = gameController.getGame(getPlayer());
 				
 				if(g == null || !g.getType().equals(GameType.REGIONED))
 				{
@@ -1086,7 +1086,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 						
 						int c = 1;
 						
-						for(Squad i : ((RegionedGame) g).getSquadHandler().getSquads(((RegionedGame) g).getFactionHandler().getFaction(getPlayer())))
+						for(final Squad i : ((RegionedGame) g).getSquadHandler().getSquads(((RegionedGame) g).getFactionHandler().getFaction(getPlayer())))
 						{
 							Element e = new Element(getPane(), i.getColor() + i.getGreek().symbol() + " " + i.getGreek().fName(), Material.STAINED_GLASS_PANE, c);
 							
@@ -1127,7 +1127,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		uiController.addShortcut(sStats);
 	}
 	
-	public void showStats(Player p, Player px)
+	public void showStats(Player p, final Player px)
 	{
 		int slot = 0;
 		
@@ -1185,7 +1185,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		uiController.get(p).open(pane);
 	}
 	
-	public void showStats(String cat, Player p, Player px)
+	public void showStats(String cat, final Player p, final Player px)
 	{
 		uiController.get(p).close();
 		uiController.get(p).getPanes().clear();
@@ -1337,7 +1337,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 			}
 		});
 		
-		for(Player i : s.getMembers())
+		for(final Player i : s.getMembers())
 		{
 			if(i.equals(p))
 			{
@@ -1375,7 +1375,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		getUiController().get(p).open(pane);
 	}
 	
-	public void createSquad(Player p)
+	public void createSquad(final Player p)
 	{
 		uiController.get(p).close();
 		uiController.get(p).getPanes().clear();
@@ -1389,7 +1389,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 			return;
 		}
 		
-		Pane pane = new Pane(uiController.get(p), "Select a Color / Symbol");
+		final Pane pane = new Pane(uiController.get(p), "Select a Color / Symbol");
 		int s = 0;
 		
 		for(final Greek i : gck)
