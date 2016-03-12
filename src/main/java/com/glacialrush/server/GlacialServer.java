@@ -30,6 +30,7 @@ import com.glacialrush.api.game.obtainable.Obtainable;
 import com.glacialrush.api.game.obtainable.ObtainableFilter;
 import com.glacialrush.api.game.obtainable.Projectile;
 import com.glacialrush.api.game.obtainable.Upgrade;
+import com.glacialrush.api.game.obtainable.item.Utility;
 import com.glacialrush.api.game.obtainable.item.Weapon;
 import com.glacialrush.api.game.obtainable.item.weapon.MeleeWeapon;
 import com.glacialrush.api.game.obtainable.item.weapon.RangedWeapon;
@@ -532,6 +533,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				Element a = new Element(getPane(), ChatColor.BLUE + "Ammunition", Material.ARROW, -1, 3);
 				Element u = new Element(getPane(), ChatColor.YELLOW + "Upgrades", Material.COOKIE, 0, 3);
 				Element ab = new Element(getPane(), ChatColor.LIGHT_PURPLE + "Abilities", Material.SUGAR, 1, 3);
+				Element ru = new Element(getPane(), ChatColor.RED + "Runes", Material.NETHER_STALK, 2, 3);
 				Element bb = new Element(getPane(), ChatColor.AQUA + "BOOST!", Material.INK_SACK, 0, 4);
 				Element rr = new Element(getPane(), ChatColor.AQUA + "Ranks", Material.INK_SACK, 0, 2);
 				
@@ -543,6 +545,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				bb.addLore(ChatColor.AQUA + "Boosts only last for the game you purchase them in! Make sure its a brand new game!");
 				rr.addLore(ChatColor.AQUA + "Get Powerful ranks within the rush!");
 				rr.addLore(ChatColor.AQUA + "Simply use shards to get ranks.");
+				ru.addLore(ChatColor.RED + "Get runes here for always-active abilities");
 				bb.setData((byte) 4);
 				rr.setData((byte) 4);
 				
@@ -801,6 +804,49 @@ public class GlacialServer extends GlacialPlugin implements Listener
 					}
 				});
 				
+				ru.setOnLeftClickListener(new ElementClickListener()
+				{
+					public void run()
+					{
+						close();
+						getUi().getPanes().clear();
+						Pane pane = new Pane(getUi(), "Select a Rune");
+						
+						int c = 0;
+						
+						for(final Utility i : gameController.getObtainableBank().getObtainableFilter().getUtilities())
+						{
+							if(!gameController.getObtainableBank().getObtainableFilter().has(getPlayer(), i))
+							{
+								Element e = configure(getPlayer(), pane, i, c);
+								e.setOnLeftClickListener(new ElementClickListener()
+								{
+									public void run()
+									{
+										PlayerData pd = gpd(getPlayer());
+										
+										if(i.getCost() <= pd.getSkill())
+										{
+											Audio.CAPTURE_CAPTURE.play(getPlayer());
+											getMarketController().buy(getPlayer(), i);
+											close();
+										}
+										
+										else
+										{
+											Audio.UI_FAIL.play(getPlayer());
+										}
+									}
+								});
+								
+								c++;
+							}
+						}
+						
+						getUi().open(pane);
+					}
+				});
+				
 				a.setOnLeftClickListener(new ElementClickListener()
 				{
 					public void run()
@@ -899,7 +945,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				Element secondary = new Element(getPane(), ChatColor.RED + "No Secondary Weapon", Material.QUARTZ, 0, 2).addLore(ChatColor.DARK_RED + "Click to equip an item you own");
 				Element tertiary = new Element(getPane(), ChatColor.RED + "No Tertiary Weapon", Material.QUARTZ, 1, 2).addLore(ChatColor.DARK_RED + "Click to equip an item you own");
 				Element tool = new Element(getPane(), ChatColor.RED + "No Tool", Material.QUARTZ, 1, 3).addLore(ChatColor.DARK_RED + "Click to equip an item you own");
-				Element utility = new Element(getPane(), ChatColor.RED + "No Utility", Material.QUARTZ, -1, 3).addLore(ChatColor.DARK_RED + "Click to equip an item you own");
+				Element utility = new Element(getPane(), ChatColor.RED + "No Rune", Material.QUARTZ, -1, 3).addLore(ChatColor.DARK_RED + "Click to equip a rune");
 				Element projectile = null;
 				Element ability = new Element(getPane(), ChatColor.RED + "No Ability", Material.QUARTZ, 0, 4).addLore(ChatColor.DARK_RED + "Click to equip an ability you own");
 				
@@ -937,6 +983,15 @@ public class GlacialServer extends GlacialPlugin implements Listener
 					{
 						close();
 						selectAbility(this.getPlayer());
+					}
+				});
+				
+				utility.setOnLeftClickListener(new ElementClickListener()
+				{
+					public void run()
+					{
+						close();
+						selectUtility(this.getPlayer());
 					}
 				});
 				
@@ -1004,7 +1059,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				{
 					utility.setMaterial(((Item) u).getMaterial());
 					utility.setData(((Item) u).getMaterialMeta());
-					utility.setTitle(ChatColor.LIGHT_PURPLE + "Utility: " + u.getName()).clearLore().addLore(ChatColor.DARK_PURPLE + tw.getDescription());
+					utility.setTitle(ChatColor.LIGHT_PURPLE + u.getName()).clearLore().addLore(ChatColor.DARK_PURPLE + u.getDescription());
 				}
 				
 				if(pjtx)
@@ -1451,6 +1506,35 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		uiController.get(player).open(pane);
 	}
 	
+	public void selectUtility(Player player)
+	{
+		Pane pane = new Pane(uiController.get(player), ChatColor.AQUA + "Select a Rune");
+		int s = 0;
+		
+		for(final Utility i : gameController.gpo(player).utilities())
+		{
+			if(gameController.getObtainableBank().getObtainableFilter().has(player, i))
+			{
+				Element e = configure(player, pane, i, s);
+				e.setOnLeftClickListener(new ElementClickListener()
+				{
+					public void run()
+					{
+						gameController.gpd(getPlayer()).getLoadoutSet().getLoadout().setUtility(i.getId());
+						
+						uiController.get(getPlayer()).close();
+						uiController.get(getPlayer()).getPanes().clear();
+						sLoadout.launch(uiController.get(getPlayer()));
+					}
+				});
+				
+				s++;
+			}
+		}
+		
+		uiController.get(player).open(pane);
+	}
+	
 	public void selectProjectile(Player player, final ProjectileType type, Obtainable current)
 	{
 		Pane pane = new Pane(uiController.get(player), "Select an " + type.toString().toLowerCase());
@@ -1667,7 +1751,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 			
 			else if(f.isUtility(o))
 			{
-			
+				e.addLore(ChatColor.AQUA + "This is an ongoing rune. There is no duration or cooldown.");
 			}
 		}
 		
