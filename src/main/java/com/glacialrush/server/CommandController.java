@@ -1896,6 +1896,17 @@ public class CommandController extends Controller implements CommandExecutor
 			{
 				if(len > 0)
 				{
+					if(sub.equalsIgnoreCase("pal"))
+					{
+						Game g = pl.getGameControl().getGame(p);
+						
+						if(g != null)
+						{
+							RegionedGame rg = (RegionedGame) g;
+							rg.getPaladinHandler().releasePaladin(rg.getFactionHandler().getFaction(p), (Territory) rg.getMap().getCloseLinkedRegion(p));
+						}
+					}
+					
 					if(sub.equalsIgnoreCase("json"))
 					{
 						File f = new File(pl.getDataFolder(), "status.json");
