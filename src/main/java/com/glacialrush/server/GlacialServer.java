@@ -896,7 +896,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 					{
 						close();
 						getUi().getPanes().clear();
-						Pane pane = new Pane(getUi(), "Select Abilities");
+						Pane pane = new Pane(getUi(), ChatColor.LIGHT_PURPLE + "Select Abilities");
 						
 						int c = 0;
 						
