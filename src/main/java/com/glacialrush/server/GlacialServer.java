@@ -904,7 +904,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 						{
 							if(!gameController.getObtainableBank().getObtainableFilter().has(getPlayer(), i))
 							{
-								Element e = configure(getPlayer(), getPane(), i, c);
+								Element e = configure(getPlayer(), pane, i, c);
 								
 								e.setOnLeftClickListener(new ElementClickListener()
 								{
