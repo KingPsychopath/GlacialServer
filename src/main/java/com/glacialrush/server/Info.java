@@ -36,6 +36,7 @@ public class Info
 	public static final String CMD_INVITE = "invite";
 	public static final String CMD_OBJECTIVE = "objective";
 	public static final String CMD_HELP = "help";
+	public static final String CMD_HUB = "hub";
 	public static final String CMD_REMOTE = "remote";
 	public static final String CMD_STATS = "stats";
 	public static final String CMD_PING = "ping";
