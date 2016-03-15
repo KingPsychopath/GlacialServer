@@ -578,7 +578,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 											getMarketController().buy(getPlayer(), i);
 											close();
 											
-											scheduleSyncTask(50, new Runnable()
+											scheduleSyncTask(30, new Runnable()
 											{
 												@Override
 												public void run()
@@ -629,7 +629,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 										gameControl.pl().getMarketController().rankUp(getPlayer(), i);
 										getPlayer().closeInventory();
 
-										scheduleSyncTask(50, new Runnable()
+										scheduleSyncTask(30, new Runnable()
 										{
 											@Override
 											public void run()
@@ -707,7 +707,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 								rg.secureBoost(getPlayer(), 0.5);
 								getUi().close();
 
-								scheduleSyncTask(50, new Runnable()
+								scheduleSyncTask(30, new Runnable()
 								{
 									@Override
 									public void run()
@@ -751,7 +751,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 								rg.secureBoost(getPlayer(), 0.75);
 								getUi().close();
 
-								scheduleSyncTask(50, new Runnable()
+								scheduleSyncTask(30, new Runnable()
 								{
 									@Override
 									public void run()
@@ -795,7 +795,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 								rg.secureBoost(getPlayer(), 1.25);
 								getUi().close();
 
-								scheduleSyncTask(50, new Runnable()
+								scheduleSyncTask(30, new Runnable()
 								{
 									@Override
 									public void run()
@@ -839,7 +839,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 											getMarketController().buy(getPlayer(), i);
 											close();
 
-											scheduleSyncTask(50, new Runnable()
+											scheduleSyncTask(30, new Runnable()
 											{
 												@Override
 												public void run()
@@ -891,7 +891,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 											getMarketController().buy(getPlayer(), i);
 											close();
 
-											scheduleSyncTask(50, new Runnable()
+											scheduleSyncTask(30, new Runnable()
 											{
 												@Override
 												public void run()
@@ -926,7 +926,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 						
 						int c = 0;
 						
-						for(final Utility i : gameController.getObtainableBank().getObtainableFilter().getUtilities())
+						for(final Tool i : gameController.getObtainableBank().getObtainableFilter().getTools())
 						{
 							if(!gameController.getObtainableBank().getObtainableFilter().has(getPlayer(), i))
 							{
@@ -943,7 +943,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 											getMarketController().buy(getPlayer(), i);
 											close();
 
-											scheduleSyncTask(50, new Runnable()
+											scheduleSyncTask(30, new Runnable()
 											{
 												@Override
 												public void run()
@@ -995,7 +995,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 											getMarketController().buy(getPlayer(), i);
 											close();
 
-											scheduleSyncTask(50, new Runnable()
+											scheduleSyncTask(30, new Runnable()
 											{
 												@Override
 												public void run()
@@ -1048,7 +1048,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 											getMarketController().buy(getPlayer(), i);
 											close();
 
-											scheduleSyncTask(50, new Runnable()
+											scheduleSyncTask(30, new Runnable()
 											{
 												@Override
 												public void run()
