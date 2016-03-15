@@ -916,6 +916,58 @@ public class GlacialServer extends GlacialPlugin implements Listener
 					}
 				});
 				
+				to.setOnLeftClickListener(new ElementClickListener()
+				{
+					public void run()
+					{
+						close();
+						getUi().getPanes().clear();
+						Pane pane = new Pane(getUi(), ChatColor.GOLD + "Select a Tool");
+						
+						int c = 0;
+						
+						for(final Utility i : gameController.getObtainableBank().getObtainableFilter().getUtilities())
+						{
+							if(!gameController.getObtainableBank().getObtainableFilter().has(getPlayer(), i))
+							{
+								Element e = configure(getPlayer(), pane, i, c);
+								e.setOnLeftClickListener(new ElementClickListener()
+								{
+									public void run()
+									{
+										PlayerData pd = gpd(getPlayer());
+										
+										if(i.getCost() <= pd.getSkill())
+										{
+											Audio.CAPTURE_CAPTURE.play(getPlayer());
+											getMarketController().buy(getPlayer(), i);
+											close();
+
+											scheduleSyncTask(50, new Runnable()
+											{
+												@Override
+												public void run()
+												{
+													sShop.launch(getUiController().get(getPlayer()));
+												}
+											});
+										}
+										
+										else
+										{
+											Audio.UI_FAIL.play(getPlayer());
+										}
+									}
+								});
+								
+								c++;
+							}
+						}
+						
+						getUi().open(pane);
+					}
+				});
+				
 				a.setOnLeftClickListener(new ElementClickListener()
 				{
 					public void run()
