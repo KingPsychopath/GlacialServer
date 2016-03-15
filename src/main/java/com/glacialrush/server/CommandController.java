@@ -1346,7 +1346,29 @@ public class CommandController extends Controller implements CommandExecutor
 				
 				if(game == null)
 				{
-					f(p, "You are not in a game!");
+					f(p, "You are not in a game! Use /hub");
+				}
+				
+				else
+				{
+					if(game.getType().equals(GameType.REGIONED))
+					{
+						((RegionedGame) game).stopDeploying(p);
+						((RegionedGame) game).leave(p);
+					}
+				}
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_HUB))
+		{
+			if(isPlayer)
+			{
+				Game game = gs.getGameController().getGame(p);
+				
+				if(game == null)
+				{
+					p.teleport(pl.getServerDataComponent().getHub());
 				}
 				
 				else
