@@ -30,6 +30,7 @@ import com.glacialrush.api.game.obtainable.Obtainable;
 import com.glacialrush.api.game.obtainable.ObtainableFilter;
 import com.glacialrush.api.game.obtainable.Projectile;
 import com.glacialrush.api.game.obtainable.Upgrade;
+import com.glacialrush.api.game.obtainable.item.Tool;
 import com.glacialrush.api.game.obtainable.item.Utility;
 import com.glacialrush.api.game.obtainable.item.Weapon;
 import com.glacialrush.api.game.obtainable.item.weapon.MeleeWeapon;
@@ -71,6 +72,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 	private Shortcut sLoadout;
 	private Shortcut sSquad;
 	private Shortcut sStats;
+	private Shortcut sShop;
 	
 	private boolean uppd;
 	
@@ -525,7 +527,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 			}
 		}).setIX(4).setIY(2);
 		
-		Shortcut sShop = new Shortcut(ChatColor.GOLD + "Shop", Material.BREAD, -2, 1).onShortcutLaunch(new ShortcutLaunchListener()
+		sShop = new Shortcut(ChatColor.GOLD + "Shop", Material.BREAD, -2, 1).onShortcutLaunch(new ShortcutLaunchListener()
 		{
 			public void run()
 			{
@@ -534,7 +536,8 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				Element u = new Element(getPane(), ChatColor.YELLOW + "Upgrades", Material.COOKIE, 0, 3);
 				Element ab = new Element(getPane(), ChatColor.LIGHT_PURPLE + "Abilities", Material.SUGAR, 1, 3);
 				Element ru = new Element(getPane(), ChatColor.RED + "Runes", Material.NETHER_STALK, 2, 3);
-				Element bb = new Element(getPane(), ChatColor.AQUA + "BOOST!", Material.INK_SACK, 0, 4);
+				Element to = new Element(getPane(), ChatColor.GOLD + "Tools", Material.GOLD_SPADE, 0, 4);
+				Element bb = new Element(getPane(), ChatColor.AQUA + "BOOST!", Material.INK_SACK, 0, 5);
 				Element rr = new Element(getPane(), ChatColor.AQUA + "Ranks", Material.INK_SACK, 0, 2);
 				
 				w.addLore(ChatColor.GREEN + "Get all weapons here.");
@@ -574,6 +577,15 @@ public class GlacialServer extends GlacialPlugin implements Listener
 										{
 											getMarketController().buy(getPlayer(), i);
 											close();
+											
+											scheduleSyncTask(50, new Runnable()
+											{
+												@Override
+												public void run()
+												{
+													sShop.launch(getUiController().get(getPlayer()));
+												}
+											});
 										}
 										
 										else
@@ -616,6 +628,15 @@ public class GlacialServer extends GlacialPlugin implements Listener
 									{
 										gameControl.pl().getMarketController().rankUp(getPlayer(), i);
 										getPlayer().closeInventory();
+
+										scheduleSyncTask(50, new Runnable()
+										{
+											@Override
+											public void run()
+											{
+												sShop.launch(getUiController().get(getPlayer()));
+											}
+										});
 									}
 									
 									else
@@ -685,6 +706,16 @@ public class GlacialServer extends GlacialPlugin implements Listener
 								gameController.gpd(getPlayer()).setShards(gameController.gpd(getPlayer()).getShards() - 75);
 								rg.secureBoost(getPlayer(), 0.5);
 								getUi().close();
+
+								scheduleSyncTask(50, new Runnable()
+								{
+									@Override
+									public void run()
+									{
+										sShop.launch(getUiController().get(getPlayer()));
+									}
+								});
+								
 								rg.getNotificationHandler().queue(getPlayer(), NotificationPreset.BOOSTED.format(null, new Object[] {ChatColor.AQUA + "^50%"}, null));
 							}
 						});
@@ -719,6 +750,16 @@ public class GlacialServer extends GlacialPlugin implements Listener
 								gameController.gpd(getPlayer()).setShards(gameController.gpd(getPlayer()).getShards() - 125);
 								rg.secureBoost(getPlayer(), 0.75);
 								getUi().close();
+
+								scheduleSyncTask(50, new Runnable()
+								{
+									@Override
+									public void run()
+									{
+										sShop.launch(getUiController().get(getPlayer()));
+									}
+								});
+								
 								rg.getNotificationHandler().queue(getPlayer(), NotificationPreset.BOOSTED.format(null, new Object[] {ChatColor.AQUA + "^75%"}, null));
 							}
 						});
@@ -753,6 +794,16 @@ public class GlacialServer extends GlacialPlugin implements Listener
 								gameController.gpd(getPlayer()).setShards(gameController.gpd(getPlayer()).getShards() - 220);
 								rg.secureBoost(getPlayer(), 1.25);
 								getUi().close();
+
+								scheduleSyncTask(50, new Runnable()
+								{
+									@Override
+									public void run()
+									{
+										sShop.launch(getUiController().get(getPlayer()));
+									}
+								});
+								
 								rg.getNotificationHandler().queue(getPlayer(), NotificationPreset.BOOSTED.format(null, new Object[] {ChatColor.AQUA + "^125%"}, null));
 							}
 						});
@@ -787,6 +838,15 @@ public class GlacialServer extends GlacialPlugin implements Listener
 											Audio.CAPTURE_CAPTURE.play(getPlayer());
 											getMarketController().buy(getPlayer(), i);
 											close();
+
+											scheduleSyncTask(50, new Runnable()
+											{
+												@Override
+												public void run()
+												{
+													sShop.launch(getUiController().get(getPlayer()));
+												}
+											});
 										}
 										
 										else
@@ -830,6 +890,15 @@ public class GlacialServer extends GlacialPlugin implements Listener
 											Audio.CAPTURE_CAPTURE.play(getPlayer());
 											getMarketController().buy(getPlayer(), i);
 											close();
+
+											scheduleSyncTask(50, new Runnable()
+											{
+												@Override
+												public void run()
+												{
+													sShop.launch(getUiController().get(getPlayer()));
+												}
+											});
 										}
 										
 										else
@@ -873,6 +942,15 @@ public class GlacialServer extends GlacialPlugin implements Listener
 											Audio.CAPTURE_CAPTURE.play(getPlayer());
 											getMarketController().buy(getPlayer(), i);
 											close();
+
+											scheduleSyncTask(50, new Runnable()
+											{
+												@Override
+												public void run()
+												{
+													sShop.launch(getUiController().get(getPlayer()));
+												}
+											});
 										}
 										
 										else
@@ -917,6 +995,15 @@ public class GlacialServer extends GlacialPlugin implements Listener
 											Audio.CAPTURE_CAPTURE.play(getPlayer());
 											getMarketController().buy(getPlayer(), i);
 											close();
+
+											scheduleSyncTask(50, new Runnable()
+											{
+												@Override
+												public void run()
+												{
+													sShop.launch(getUiController().get(getPlayer()));
+												}
+											});
 										}
 										
 										else
@@ -1019,6 +1106,15 @@ public class GlacialServer extends GlacialPlugin implements Listener
 					{
 						close();
 						selectWeapon(this.getPlayer(), WeaponEnclosureType.TERTIARY, tw);
+					}
+				});
+				
+				tool.setOnLeftClickListener(new ElementClickListener()
+				{
+					public void run()
+					{
+						close();
+						selectTool(this.getPlayer());
 					}
 				});
 				
@@ -1535,6 +1631,35 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		uiController.get(player).open(pane);
 	}
 	
+	public void selectTool(Player player)
+	{
+		Pane pane = new Pane(uiController.get(player), ChatColor.GOLD + "Select a Tool");
+		int s = 0;
+		
+		for(final Tool i : gameController.gpo(player).tools())
+		{
+			if(gameController.getObtainableBank().getObtainableFilter().has(player, i))
+			{
+				Element e = configure(player, pane, i, s);
+				e.setOnLeftClickListener(new ElementClickListener()
+				{
+					public void run()
+					{
+						gameController.gpd(getPlayer()).getLoadoutSet().getLoadout().setTool(i.getId());
+						
+						uiController.get(getPlayer()).close();
+						uiController.get(getPlayer()).getPanes().clear();
+						sLoadout.launch(uiController.get(getPlayer()));
+					}
+				});
+				
+				s++;
+			}
+		}
+		
+		uiController.get(player).open(pane);
+	}
+	
 	public void selectProjectile(Player player, final ProjectileType type, Obtainable current)
 	{
 		Pane pane = new Pane(uiController.get(player), "Select an " + type.toString().toLowerCase());
@@ -1681,7 +1806,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 			
 			else if(u.getUpgradeType().equals(UpgradeType.TOOL))
 			{
-			
+				
 			}
 			
 			else if(u.getUpgradeType().equals(UpgradeType.UTILITY))
@@ -1746,7 +1871,9 @@ public class GlacialServer extends GlacialPlugin implements Listener
 			
 			else if(f.isTool(o))
 			{
-			
+				Tool ttx = (Tool) o;
+				
+				e.addLore(ChatColor.GOLD + "Cooldown: " + ttx.getCooldown() + " seconds");
 			}
 			
 			else if(f.isUtility(o))
