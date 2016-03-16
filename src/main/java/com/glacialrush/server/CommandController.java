@@ -1382,6 +1382,27 @@ public class CommandController extends Controller implements CommandExecutor
 			}
 		}
 		
+		else if(command.getName().equalsIgnoreCase(Info.CMD_ACTION))
+		{
+			if(isPlayer)
+			{
+				Game game = gs.getGameController().getGame(p);
+				
+				if(game == null)
+				{
+					f(p, "You are not in a game! Join a game first.");
+				}
+				
+				else
+				{
+					if(game.getType().equals(GameType.REGIONED))
+					{
+						((RegionedGame) game).instantAction(p);
+					}
+				}
+			}
+		}
+		
 		else if(command.getName().equalsIgnoreCase(Info.CMD_DAY))
 		{
 			if(isPlayer && isAdmin)
