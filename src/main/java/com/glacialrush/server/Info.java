@@ -40,6 +40,7 @@ public class Info
 	public static final String CMD_REMOTE = "remote";
 	public static final String CMD_STATS = "stats";
 	public static final String CMD_PING = "ping";
+	public static final String CMD_ACTION = "action";
 	
 	public static final String PERM_ADMIN = "glacialrush.admin";
 	public static final String PERM_BUILDER = "glacialrush.builder";
