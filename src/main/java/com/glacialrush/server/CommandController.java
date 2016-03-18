@@ -22,6 +22,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import com.glacialrush.api.GlacialPlugin;
 import com.glacialrush.api.component.Controller;
+import com.glacialrush.api.dispatch.Dispatcher;
 import com.glacialrush.api.dispatch.Title;
 import com.glacialrush.api.dispatch.notification.Notification;
 import com.glacialrush.api.dispatch.notification.NotificationPreset;
@@ -1948,6 +1949,12 @@ public class CommandController extends Controller implements CommandExecutor
 							RegionedGame rg = (RegionedGame) g;
 							rg.getPaladinHandler().releasePaladin(rg.getFactionHandler().getFaction(p), (Territory) rg.getMap().getCloseLinkedRegion(p));
 						}
+					}
+					
+					if(sub.equalsIgnoreCase("dbg"))
+					{
+						Dispatcher.setDb(!Dispatcher.isDb());
+						s(p, "DEBUGGING: " + Dispatcher.isDb());
 					}
 					
 					if(sub.equalsIgnoreCase("json"))
