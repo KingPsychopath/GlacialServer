@@ -34,6 +34,7 @@ import com.glacialrush.api.game.data.PlayerData;
 import com.glacialrush.api.game.experience.Experience;
 import com.glacialrush.api.game.object.Faction;
 import com.glacialrush.api.game.object.Squad;
+import com.glacialrush.api.game.paths.DeathPath;
 import com.glacialrush.api.gui.Element;
 import com.glacialrush.api.gui.Pane;
 import com.glacialrush.api.json.JSONObject;
@@ -1955,6 +1956,11 @@ public class CommandController extends Controller implements CommandExecutor
 					{
 						Dispatcher.setDb(!Dispatcher.isDb());
 						s(p, "DEBUGGING: " + Dispatcher.isDb());
+					}
+					
+					if(sub.equalsIgnoreCase("t"))
+					{
+						new DeathPath(p, p.getLocation());
 					}
 					
 					if(sub.equalsIgnoreCase("json"))
