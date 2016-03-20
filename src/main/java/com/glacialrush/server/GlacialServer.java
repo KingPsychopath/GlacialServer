@@ -2126,8 +2126,8 @@ public class GlacialServer extends GlacialPlugin implements Listener
 	
 	public void placeBounty(Player p, GList<Player> bounties, RegionedGame rg)
 	{
-		Pane pane = new Pane(getUiController().get(p), ChatColor.LIGHT_PURPLE + "Select a Player.");
-		GList<Player> unbounties = new GList<Player>();
+		final Pane pane = new Pane(getUiController().get(p), ChatColor.LIGHT_PURPLE + "Select a Player.");
+		final GList<Player> unbounties = new GList<Player>();
 		
 		for(Player i : rg.players())
 		{
