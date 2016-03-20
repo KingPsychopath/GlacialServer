@@ -2098,7 +2098,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 			
 			Element e = new Element(pane, Faction.get(i).getColor() + i.getName(), Material.INK_SACK, s).setData(dat);
 			e.addLore(ChatColor.GOLD + "Click to fund this bounty");
-			int cost = 1 + rg.getBountyHandler().getBounty(i);
+			final int cost = 1 + rg.getBountyHandler().getBounty(i);
 			e.addLore(ChatColor.GREEN + "Cost: " + cost);
 			e.setOnLeftClickListener(new ElementClickListener()
 			{
