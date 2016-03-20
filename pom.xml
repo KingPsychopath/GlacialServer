@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.glacialrush</groupId>
 	<artifactId>GlacialServer</artifactId>
-	<version>0.1</version>
+	<version>1.8</version>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -71,7 +71,7 @@
 		<dependency>
 			<groupId>com.glacialrush</groupId>
 			<artifactId>glacial-api</artifactId>
-			<version>1.8.8.491</version>
+			<version>1.8.8.527</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
