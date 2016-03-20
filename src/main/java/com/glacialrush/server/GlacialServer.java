@@ -2076,7 +2076,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		
 		int s = 0;
 		
-		for(Player i : bounties)
+		for(final Player i : bounties)
 		{
 			Byte dat = 0;
 			Faction f = Faction.get(i);
