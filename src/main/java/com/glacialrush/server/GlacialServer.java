@@ -21,6 +21,7 @@ import com.glacialrush.api.game.data.MapData;
 import com.glacialrush.api.game.data.PlayerData;
 import com.glacialrush.api.game.data.RegionData;
 import com.glacialrush.api.game.loadout.Loadout;
+import com.glacialrush.api.game.object.Faction;
 import com.glacialrush.api.game.object.Greek;
 import com.glacialrush.api.game.object.Squad;
 import com.glacialrush.api.game.object.Statistic;
@@ -365,7 +366,6 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				final boolean particlesOn = gpd(getPlayer()).getParticles();
 				final boolean customSounds = gpd(getPlayer()).getCustomSounds();
 				
-				
 				final Element particles = new Element(getPane(), "Particles " + (particlesOn ? "ON" : "MINIMAL"), particlesOn ? Material.SLIME_BALL : Material.MAGMA_CREAM, -1, 4);
 				
 				if(!particlesOn)
@@ -630,7 +630,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 									{
 										gameControl.pl().getMarketController().rankUp(getPlayer(), i);
 										getPlayer().closeInventory();
-
+										
 										scheduleSyncTask(30, new Runnable()
 										{
 											@Override
@@ -708,7 +708,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 								gameController.gpd(getPlayer()).setShards(gameController.gpd(getPlayer()).getShards() - 75);
 								rg.secureBoost(getPlayer(), 0.5);
 								getUi().close();
-
+								
 								scheduleSyncTask(30, new Runnable()
 								{
 									@Override
@@ -752,7 +752,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 								gameController.gpd(getPlayer()).setShards(gameController.gpd(getPlayer()).getShards() - 125);
 								rg.secureBoost(getPlayer(), 0.75);
 								getUi().close();
-
+								
 								scheduleSyncTask(30, new Runnable()
 								{
 									@Override
@@ -796,7 +796,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 								gameController.gpd(getPlayer()).setShards(gameController.gpd(getPlayer()).getShards() - 220);
 								rg.secureBoost(getPlayer(), 1.25);
 								getUi().close();
-
+								
 								scheduleSyncTask(30, new Runnable()
 								{
 									@Override
@@ -840,7 +840,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 											Audio.CAPTURE_CAPTURE.play(getPlayer());
 											getMarketController().buy(getPlayer(), i);
 											close();
-
+											
 											scheduleSyncTask(30, new Runnable()
 											{
 												@Override
@@ -892,7 +892,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 											Audio.CAPTURE_CAPTURE.play(getPlayer());
 											getMarketController().buy(getPlayer(), i);
 											close();
-
+											
 											scheduleSyncTask(30, new Runnable()
 											{
 												@Override
@@ -944,7 +944,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 											Audio.CAPTURE_CAPTURE.play(getPlayer());
 											getMarketController().buy(getPlayer(), i);
 											close();
-
+											
 											scheduleSyncTask(30, new Runnable()
 											{
 												@Override
@@ -996,7 +996,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 											Audio.CAPTURE_CAPTURE.play(getPlayer());
 											getMarketController().buy(getPlayer(), i);
 											close();
-
+											
 											scheduleSyncTask(30, new Runnable()
 											{
 												@Override
@@ -1049,7 +1049,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 											Audio.CAPTURE_CAPTURE.play(getPlayer());
 											getMarketController().buy(getPlayer(), i);
 											close();
-
+											
 											scheduleSyncTask(30, new Runnable()
 											{
 												@Override
@@ -1076,6 +1076,101 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				});
 			}
 		}).setIX(-2).setIY(2);
+		
+		Shortcut sBounty = new Shortcut(ChatColor.LIGHT_PURPLE + "Bounty", Material.APPLE, -1, 1).onShortcutLaunch(new ShortcutLaunchListener()
+		{
+			public void run()
+			{
+				if(gameControl.getGame(getPlayer()) == null || !gameControl.getGame(getPlayer()).getType().equals(GameType.REGIONED))
+				{
+					getPlayer().sendMessage(ChatColor.RED + "You must be in a game to view/place/take bounties.");
+					cancel();
+				}
+				
+				else
+				{
+					RegionedGame rg = ((RegionedGame) getGameControl().getGame(getPlayer()));
+					GList<Player> bounties = new GList<Player>();
+					
+					for(String i : getServerDataComponent().getBountyData().getBounty().keySet())
+					{
+						for(Player j : rg.players())
+						{
+							if(j.getUniqueId().toString().equals(i))
+							{
+								if(!Faction.get(j).equals(Faction.get(getPlayer())))
+								{
+									bounties.add(j);
+								}
+							}
+						}
+					}
+					
+					int s = 9;
+					
+					Element ePlace = new Element(getPane(), ChatColor.RED + "Place Bounty", Material.EMERALD, 0);
+					ePlace.addLore(ChatColor.RED + "Placing a bounty on an enemy for 1 shard.");
+					ePlace.addLore(ChatColor.GOLD + "Other enemies can take this bounty. They would earn the reward.");
+					
+					ePlace.setOnLeftClickListener(new ElementClickListener()
+					{
+						public void run()
+						{
+							close();
+							placeBounty(getPlayer(), bounties, rg);
+						}
+					});
+					
+					Element eFund = new Element(getPane(), ChatColor.RED + "Fund Bounty", Material.SLIME_BALL, 1);
+					eFund.addLore(ChatColor.RED + "Fund an existing bounty with shards.");
+					eFund.addLore(ChatColor.GOLD + "This makes bounty hunters more likley to take your bounty.");
+					
+					eFund.setOnLeftClickListener(new ElementClickListener()
+					{
+						public void run()
+						{
+							close();
+							fundBounty(getPlayer(), bounties, rg);
+						}
+					});
+					
+					for(Player i : bounties)
+					{
+						Byte dat = 0;
+						Faction f = Faction.get(i);
+						
+						if(f.equals(Faction.omni()))
+						{
+							dat = 5;
+						}
+						
+						else if(f.equals(Faction.cryptic()))
+						{
+							dat = 11;
+						}
+						
+						else if(f.equals(Faction.enigma()))
+						{
+							dat = 1;
+						}
+						
+						Element e = new Element(getPane(), ChatColor.DARK_RED + "WANTED: " + Faction.get(i).getColor() + i.getName(), Material.INK_SACK, s).setData(dat);
+						e.addLore(ChatColor.GOLD + "Click to take this bounty");
+						e.addLore(ChatColor.GREEN + "Reward: " + serverDataComponent.getBountyData().getBounty().get(i.getUniqueId().toString()) + " Skill");
+						e.setOnLeftClickListener(new ElementClickListener()
+						{
+							public void run()
+							{
+								rg.getBountyHandler().take(i, getPlayer());
+								getUi().close();
+							}
+						});
+						
+						s++;
+					}
+				}
+			}
+		}).setIX(-1).setIY(2);
 		
 		sLoadout = new Shortcut(ChatColor.BLUE + "Loadout", Material.COOKIE, -3, 1).onShortcutLaunch(new ShortcutLaunchListener()
 		{
@@ -1249,7 +1344,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		{
 			public void run()
 			{
-			
+				
 			}
 		}).setIX(2).setIY(2);
 		
@@ -1325,6 +1420,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		
 		uiController.addShortcut(sSquad);
 		uiController.addShortcut(sShop);
+		uiController.addShortcut(sBounty);
 		uiController.addShortcut(sLoadout);
 		uiController.addShortcut(sHelp);
 		uiController.addShortcut(sGames);
@@ -1425,7 +1521,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 	
 	public void buyWeapons(Player player)
 	{
-	
+		
 	}
 	
 	public void showSquadMenu(Pane pane, Player p)
@@ -1865,7 +1961,7 @@ public class GlacialServer extends GlacialPlugin implements Listener
 			
 			else if(u.getUpgradeType().equals(UpgradeType.UTILITY))
 			{
-			
+				
 			}
 			
 			return e;
@@ -1972,6 +2068,128 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		}
 		
 		return e;
+	}
+	
+	public void fundBounty(Player p, GList<Player> bounties, RegionedGame rg)
+	{
+		Pane pane = new Pane(getUiController().get(p), ChatColor.LIGHT_PURPLE + "Select a Player.");
+		
+		int s = 0;
+		
+		for(Player i : bounties)
+		{
+			Byte dat = 0;
+			Faction f = Faction.get(i);
+			
+			if(f.equals(Faction.omni()))
+			{
+				dat = 5;
+			}
+			
+			else if(f.equals(Faction.cryptic()))
+			{
+				dat = 11;
+			}
+			
+			else if(f.equals(Faction.enigma()))
+			{
+				dat = 1;
+			}
+			
+			Element e = new Element(pane, Faction.get(i).getColor() + i.getName(), Material.INK_SACK, s).setData(dat);
+			e.addLore(ChatColor.GOLD + "Click to fund this bounty");
+			int cost = 1 + rg.getBountyHandler().getBounty(i);
+			e.addLore(ChatColor.GREEN + "Cost: " + cost);
+			e.setOnLeftClickListener(new ElementClickListener()
+			{
+				public void run()
+				{
+					if(getMarketController().getShards(getPlayer()) >= cost)
+					{
+						rg.getBountyHandler().inc(i, cost);
+					}
+					
+					else
+					{
+						getPlayer().sendMessage(ChatColor.RED + "You don't have enough shards. (/skill)");
+					}
+					
+					getUi().close();
+				}
+			});
+			
+			s++;
+		}
+		
+		getUiController().get(p).open(pane);
+	}
+	
+	public void placeBounty(Player p, GList<Player> bounties, RegionedGame rg)
+	{
+		Pane pane = new Pane(getUiController().get(p), ChatColor.LIGHT_PURPLE + "Select a Player.");
+		GList<Player> unbounties = new GList<Player>();
+		
+		for(Player i : rg.players())
+		{
+			if(!bounties.contains(i))
+			{
+				if(!Faction.get(i).equals(Faction.get(p)))
+				{
+					if(!rg.getBountyHandler().hasBounty(i))
+					{
+						unbounties.add(i);
+					}
+				}
+			}
+		}
+		
+		int s = 0;
+		
+		for(Player i : unbounties)
+		{
+			Byte dat = 0;
+			Faction f = Faction.get(i);
+			
+			if(f.equals(Faction.omni()))
+			{
+				dat = 5;
+			}
+			
+			else if(f.equals(Faction.cryptic()))
+			{
+				dat = 11;
+			}
+			
+			else if(f.equals(Faction.enigma()))
+			{
+				dat = 1;
+			}
+			
+			Element e = new Element(pane, Faction.get(i).getColor() + i.getName(), Material.INK_SACK, s).setData(dat);
+			e.addLore(ChatColor.GOLD + "Click to place this bounty");
+			e.addLore(ChatColor.GREEN + "Cost: 1 Shard");
+			e.setOnLeftClickListener(new ElementClickListener()
+			{
+				public void run()
+				{
+					if(getMarketController().getShards(getPlayer()) >= 1)
+					{
+						rg.getBountyHandler().place(i, 1);
+					}
+					
+					else
+					{
+						getPlayer().sendMessage(ChatColor.RED + "You don't have enough shards. (/skill)");
+					}
+					
+					getUi().close();
+				}
+			});
+			
+			s++;
+		}
+		
+		getUiController().get(p).open(pane);
 	}
 	
 	public UIController getUiController()
