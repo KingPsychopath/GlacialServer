@@ -218,6 +218,8 @@ public class GlacialServer extends GlacialPlugin implements Listener
 		getCommand(Info.CMD_REMOTE).setExecutor(commandController);
 		getCommand(Info.CMD_STATS).setExecutor(commandController);
 		getCommand(Info.CMD_PING).setExecutor(commandController);
+		getCommand(Info.CMD_HUB).setExecutor(commandController);
+		getCommand(Info.CMD_ACTION).setExecutor(commandController);
 		
 		pdc = playerDataComponent;
 		
