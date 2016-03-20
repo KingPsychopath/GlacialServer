@@ -1089,8 +1089,8 @@ public class GlacialServer extends GlacialPlugin implements Listener
 				
 				else
 				{
-					RegionedGame rg = ((RegionedGame) getGameControl().getGame(getPlayer()));
-					GList<Player> bounties = new GList<Player>();
+					final RegionedGame rg = ((RegionedGame) getGameControl().getGame(getPlayer()));
+					final GList<Player> bounties = new GList<Player>();
 					
 					for(String i : getServerDataComponent().getBountyData().getBounty().keySet())
 					{
