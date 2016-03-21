@@ -64,7 +64,7 @@
 		</repository>
 		<repository>
 			<id>grush-repo</id>
-			<url>https://raw.githubusercontent.com/GlacialRush/GlacialStash/master/repository/</url>
+			<url>http://api.glacialrush.com/</url>
 		</repository>
 	</repositories>
 	<dependencies>
