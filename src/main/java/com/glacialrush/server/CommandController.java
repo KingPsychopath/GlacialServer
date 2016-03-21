@@ -56,7 +56,7 @@ import com.glacialrush.api.text.RawText;
 import com.glacialrush.api.thread.GlacialTask;
 import com.glacialrush.api.thread.GlacialThread;
 import com.glacialrush.api.thread.ThreadState;
-import com.glacialrush.nms.NMS;
+import com.glacialrush.packet.NMS;
 import net.md_5.bungee.api.ChatColor;
 
 public class CommandController extends Controller implements CommandExecutor
