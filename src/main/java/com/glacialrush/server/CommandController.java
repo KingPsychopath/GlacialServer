@@ -30,6 +30,7 @@ import com.glacialrush.api.game.Game;
 import com.glacialrush.api.game.GameType;
 import com.glacialrush.api.game.GlacialHandler;
 import com.glacialrush.api.game.RegionedGame;
+import com.glacialrush.api.game.TrainingGame;
 import com.glacialrush.api.game.data.PlayerData;
 import com.glacialrush.api.game.experience.Experience;
 import com.glacialrush.api.game.object.Faction;
@@ -1356,6 +1357,11 @@ public class CommandController extends Controller implements CommandExecutor
 					{
 						((RegionedGame) game).stopDeploying(p);
 						((RegionedGame) game).leave(p);
+					}
+					
+					if(game.getType().equals(GameType.TRAINING))
+					{
+						((TrainingGame) game).leave(p);
 					}
 				}
 			}
